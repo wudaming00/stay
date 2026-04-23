@@ -44,7 +44,7 @@ export const config = {
   matcher: ["/api/chat"],
 };
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   if (req.method !== "POST") return NextResponse.next();
 
   const ip = getIp(req);

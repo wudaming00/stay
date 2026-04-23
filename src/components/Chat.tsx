@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { Message } from "@/lib/types";
-import { PHONE_PATTERNS } from "@/lib/resources";
+import type { Message, StreamEvent, ToolEvent } from "@/lib/types";
+import { PHONE_PATTERNS, RESOURCES } from "@/lib/resources";
 import {
   getCurrentSessionId,
   getSessionMeta,
@@ -11,6 +11,10 @@ import {
   saveSession,
   deleteEverything,
 } from "@/lib/storage";
+import { isInsightSaved, saveInsight } from "@/lib/insights";
+import { matchesPanicPhrase } from "@/lib/panic";
+import { deleteDeviceKey } from "@/lib/crypto";
+import VoiceInput from "./VoiceInput";
 
 function generateId() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -25,14 +29,20 @@ const EXAMPLE_PROMPTS = [
   "I just need to think out loud for a minute",
 ];
 
+const TRANSLATION_STARTER =
+  "I'm trying to figure out how to say something to someone. Can you help me find the words?\n\nHere's what's going on: ";
+
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+  const [interimVoice, setInterimVoice] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [outage, setOutage] = useState(false);
   const [returningSince, setReturningSince] = useState<number | null>(null);
   const [showExamples, setShowExamples] = useState(false);
+  const [pauseSuggested, setPauseSuggested] = useState(false);
+  const [reflectionQuote, setReflectionQuote] = useState<string | null>(null);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -46,7 +56,6 @@ export default function Chat() {
     messagesRef.current = messages;
   }, [messages]);
 
-  // Load existing session on mount
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -57,7 +66,6 @@ export default function Chat() {
           const meta = await getSessionMeta(sessionIdRef.current);
           if (meta) {
             const ageMs = Date.now() - meta.updatedAt;
-            // Returning visitor: >12h since last interaction
             if (ageMs > 12 * 60 * 60 * 1000) {
               setReturningSince(meta.updatedAt);
             }
@@ -65,7 +73,7 @@ export default function Chat() {
           setMessages(stored);
         }
       } catch {
-        // storage unavailable — continue with in-memory only
+        // ignore
       } finally {
         if (!cancelled) setLoaded(true);
       }
@@ -75,13 +83,13 @@ export default function Chat() {
     };
   }, []);
 
-  // Quick-exit + new-conversation handlers
   useEffect(() => {
     async function onQuickExit() {
       setMessages([]);
       setInput("");
       try {
         await deleteEverything();
+        deleteDeviceKey();
       } catch {}
     }
     function onNewConversation() {
@@ -90,6 +98,8 @@ export default function Chat() {
       setInput("");
       setOutage(false);
       setReturningSince(null);
+      setPauseSuggested(false);
+      setReflectionQuote(null);
       requestAnimationFrame(() => inputRef.current?.focus());
     }
     window.addEventListener("stay:quick-exit", onQuickExit);
@@ -100,28 +110,24 @@ export default function Chat() {
     };
   }, []);
 
-  // Auto-focus input
   useEffect(() => {
     if (loaded) inputRef.current?.focus();
   }, [loaded]);
 
-  // Show example prompts after welcome animation finishes
   useEffect(() => {
     if (!loaded) return;
     if (messages.length > 0) return;
     if (input.length > 0) return;
     const t = setTimeout(() => {
       if (messagesRef.current.length === 0) setShowExamples(true);
-    }, 8000); // welcome ends at ~7.4s; give 0.6s breath
+    }, 8000);
     return () => clearTimeout(t);
   }, [loaded, messages.length, input.length]);
 
-  // Hide examples once user starts typing or a message is sent
   useEffect(() => {
     if (input.length > 0 || messages.length > 0) setShowExamples(false);
   }, [input.length, messages.length]);
 
-  // Sticky-bottom scroll
   useEffect(() => {
     const totalLen = messages.reduce((acc, m) => acc + m.content.length, 0);
     if (totalLen <= lastContentLenRef.current) {
@@ -142,7 +148,6 @@ export default function Chat() {
     stickyBottomRef.current = distanceFromBottom < 80;
   }
 
-  // Textarea auto-grow
   useEffect(() => {
     const el = inputRef.current;
     if (!el) return;
@@ -150,17 +155,69 @@ export default function Chat() {
     el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
   }, [input]);
 
+  async function handlePanicCheck(value: string): Promise<boolean> {
+    if (!matchesPanicPhrase(value)) return false;
+    try {
+      await deleteEverything();
+      deleteDeviceKey();
+    } catch {}
+    window.dispatchEvent(new Event("stay:quick-exit"));
+    return true;
+  }
+
+  async function onInputChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    const val = e.target.value.slice(0, MAX_INPUT_CHARS);
+    setInput(val);
+    // Panic phrase check (single-line, exact match)
+    if (val && !val.includes("\n")) {
+      const triggered = await handlePanicCheck(val);
+      if (triggered) return;
+    }
+  }
+
   function pickExample(text: string) {
     setInput(text);
     setShowExamples(false);
     requestAnimationFrame(() => {
       inputRef.current?.focus();
-      // Place cursor at end
       const el = inputRef.current;
-      if (el) {
-        el.setSelectionRange(text.length, text.length);
-      }
+      if (el) el.setSelectionRange(text.length, text.length);
     });
+  }
+
+  function startTranslation() {
+    setInput(TRANSLATION_STARTER);
+    setShowExamples(false);
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+      const el = inputRef.current;
+      if (el) el.setSelectionRange(TRANSLATION_STARTER.length, TRANSLATION_STARTER.length);
+    });
+  }
+
+  function onVoiceTranscript(text: string, isFinal: boolean) {
+    if (isFinal) {
+      setInput((prev) => (prev ? prev + " " + text : text));
+      setInterimVoice("");
+    } else {
+      setInterimVoice(text);
+    }
+  }
+
+  function applyToolEvent(messageId: string, evt: ToolEvent) {
+    if (evt.name === "suggest_pause") {
+      setPauseSuggested(true);
+    } else if (evt.name === "end_with_reflection") {
+      const q = evt.input.quote?.trim();
+      if (q) setReflectionQuote(q);
+    }
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === messageId
+          ? { ...m, tools: [...(m.tools ?? []), evt] }
+          : m
+      )
+    );
   }
 
   async function send() {
@@ -170,10 +227,13 @@ export default function Chat() {
       setInput(trimmed.slice(0, MAX_INPUT_CHARS));
       return;
     }
+    if (await handlePanicCheck(trimmed)) return;
 
     stickyBottomRef.current = true;
     setOutage(false);
-    setReturningSince(null); // first new message resets the welcome banner
+    setReturningSince(null);
+    setPauseSuggested(false);
+    setReflectionQuote(null);
 
     const userMsg: Message = {
       id: generateId(),
@@ -191,6 +251,7 @@ export default function Chat() {
     const next = [...messages, userMsg, assistantMsg];
     setMessages(next);
     setInput("");
+    setInterimVoice("");
     setStreaming(true);
 
     try {
@@ -215,20 +276,46 @@ export default function Chat() {
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
-      let acc = "";
+      let buffer = "";
+      let accText = "";
+
+      const processLine = (line: string) => {
+        if (!line.trim()) return;
+        try {
+          const evt = JSON.parse(line) as StreamEvent;
+          if (evt.type === "text") {
+            accText += evt.data;
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.id === assistantMsg.id ? { ...m, content: accText } : m
+              )
+            );
+          } else if (evt.type === "tool") {
+            applyToolEvent(assistantMsg.id, {
+              name: evt.name,
+              input: evt.input,
+            });
+          }
+        } catch {
+          // malformed line — skip
+        }
+      };
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        acc += decoder.decode(value, { stream: true });
-        setMessages((prev) =>
-          prev.map((m) =>
-            m.id === assistantMsg.id ? { ...m, content: acc } : m
-          )
-        );
+        buffer += decoder.decode(value, { stream: true });
+        let nl = buffer.indexOf("\n");
+        while (nl !== -1) {
+          const line = buffer.slice(0, nl);
+          buffer = buffer.slice(nl + 1);
+          processLine(line);
+          nl = buffer.indexOf("\n");
+        }
       }
+      if (buffer.trim()) processLine(buffer);
 
-      if (!acc.trim()) {
+      if (!accText.trim() && messagesRef.current.find((m) => m.id === assistantMsg.id)?.tools?.length === 0) {
         setOutage(true);
         setMessages((prev) => prev.filter((m) => m.id !== assistantMsg.id));
       }
@@ -249,6 +336,11 @@ export default function Chat() {
     }
   }
 
+  function acceptPause() {
+    setPauseSuggested(false);
+    void saveSession(sessionIdRef.current, messagesRef.current).catch(() => {});
+  }
+
   const canSend = input.trim().length > 0 && !streaming && loaded;
   const remaining = MAX_INPUT_CHARS - input.length;
   const showWelcome =
@@ -263,6 +355,7 @@ export default function Chat() {
     !outage &&
     input.length === 0 &&
     returningSince !== null;
+  const displayInput = interimVoice ? input + " " + interimVoice : input;
 
   return (
     <div className="mx-auto flex w-full max-w-2xl min-h-0 flex-1 flex-col">
@@ -282,6 +375,17 @@ export default function Chat() {
             <MessageBubble key={m.id} message={m} />
           ))}
         </div>
+
+        {pauseSuggested && (
+          <PausePrompt onAccept={acceptPause} onDismiss={() => setPauseSuggested(false)} />
+        )}
+
+        {reflectionQuote && (
+          <ReflectionCard
+            quote={reflectionQuote}
+            onClose={() => setReflectionQuote(null)}
+          />
+        )}
 
         {showExamples && messages.length === 0 && (
           <div className="mt-10 animate-fadein">
@@ -308,17 +412,21 @@ export default function Chat() {
       </div>
 
       <div className="shrink-0 bg-background px-4 pb-4 pt-3 sm:px-6 sm:pb-6">
-        <div className="flex items-end gap-3 rounded-2xl border border-border-strong bg-background-elevated px-3 py-2.5 shadow-sm transition-colors focus-within:border-accent sm:px-4 sm:py-3">
+        <div className="flex items-end gap-2 rounded-2xl border border-border-strong bg-background-elevated px-3 py-2.5 shadow-sm transition-colors focus-within:border-accent sm:px-4 sm:py-3">
           <textarea
             ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value.slice(0, MAX_INPUT_CHARS))}
+            value={displayInput}
+            onChange={onInputChange}
             onKeyDown={handleKey}
             placeholder="say anything…"
             rows={1}
             disabled={streaming || !loaded}
             maxLength={MAX_INPUT_CHARS}
             className="flex-1 resize-none bg-transparent font-sans text-base leading-relaxed text-foreground placeholder:text-foreground-tertiary focus:outline-none"
+          />
+          <VoiceInput
+            onTranscript={onVoiceTranscript}
+            disabled={streaming || !loaded}
           />
           <button
             type="button"
@@ -330,11 +438,16 @@ export default function Chat() {
             ↩
           </button>
         </div>
-        {remaining < 200 && (
-          <p className="mt-1.5 text-right font-sans text-[11px] text-foreground-tertiary">
-            {remaining} characters left
-          </p>
-        )}
+        <div className="mt-1.5 flex items-center justify-between font-sans text-[11px] text-foreground-tertiary">
+          <button
+            type="button"
+            onClick={startTranslation}
+            className="transition-colors hover:text-foreground"
+          >
+            draft a message →
+          </button>
+          {remaining < 200 && <span>{remaining} characters left</span>}
+        </div>
       </div>
     </div>
   );
@@ -392,8 +505,8 @@ function OutagePanel() {
     <div className="animate-fadein space-y-4 rounded-2xl border border-border-strong bg-background-elevated p-5 font-serif text-base leading-relaxed text-foreground">
       <p>I&apos;m having trouble reaching the model right now.</p>
       <p>
-        If this is something that can wait, please try again in a few
-        minutes. If it can&apos;t —
+        If this is something that can wait, please try again in a few minutes.
+        If it can&apos;t —
       </p>
       <ul className="space-y-1.5 font-sans text-sm">
         <li>
@@ -410,18 +523,176 @@ function OutagePanel() {
   );
 }
 
+function PausePrompt({
+  onAccept,
+  onDismiss,
+}: {
+  onAccept: () => void;
+  onDismiss: () => void;
+}) {
+  return (
+    <div className="mt-6 animate-fadein rounded-2xl border border-accent/30 bg-background-elevated/80 px-5 py-4 font-sans text-sm text-foreground">
+      <p className="mb-3 leading-relaxed">
+        Want to step away for a minute? Whatever we talked about will be here
+        when you come back.
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="button"
+          onClick={onAccept}
+          className="rounded-md border border-accent bg-accent px-3 py-1.5 text-xs text-background transition-colors hover:bg-accent-hover"
+        >
+          i&apos;m good for now
+        </button>
+        <button
+          type="button"
+          onClick={onDismiss}
+          className="rounded-md border border-border-strong px-3 py-1.5 text-xs text-foreground-secondary transition-colors hover:text-foreground"
+        >
+          keep going
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ReflectionCard({
+  quote,
+  onClose,
+}: {
+  quote: string;
+  onClose: () => void;
+}) {
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    isInsightSaved(quote).then(setSaved);
+  }, [quote]);
+
+  async function keep() {
+    try {
+      await saveInsight(quote);
+      setSaved(true);
+    } catch {}
+  }
+
+  return (
+    <div className="mt-8 animate-fadein-slow rounded-2xl border border-border-strong bg-background-elevated/60 px-5 py-6 font-serif text-foreground">
+      <p className="mb-2 font-sans text-xs uppercase tracking-widest text-foreground-tertiary">
+        before you go
+      </p>
+      <p className="mb-4 text-base leading-relaxed text-foreground-secondary">
+        Something you said earlier:
+      </p>
+      <blockquote className="border-l-2 border-accent pl-4 text-lg leading-relaxed">
+        &ldquo;{quote}&rdquo;
+      </blockquote>
+      <p className="mt-4 text-base text-foreground-secondary">
+        That&apos;s worth keeping with you.
+      </p>
+      <div className="mt-5 flex flex-wrap gap-2 font-sans text-xs">
+        <button
+          type="button"
+          onClick={keep}
+          disabled={saved}
+          className="rounded-md border border-accent bg-accent px-3 py-1.5 text-background transition-colors hover:bg-accent-hover disabled:opacity-60"
+        >
+          {saved ? "✓ kept" : "keep this"}
+        </button>
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded-md border border-border-strong px-3 py-1.5 text-foreground-secondary transition-colors hover:text-foreground"
+        >
+          dismiss
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function MessageBubble({ message }: { message: Message }) {
   if (message.role === "assistant") {
+    const resourceTools = (message.tools ?? []).filter(
+      (t) => t.name === "surface_resource"
+    );
     return (
-      <div className="animate-fadein border-l-2 border-accent/30 pl-4 font-serif text-base leading-relaxed text-foreground sm:pl-5 sm:text-lg">
-        {message.content ? renderWithPhones(message.content) : <BreathingDot />}
+      <div className="space-y-3">
+        <div className="animate-fadein border-l-2 border-accent/30 pl-4 font-serif text-base leading-relaxed text-foreground sm:pl-5 sm:text-lg">
+          {message.content ? renderWithPhones(message.content) : <BreathingDot />}
+        </div>
+        {resourceTools.map((t, i) => (
+          <ResourceCard key={i} resourceId={t.input.id ?? ""} />
+        ))}
       </div>
     );
   }
 
+  return <UserMessage content={message.content} />;
+}
+
+function UserMessage({ content }: { content: string }) {
+  const [saved, setSaved] = useState(false);
+  const [pending, setPending] = useState(false);
+
+  useEffect(() => {
+    isInsightSaved(content).then(setSaved);
+  }, [content]);
+
+  async function keep() {
+    if (pending) return;
+    setPending(true);
+    try {
+      await saveInsight(content);
+      setSaved(true);
+    } catch {}
+    setPending(false);
+  }
+
   return (
-    <div className="ml-auto max-w-[88%] animate-fadein whitespace-pre-wrap rounded-2xl bg-background-elevated px-4 py-3 font-sans text-sm leading-relaxed text-foreground/85 sm:max-w-[85%] sm:text-base">
-      {message.content}
+    <div className="ml-auto flex max-w-[88%] flex-col items-end gap-1 sm:max-w-[85%]">
+      <div className="animate-fadein whitespace-pre-wrap rounded-2xl bg-background-elevated px-4 py-3 font-sans text-sm leading-relaxed text-foreground/85 sm:text-base">
+        {content}
+      </div>
+      <button
+        type="button"
+        onClick={keep}
+        disabled={pending}
+        title={saved ? "saved" : "keep this"}
+        aria-label={saved ? "insight saved" : "keep this insight"}
+        className="font-sans text-[10px] text-foreground-tertiary opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
+      >
+        {saved ? "✓ kept" : "★ keep"}
+      </button>
+    </div>
+  );
+}
+
+function ResourceCard({ resourceId }: { resourceId: string }) {
+  const r = RESOURCES[resourceId];
+  if (!r) return null;
+  return (
+    <div className="ml-4 animate-fadein rounded-xl border border-accent/40 bg-background-elevated/80 px-4 py-3 font-sans sm:ml-5">
+      <p className="text-sm font-medium text-foreground">{r.name}</p>
+      <p className="mt-0.5 text-xs text-foreground-secondary">{r.description}</p>
+      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+        {r.call && (
+          <a
+            href={`tel:${r.call.replace(/\D/g, "")}`}
+            className="text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent"
+          >
+            📞 call {r.call}
+          </a>
+        )}
+        {r.text && (
+          <a
+            href={`sms:${r.text}`}
+            className="text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent"
+          >
+            💬 text {r.text}
+          </a>
+        )}
+      </div>
     </div>
   );
 }

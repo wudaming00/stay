@@ -10,9 +10,23 @@ import {
   getCurrentSessionId,
 } from "@/lib/storage";
 import { deleteDeviceKey } from "@/lib/crypto";
+import {
+  listInsights,
+  deleteInsight,
+  deleteAllInsights,
+  type Insight,
+} from "@/lib/insights";
+import {
+  getPanicPhrase,
+  setPanicPhrase,
+  clearPanicPhrase,
+} from "@/lib/panic";
 
 export default function SettingsPage() {
   const [count, setCount] = useState<number | null>(null);
+  const [insights, setInsights] = useState<Insight[]>([]);
+  const [phrase, setPhraseInput] = useState("");
+  const [phraseSaved, setPhraseSaved] = useState(false);
   const [working, setWorking] = useState<string | null>(null);
 
   async function refresh() {
@@ -20,9 +34,12 @@ export default function SettingsPage() {
       const id = getCurrentSessionId();
       const stored = await loadSession(id);
       setCount(stored?.length ?? 0);
+      const ins = await listInsights();
+      setInsights(ins.slice().reverse());
     } catch {
       setCount(0);
     }
+    setPhraseInput(getPanicPhrase() ?? "");
   }
 
   useEffect(() => {
@@ -45,15 +62,18 @@ export default function SettingsPage() {
     try {
       const id = getCurrentSessionId();
       const stored = await loadSession(id);
-      const blob = new Blob([JSON.stringify(stored ?? [], null, 2)], {
+      const data = {
+        conversation: stored ?? [],
+        insights: await listInsights(),
+        exportedAt: new Date().toISOString(),
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
         type: "application/json",
       });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `stay-conversation-${new Date()
-        .toISOString()
-        .slice(0, 10)}.json`;
+      a.download = `stay-export-${new Date().toISOString().slice(0, 10)}.json`;
       a.click();
       URL.revokeObjectURL(url);
     } finally {
@@ -63,17 +83,35 @@ export default function SettingsPage() {
 
   async function deleteAll() {
     const phrase = window.prompt(
-      'This will permanently delete every conversation on this device. Type "delete" to confirm.'
+      'This will permanently delete every conversation and every saved insight on this device. Type "delete" to confirm.'
     );
     if (phrase?.toLowerCase() !== "delete") return;
     setWorking("delete");
     try {
       await deleteEverything();
+      await deleteAllInsights();
+      clearPanicPhrase();
       deleteDeviceKey();
       await refresh();
     } finally {
       setWorking(null);
     }
+  }
+
+  function savePanic() {
+    setPanicPhrase(phrase);
+    setPhraseSaved(true);
+    setTimeout(() => setPhraseSaved(false), 2000);
+  }
+
+  function clearPanic() {
+    clearPanicPhrase();
+    setPhraseInput("");
+  }
+
+  async function removeInsight(id: string) {
+    await deleteInsight(id);
+    void refresh();
   }
 
   return (
@@ -113,19 +151,94 @@ export default function SettingsPage() {
           />
           <Row
             label="Download your data"
-            value="Export the current conversation as a JSON file."
+            value="Export the current conversation and saved insights as a JSON file."
             actionLabel={working === "download" ? "preparing…" : "download"}
             onAction={downloadAll}
             disabled={working !== null}
           />
           <Row
             label="Delete everything"
-            value="Permanently remove every conversation on this device. This cannot be undone."
+            value="Permanently remove every conversation, insight, and the panic phrase. This cannot be undone."
             actionLabel={working === "delete" ? "deleting…" : "delete all"}
             onAction={deleteAll}
             disabled={working !== null}
             destructive
           />
+        </section>
+
+        <section className="mt-12 border-t border-border pt-8">
+          <h2 className="font-serif text-xl font-medium">Insights kept</h2>
+          <p className="mt-2 font-serif text-foreground-secondary">
+            Things you said that you wanted to keep. Stored encrypted on this
+            device. Up to 50 most recent.
+          </p>
+          {insights.length === 0 ? (
+            <p className="mt-4 font-sans text-sm text-foreground-tertiary">
+              Nothing kept yet. In a conversation, hover over your own
+              messages and click <span className="text-accent">★ keep</span>{" "}
+              to save anything that lands.
+            </p>
+          ) : (
+            <ul className="mt-4 space-y-3">
+              {insights.map((it) => (
+                <li
+                  key={it.id}
+                  className="flex items-start gap-3 rounded-lg border border-border bg-background-elevated/40 px-4 py-3"
+                >
+                  <p className="flex-1 font-serif text-base leading-relaxed text-foreground">
+                    &ldquo;{it.text}&rdquo;
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => removeInsight(it.id)}
+                    className="shrink-0 font-sans text-[11px] text-foreground-tertiary transition-colors hover:text-foreground"
+                    aria-label="forget this insight"
+                  >
+                    forget
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section className="mt-12 border-t border-border pt-8">
+          <h2 className="font-serif text-xl font-medium">Panic phrase</h2>
+          <p className="mt-2 font-serif text-foreground-secondary">
+            Set a word or sentence. Typing it as a message will instantly
+            wipe everything on this device and redirect to google.com.
+            Useful if someone is reading over your shoulder.
+          </p>
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:items-center">
+            <input
+              type="text"
+              value={phrase}
+              onChange={(e) => setPhraseInput(e.target.value)}
+              placeholder="e.g. cancel my coffee order"
+              className="flex-1 rounded-md border border-border-strong bg-background-elevated px-3 py-2 font-sans text-sm text-foreground placeholder:text-foreground-tertiary focus:border-accent focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={savePanic}
+              disabled={!phrase.trim()}
+              className="shrink-0 rounded-md border border-accent bg-accent px-3 py-2 font-sans text-xs text-background transition-colors hover:bg-accent-hover disabled:opacity-40"
+            >
+              {phraseSaved ? "✓ saved" : "set phrase"}
+            </button>
+            {phrase && (
+              <button
+                type="button"
+                onClick={clearPanic}
+                className="shrink-0 rounded-md border border-border-strong px-3 py-2 font-sans text-xs text-foreground-secondary transition-colors hover:text-foreground"
+              >
+                clear
+              </button>
+            )}
+          </div>
+          <p className="mt-2 font-sans text-[11px] text-foreground-tertiary">
+            Make it something you&apos;d plausibly type but is unlikely to
+            come up by accident. Case-insensitive, exact match.
+          </p>
         </section>
 
         <section className="mt-12 border-t border-border pt-8">
