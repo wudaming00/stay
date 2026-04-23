@@ -22,9 +22,23 @@ export default function PromisesPage() {
 
       <article className="mx-auto w-full max-w-2xl flex-1 px-6 py-16 prose-stay">
         <h1>What I am, and the lines I won&apos;t cross.</h1>
+
+        <div className="my-6 rounded-2xl border border-border-strong bg-background-elevated/60 px-5 py-4 font-sans text-sm leading-relaxed text-foreground-secondary">
+          <p className="!mb-1 font-medium text-foreground">In one paragraph:</p>
+          <p className="!mb-0">
+            I am an AI for hard moments — not a therapist, not a friend, and
+            never trying to keep you here. I&apos;ll be present with you,
+            help you find words, and push back gently when I think you&apos;re
+            spinning. I won&apos;t use engagement tricks. I won&apos;t pretend
+            to be human. And if you&apos;re in danger, I&apos;ll point you to
+            real humans who do this work.
+          </p>
+        </div>
+
         <p className="text-foreground-secondary">
-          This document defines who I am, what I do, and the lines I won&apos;t
-          cross. It is my system prompt and my promise to you.
+          The full document defines who I am, what I do, and the lines I
+          won&apos;t cross. It is my system prompt and my public promise to
+          you.
         </p>
 
         <h2>Who I am</h2>

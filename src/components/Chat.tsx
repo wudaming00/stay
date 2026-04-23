@@ -5,6 +5,7 @@ import type { Message } from "@/lib/types";
 import { PHONE_PATTERNS } from "@/lib/resources";
 import {
   getCurrentSessionId,
+  getSessionMeta,
   loadSession,
   newSession,
   saveSession,
@@ -16,7 +17,13 @@ function generateId() {
 }
 
 const MAX_INPUT_CHARS = 4000;
-const MAX_MESSAGES_KEPT = 60; // sliding window sent to API; older stays in storage
+const MAX_MESSAGES_KEPT = 60;
+
+const EXAMPLE_PROMPTS = [
+  "I just had a hard conversation and I'm spinning",
+  "Help me figure out how to say something to someone",
+  "I just need to think out loud for a minute",
+];
 
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -24,6 +31,8 @@ export default function Chat() {
   const [streaming, setStreaming] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [outage, setOutage] = useState(false);
+  const [returningSince, setReturningSince] = useState<number | null>(null);
+  const [showExamples, setShowExamples] = useState(false);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -45,6 +54,14 @@ export default function Chat() {
         sessionIdRef.current = getCurrentSessionId();
         const stored = await loadSession(sessionIdRef.current);
         if (!cancelled && stored && stored.length > 0) {
+          const meta = await getSessionMeta(sessionIdRef.current);
+          if (meta) {
+            const ageMs = Date.now() - meta.updatedAt;
+            // Returning visitor: >12h since last interaction
+            if (ageMs > 12 * 60 * 60 * 1000) {
+              setReturningSince(meta.updatedAt);
+            }
+          }
           setMessages(stored);
         }
       } catch {
@@ -58,22 +75,21 @@ export default function Chat() {
     };
   }, []);
 
-  // Quick-exit handler — clear everything
+  // Quick-exit + new-conversation handlers
   useEffect(() => {
     async function onQuickExit() {
       setMessages([]);
       setInput("");
       try {
         await deleteEverything();
-      } catch {
-        // best effort
-      }
+      } catch {}
     }
     function onNewConversation() {
       sessionIdRef.current = newSession();
       setMessages([]);
       setInput("");
       setOutage(false);
+      setReturningSince(null);
       requestAnimationFrame(() => inputRef.current?.focus());
     }
     window.addEventListener("stay:quick-exit", onQuickExit);
@@ -88,6 +104,22 @@ export default function Chat() {
   useEffect(() => {
     if (loaded) inputRef.current?.focus();
   }, [loaded]);
+
+  // Show example prompts after welcome animation finishes
+  useEffect(() => {
+    if (!loaded) return;
+    if (messages.length > 0) return;
+    if (input.length > 0) return;
+    const t = setTimeout(() => {
+      if (messagesRef.current.length === 0) setShowExamples(true);
+    }, 8000); // welcome ends at ~7.4s; give 0.6s breath
+    return () => clearTimeout(t);
+  }, [loaded, messages.length, input.length]);
+
+  // Hide examples once user starts typing or a message is sent
+  useEffect(() => {
+    if (input.length > 0 || messages.length > 0) setShowExamples(false);
+  }, [input.length, messages.length]);
 
   // Sticky-bottom scroll
   useEffect(() => {
@@ -118,6 +150,19 @@ export default function Chat() {
     el.style.height = `${Math.min(el.scrollHeight, 200)}px`;
   }, [input]);
 
+  function pickExample(text: string) {
+    setInput(text);
+    setShowExamples(false);
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+      // Place cursor at end
+      const el = inputRef.current;
+      if (el) {
+        el.setSelectionRange(text.length, text.length);
+      }
+    });
+  }
+
   async function send() {
     const trimmed = input.trim();
     if (!trimmed || streaming) return;
@@ -128,6 +173,7 @@ export default function Chat() {
 
     stickyBottomRef.current = true;
     setOutage(false);
+    setReturningSince(null); // first new message resets the welcome banner
 
     const userMsg: Message = {
       id: generateId(),
@@ -148,7 +194,6 @@ export default function Chat() {
     setStreaming(true);
 
     try {
-      // Send sliding window of recent messages to API
       const allButAssistant = next.filter((m) => m.id !== assistantMsg.id);
       const window_ = allButAssistant.slice(-MAX_MESSAGES_KEPT);
       const apiMessages = window_.map((m) => ({
@@ -162,19 +207,9 @@ export default function Chat() {
         body: JSON.stringify({ messages: apiMessages }),
       });
 
-      if (res.status === 429) {
+      if (res.status === 429 || !res.ok || !res.body) {
         setOutage(true);
-        setMessages((prev) =>
-          prev.filter((m) => m.id !== assistantMsg.id)
-        );
-        return;
-      }
-
-      if (!res.ok || !res.body) {
-        setOutage(true);
-        setMessages((prev) =>
-          prev.filter((m) => m.id !== assistantMsg.id)
-        );
+        setMessages((prev) => prev.filter((m) => m.id !== assistantMsg.id));
         return;
       }
 
@@ -195,9 +230,7 @@ export default function Chat() {
 
       if (!acc.trim()) {
         setOutage(true);
-        setMessages((prev) =>
-          prev.filter((m) => m.id !== assistantMsg.id)
-        );
+        setMessages((prev) => prev.filter((m) => m.id !== assistantMsg.id));
       }
     } catch {
       setOutage(true);
@@ -218,6 +251,18 @@ export default function Chat() {
 
   const canSend = input.trim().length > 0 && !streaming && loaded;
   const remaining = MAX_INPUT_CHARS - input.length;
+  const showWelcome =
+    loaded &&
+    messages.length === 0 &&
+    !outage &&
+    input.length === 0 &&
+    returningSince === null;
+  const showReturning =
+    loaded &&
+    messages.length === 0 &&
+    !outage &&
+    input.length === 0 &&
+    returningSince !== null;
 
   return (
     <div className="mx-auto flex w-full max-w-2xl min-h-0 flex-1 flex-col">
@@ -226,7 +271,10 @@ export default function Chat() {
         onScroll={handleScroll}
         className="min-h-0 flex-1 overflow-y-auto px-4 pt-8 pb-6 sm:px-6 sm:pt-12"
       >
-        {loaded && messages.length === 0 && !outage && <Welcome />}
+        {showWelcome && <Welcome />}
+        {showReturning && returningSince && (
+          <ReturningWelcome since={returningSince} />
+        )}
         {outage && <OutagePanel />}
 
         <div className="space-y-7">
@@ -234,6 +282,27 @@ export default function Chat() {
             <MessageBubble key={m.id} message={m} />
           ))}
         </div>
+
+        {showExamples && messages.length === 0 && (
+          <div className="mt-10 animate-fadein">
+            <p className="mb-3 font-sans text-xs uppercase tracking-widest text-foreground-tertiary">
+              or, if you&apos;re not sure where to start
+            </p>
+            <ul className="space-y-2">
+              {EXAMPLE_PROMPTS.map((p) => (
+                <li key={p}>
+                  <button
+                    type="button"
+                    onClick={() => pickExample(p)}
+                    className="w-full rounded-xl border border-border bg-background-elevated/60 px-4 py-3 text-left font-serif text-base leading-snug text-foreground-secondary transition-colors hover:border-accent hover:text-foreground"
+                  >
+                    {p}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <div ref={bottomRef} className="h-2" />
       </div>
@@ -293,6 +362,27 @@ function Welcome() {
       >
         <p>Tell me what&apos;s happening.</p>
       </div>
+    </div>
+  );
+}
+
+function ReturningWelcome({ since }: { since: number }) {
+  const ago = formatTimeAgo(since);
+  return (
+    <div className="animate-fadein-slow space-y-3 font-serif text-lg leading-relaxed text-foreground">
+      <p>It&apos;s been {ago} since we talked.</p>
+      <p>I&apos;m here. Pick up where we were, or start something new.</p>
+      <p className="text-foreground-secondary">
+        <button
+          type="button"
+          onClick={() =>
+            window.dispatchEvent(new Event("stay:new-conversation"))
+          }
+          className="text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent"
+        >
+          start fresh →
+        </button>
+      </p>
     </div>
   );
 }
@@ -367,7 +457,9 @@ function renderWithPhones(text: string): React.ReactNode {
     }
 
     if (earliest.index > 0) {
-      segments.push(<span key={key++}>{remaining.slice(0, earliest.index)}</span>);
+      segments.push(
+        <span key={key++}>{remaining.slice(0, earliest.index)}</span>
+      );
     }
     segments.push(
       <a
@@ -382,4 +474,22 @@ function renderWithPhones(text: string): React.ReactNode {
   }
 
   return <span className="whitespace-pre-wrap">{segments}</span>;
+}
+
+function formatTimeAgo(ts: number): string {
+  const diffMs = Date.now() - ts;
+  const days = Math.floor(diffMs / (24 * 60 * 60 * 1000));
+  if (days >= 30) {
+    const months = Math.floor(days / 30);
+    return `${months} month${months === 1 ? "" : "s"}`;
+  }
+  if (days >= 7) {
+    const weeks = Math.floor(days / 7);
+    return `${weeks} week${weeks === 1 ? "" : "s"}`;
+  }
+  if (days >= 1) {
+    return `${days} day${days === 1 ? "" : "s"}`;
+  }
+  const hours = Math.floor(diffMs / (60 * 60 * 1000));
+  return `${hours} hour${hours === 1 ? "" : "s"}`;
 }

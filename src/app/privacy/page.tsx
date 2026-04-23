@@ -22,11 +22,22 @@ export default function PrivacyPage() {
 
       <article className="mx-auto w-full max-w-2xl flex-1 px-6 py-16 prose-stay">
         <h1>What we know about you. What we don&apos;t.</h1>
+
+        <div className="my-6 rounded-2xl border border-border-strong bg-background-elevated/60 px-5 py-4 font-sans text-sm leading-relaxed text-foreground-secondary">
+          <p className="!mb-1 font-medium text-foreground">In one paragraph:</p>
+          <p className="!mb-0">
+            No account. No tracking. Conversations live encrypted on your
+            device and auto-delete after 90 days. We can never read them. The
+            AI runs on Anthropic&apos;s Claude — your message goes through
+            their servers to generate a reply, then is deleted within 30 days
+            and never trains the model.
+          </p>
+        </div>
+
         <p className="text-foreground-secondary">
-          Stay is built around the version of trust that doesn&apos;t depend
-          on us being good people. The technical architecture exists so that
-          the promises below are not promises — they are what we are
-          structurally unable to break.
+          The technical architecture below exists so that the promises above
+          are not promises — they are what we are structurally unable to
+          break.
         </p>
 
         <h2>You don&apos;t need an account</h2>

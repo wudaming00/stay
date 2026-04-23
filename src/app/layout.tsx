@@ -19,7 +19,10 @@ const SITE_URL = "https://thestay.app";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Stay",
+    // Browser tab default for the chat page is intentionally neutral
+    // (DV-safety: someone glancing at the tab won't see "Stay" or anything
+    // mental-health-related). Static pages override this with their own titles.
+    default: "Notes",
     template: "%s",
   },
   description: "An AI for the moments you can't be alone.",

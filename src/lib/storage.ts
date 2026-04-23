@@ -21,6 +21,11 @@ interface StoredSession {
   ciphertext: string;
 }
 
+export interface SessionMeta {
+  createdAt: number;
+  updatedAt: number;
+}
+
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, DB_VERSION);
@@ -114,6 +119,17 @@ export async function loadSession(id: string): Promise<Message[] | null> {
   } catch {
     return null;
   }
+}
+
+export async function getSessionMeta(
+  id: string
+): Promise<SessionMeta | null> {
+  if (typeof window === "undefined") return null;
+  const record = await tx<StoredSession | undefined>("readonly", (s) =>
+    s.get(id)
+  );
+  if (!record) return null;
+  return { createdAt: record.createdAt, updatedAt: record.updatedAt };
 }
 
 export async function deleteSession(id: string): Promise<void> {
