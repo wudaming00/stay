@@ -1,60 +1,75 @@
 @import "tailwindcss";
 
 /* ============================================================
- * Design tokens
+ * v0.9 — Trust-first design system
  *
- * Stay's visual language: editorial, quiet, confident.
- * Reference: the feeling of reading a well-set book by a window.
- * Not: wellness-app pastel, meditation gradient, or chatbot UI.
+ * Stay should read as: "this was built by people who take the work
+ * seriously, by an organization that holds itself to a standard."
+ *
+ * NOT: "this was made over a weekend by a designer with good taste."
+ *
+ * The visual references that work for trust in this category:
+ *   Signal · ProtonMail · 988lifeline.org · Mayo Clinic
+ *   NYT · Stripe docs · Hey email
+ *
+ * The visual references that DON'T work:
+ *   wellness apps · meditation apps · indie blog templates
  * ============================================================ */
 
 :root {
-  /* Surfaces — warm neutrals with intentional depth */
-  --bg: #fbf8f3;             /* paper */
-  --bg-raised: #f4efe6;      /* subtle elevation */
-  --bg-sunken: #ece6da;      /* wells, input fields */
-  --bg-inverse: #1f1d1a;     /* dark mode surfaces (unused for now) */
+  /* Surfaces — slightly cooler, more institutional warm */
+  --bg: #fafaf7;             /* paper, less yellow */
+  --bg-raised: #f3f1ec;      /* elevated */
+  --bg-sunken: #ebe8e1;      /* wells, input fields */
+  --bg-deep: #e0ddd4;        /* edges, dividers shadows */
 
-  /* Ink — warm blacks, never pure black */
-  --ink: #19171a;
-  --ink-secondary: #5a564f;
-  --ink-tertiary: #9b958a;
-  --ink-quaternary: #cec7b9;
+  /* Ink — true warm grays, more contrast */
+  --ink: #131211;            /* near black, warmer than #000 */
+  --ink-strong: #2d2c29;     /* body emphasis */
+  --ink: #1a1917;
+  --ink-secondary: #4a473f;  /* darker than before, more confident */
+  --ink-tertiary: #7a766c;   /* darker tertiary, less ghostly */
+  --ink-quaternary: #b6b1a4;
 
-  /* Line */
-  --line: #e5dfd0;
-  --line-strong: #c8c0ad;
-  --line-focus: #7b8f6e;
+  /* Lines */
+  --line: #d8d3c5;           /* darker, more visible */
+  --line-strong: #b6b1a4;
 
-  /* Accents — sage (primary), clay (secondary) */
-  --sage: #7b8f6e;
-  --sage-hover: #677a5b;
-  --sage-soft: #dce3d6;
+  /* Accent — more institutional sage (less yellow-green) */
+  --sage: #5d6f53;           /* deeper, more authoritative */
+  --sage-hover: #4a5a42;
+  --sage-soft: #d8dfd1;
+  --sage-bg: #e9eee4;
 
-  --clay: #a47661;
-  --clay-soft: #e8dbd2;
+  /* Trust accent — for verified / encrypted / safety */
+  --trust: #2d4a3e;          /* deep institutional green */
+  --trust-bg: #e8efeb;
 
-  /* Semantic */
-  --danger: #a64a3f;
-  --danger-soft: #f0d8d4;
+  /* Warning — for crisis */
+  --crisis: #8c2d24;
+  --crisis-bg: #f3dcd9;
 
-  /* Type */
+  /* Danger */
+  --danger: #8c2d24;
+  --danger-bg: #f3dcd9;
+
   --font-display: var(--font-newsreader);
   --font-body: var(--font-newsreader);
   --font-ui: var(--font-geist-sans);
 
-  /* Timing */
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --dur-fast: 180ms;
-  --dur: 320ms;
-  --dur-slow: 520ms;
+  --dur-fast: 160ms;
+  --dur: 280ms;
+  --dur-slow: 460ms;
 }
 
 @theme inline {
   --color-background: var(--bg);
   --color-background-elevated: var(--bg-raised);
   --color-background-sunken: var(--bg-sunken);
+  --color-background-deep: var(--bg-deep);
   --color-foreground: var(--ink);
+  --color-foreground-strong: var(--ink-strong);
   --color-foreground-secondary: var(--ink-secondary);
   --color-foreground-tertiary: var(--ink-tertiary);
   --color-foreground-quaternary: var(--ink-quaternary);
@@ -63,16 +78,15 @@
   --color-accent: var(--sage);
   --color-accent-hover: var(--sage-hover);
   --color-accent-soft: var(--sage-soft);
-  --color-clay: var(--clay);
-  --color-clay-soft: var(--clay-soft);
+  --color-accent-bg: var(--sage-bg);
+  --color-trust: var(--trust);
+  --color-trust-bg: var(--trust-bg);
+  --color-crisis: var(--crisis);
+  --color-crisis-bg: var(--crisis-bg);
   --color-danger: var(--danger);
   --font-sans: var(--font-geist-sans);
   --font-serif: var(--font-newsreader);
 }
-
-/* ============================================================
- * Base
- * ============================================================ */
 
 html,
 body {
@@ -86,137 +100,118 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  font-feature-settings: "kern", "liga", "calt";
+  font-feature-settings: "kern", "liga", "calt", "ss01";
 }
 
-/* Paper grain — extremely subtle */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(123, 143, 110, 0.04), transparent 70%),
-    radial-gradient(ellipse 60% 40% at 50% 110%, rgba(164, 118, 97, 0.035), transparent 70%);
-  z-index: 0;
-}
+/* No more decorative gradient — we're going more direct */
 
-/* Better selection */
 ::selection {
   background: var(--sage-soft);
   color: var(--ink);
 }
 
-/* Better focus rings */
 :focus-visible {
   outline: 2px solid var(--sage);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: 3px;
 }
 
 /* ============================================================
- * Wordmark
+ * Wordmark — UPRIGHT, more authoritative
+ * No more italic flourish. Period stays as a tiny anchor.
  * ============================================================ */
 
 .wordmark {
   font-family: var(--font-display), Georgia, serif;
-  font-style: italic;
-  font-weight: 500;
-  letter-spacing: -0.015em;
-  font-feature-settings: "kern", "liga", "dlig", "salt";
+  font-style: normal;          /* CHANGED: no longer italic */
+  font-weight: 600;            /* CHANGED: heavier presence */
+  letter-spacing: -0.02em;
+  font-feature-settings: "kern", "liga";
+  color: var(--ink);
 }
 
 .wordmark-dot {
   color: var(--sage);
-  font-style: normal;
+  font-weight: 700;
   display: inline-block;
-  transform: translateY(-0.02em);
 }
 
 /* ============================================================
- * Animations
+ * Trust badges — visible credibility signals
+ * ============================================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.1875rem 0.5rem;
+  border-radius: 4px;
+  font-family: var(--font-ui);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+.badge-trust {
+  background: var(--trust-bg);
+  color: var(--trust);
+}
+
+.badge-version {
+  background: var(--bg-sunken);
+  color: var(--ink-secondary);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.badge-crisis {
+  background: var(--crisis-bg);
+  color: var(--crisis);
+}
+
+.badge-dot {
+  display: inline-block;
+  width: 0.375em;
+  height: 0.375em;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ============================================================
+ * Animations — restrained
  * ============================================================ */
 
 @keyframes fadein {
-  from { opacity: 0; transform: translateY(3px); }
+  from { opacity: 0; transform: translateY(2px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
-.animate-fadein {
-  animation: fadein 280ms var(--ease);
-}
+.animate-fadein { animation: fadein 240ms var(--ease); }
 
 @keyframes fadein-slow {
-  from { opacity: 0; transform: translateY(8px); }
+  from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-
-.animate-fadein-slow {
-  animation: fadein-slow 1200ms var(--ease) both;
-}
+.animate-fadein-slow { animation: fadein-slow 900ms var(--ease) both; }
 
 @keyframes show-then-hide {
-  0%   { opacity: 0; transform: translateY(8px); }
-  18%  { opacity: 1; transform: translateY(0); }
+  0%   { opacity: 0; transform: translateY(6px); }
+  20%  { opacity: 1; transform: translateY(0); }
   82%  { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-4px); }
+  100% { opacity: 0; transform: translateY(-3px); }
 }
-
-.animate-show-then-hide {
-  animation: show-then-hide 3200ms var(--ease) both;
-}
+.animate-show-then-hide { animation: show-then-hide 3000ms var(--ease) both; }
 
 @keyframes breath {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50%      { opacity: 0.9; transform: scale(1.15); }
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.1); }
 }
-
-.animate-breath {
-  animation: breath 1600ms ease-in-out infinite;
-}
+.animate-breath { animation: breath 1500ms ease-in-out infinite; }
 
 /* ============================================================
- * Ornamental dot separator — the brand signature
- *
- * Used inline as a period-like punctuation and as section dividers.
- * The sage dot is Stay's visual signature.
- * ============================================================ */
-
-.sage-dot {
-  display: inline-block;
-  width: 0.28em;
-  height: 0.28em;
-  background: var(--sage);
-  border-radius: 50%;
-  vertical-align: baseline;
-  margin: 0 0.15em;
-  transform: translateY(-0.08em);
-}
-
-.section-rule {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 3rem 0;
-}
-
-.section-rule::before,
-.section-rule::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  background: var(--line);
-}
-
-.section-rule-dot {
-  width: 6px;
-  height: 6px;
-  background: var(--sage);
-  border-radius: 50%;
-}
-
-/* ============================================================
- * Unified button
+ * Buttons — unified and confident
  * ============================================================ */
 
 .btn {
@@ -228,13 +223,12 @@ body::before {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.875rem;
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid transparent;
   transition:
     background-color var(--dur-fast) var(--ease),
     border-color var(--dur-fast) var(--ease),
-    color var(--dur-fast) var(--ease),
-    transform var(--dur-fast) var(--ease);
+    color var(--dur-fast) var(--ease);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -244,13 +238,9 @@ body::before {
   cursor: not-allowed;
 }
 
-.btn:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
 .btn-primary {
   background: var(--sage);
-  color: var(--bg);
+  color: white;
   border-color: var(--sage);
 }
 .btn-primary:hover:not(:disabled) { background: var(--sage-hover); border-color: var(--sage-hover); }
@@ -264,160 +254,111 @@ body::before {
 
 .btn-ghost {
   background: transparent;
-  color: var(--ink-tertiary);
+  color: var(--ink-secondary);
   border-color: transparent;
 }
-.btn-ghost:hover:not(:disabled) { color: var(--ink); }
+.btn-ghost:hover:not(:disabled) { color: var(--ink); background: var(--bg-raised); }
 
-.btn-danger {
-  background: transparent;
-  color: var(--danger);
-  border-color: var(--danger-soft);
+.btn-crisis {
+  background: var(--crisis-bg);
+  color: var(--crisis);
+  border-color: var(--crisis);
 }
-.btn-danger:hover:not(:disabled) {
-  background: var(--danger-soft);
-  color: var(--danger);
-  border-color: var(--danger);
+.btn-crisis:hover:not(:disabled) {
+  background: var(--crisis);
+  color: white;
 }
 
-.btn-xs {
-  padding: 0.25rem 0.625rem;
-  font-size: 0.6875rem;
-}
+.btn-xs { padding: 0.25rem 0.625rem; font-size: 0.6875rem; }
 
 /* ============================================================
- * Reading layout (static pages)
+ * Reading layout — more institutional, less designerly
  * ============================================================ */
 
 .prose-stay {
   font-family: var(--font-body), Georgia, serif;
   font-size: 1.0625rem;
-  line-height: 1.7;
+  line-height: 1.65;
   color: var(--ink);
   font-feature-settings: "kern", "liga", "onum";
 }
 
 @media (min-width: 640px) {
-  .prose-stay {
-    font-size: 1.125rem;
-  }
+  .prose-stay { font-size: 1.125rem; }
 }
 
 .prose-stay h1 {
   font-family: var(--font-display), Georgia, serif;
-  font-size: clamp(2rem, 5vw, 2.75rem);
-  font-weight: 500;
-  letter-spacing: -0.025em;
-  line-height: 1.1;
+  font-size: clamp(1.875rem, 4.5vw, 2.5rem);
+  font-weight: 600;
+  letter-spacing: -0.022em;
+  line-height: 1.15;
   margin-bottom: 0.5rem;
   color: var(--ink);
 }
 
 .prose-stay h1 + p {
-  font-size: 1.1875rem;
+  font-size: 1.0625rem;
   line-height: 1.55;
   color: var(--ink-secondary);
-  margin-top: 1.25rem;
-  margin-bottom: 2.5rem;
-  font-style: italic;
-  font-weight: 400;
+  margin-top: 1rem;
+  margin-bottom: 2.25rem;
+}
+
+@media (min-width: 640px) {
+  .prose-stay h1 + p { font-size: 1.125rem; }
 }
 
 .prose-stay h2 {
   font-family: var(--font-display), Georgia, serif;
-  font-size: 1.5rem;
-  font-weight: 500;
-  letter-spacing: -0.015em;
-  line-height: 1.25;
-  margin-top: 3rem;
-  margin-bottom: 0.875rem;
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.012em;
+  line-height: 1.3;
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
   color: var(--ink);
-}
-
-.prose-stay h2::before {
-  content: "";
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  background: var(--sage);
-  border-radius: 50%;
-  margin-right: 0.6em;
-  transform: translateY(-0.3em);
+  /* No more sage dot prefix — too designerly */
 }
 
 .prose-stay h3 {
   font-family: var(--font-display), Georgia, serif;
-  font-size: 1.1875rem;
-  font-weight: 500;
-  line-height: 1.35;
-  margin-top: 2rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-top: 1.75rem;
   margin-bottom: 0.5rem;
   color: var(--ink);
 }
 
-.prose-stay p {
-  margin-bottom: 1.125rem;
-}
+.prose-stay p { margin-bottom: 1rem; }
 
-.prose-stay strong {
-  font-weight: 600;
-  color: var(--ink);
-}
+.prose-stay strong { font-weight: 600; color: var(--ink); }
 
-.prose-stay em {
-  font-style: italic;
-  color: var(--ink-secondary);
-}
+.prose-stay em { font-style: italic; color: var(--ink-secondary); }
 
 .prose-stay ul,
 .prose-stay ol {
-  margin-left: 0;
-  padding-left: 1.25rem;
+  padding-left: 1.5rem;
   margin-bottom: 1.25rem;
 }
 
-.prose-stay ul {
-  list-style: none;
-  padding-left: 0;
-}
+.prose-stay ul { list-style: disc; }
+.prose-stay ul::marker { color: var(--ink-tertiary); }
 
-.prose-stay ul li {
-  position: relative;
-  padding-left: 1.25rem;
-  margin-bottom: 0.5rem;
-}
-
-.prose-stay ul li::before {
-  content: "";
-  position: absolute;
-  left: 0.2em;
-  top: 0.75em;
-  width: 4px;
-  height: 4px;
-  background: var(--sage);
-  border-radius: 50%;
-}
-
-.prose-stay ol li {
-  margin-bottom: 0.5rem;
-}
+.prose-stay li { margin-bottom: 0.375rem; }
 
 .prose-stay a {
   color: var(--sage-hover);
   text-decoration: underline;
   text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-  text-decoration-color: var(--sage-soft);
-  transition: text-decoration-color var(--dur-fast) var(--ease);
+  text-underline-offset: 2px;
 }
-
-.prose-stay a:hover {
-  text-decoration-color: var(--sage);
-}
+.prose-stay a:hover { color: var(--sage); }
 
 .prose-stay blockquote {
-  border-left: 2px solid var(--sage);
-  padding-left: 1.25rem;
+  border-left: 3px solid var(--sage);
+  padding-left: 1.125rem;
   font-style: italic;
   color: var(--ink-secondary);
   margin: 1.5rem 0;
@@ -427,29 +368,14 @@ body::before {
   border: none;
   height: 1px;
   background: var(--line);
-  margin: 3rem 0;
-  position: relative;
-}
-
-.prose-stay hr::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 6px;
-  height: 6px;
-  background: var(--sage);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 0 4px var(--bg);
+  margin: 2.5rem 0;
 }
 
 .prose-stay .callout {
-  margin: 1.75rem 0;
-  padding: 1.125rem 1.25rem;
-  border-left: 2px solid var(--sage);
+  margin: 1.5rem 0;
+  padding: 1rem 1.125rem;
+  border-left: 3px solid var(--sage);
   background: var(--bg-raised);
-  border-radius: 0 8px 8px 0;
   font-family: var(--font-ui);
   font-size: 0.9375rem;
   line-height: 1.6;
@@ -457,7 +383,7 @@ body::before {
 
 .prose-stay .callout strong {
   display: block;
-  font-size: 0.6875rem;
+  font-size: 0.625rem;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -465,7 +391,33 @@ body::before {
   margin-bottom: 0.375rem;
 }
 
-.prose-stay .callout p {
-  margin: 0;
-  color: var(--ink-secondary);
+.prose-stay .callout p { margin: 0; color: var(--ink-secondary); }
+
+/* ============================================================
+ * Section numbering for institutional feel
+ * ============================================================ */
+
+.numbered-section {
+  counter-reset: section;
+}
+
+.numbered-section h2 {
+  counter-increment: section;
+  position: relative;
+  padding-left: 2.25rem;
+}
+
+.numbered-section h2::before {
+  content: counter(section, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 0.45em;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--ink-tertiary);
+  letter-spacing: 0.05em;
+  background: var(--bg-raised);
+  padding: 0.125rem 0.375rem;
+  border-radius: 3px;
 }

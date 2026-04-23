@@ -16,7 +16,7 @@ export default function Wordmark({
 
   const inner = (
     <span className={`wordmark ${sizeClass}`}>
-      stay<span className="wordmark-dot">.</span>
+      Stay<span className="wordmark-dot">.</span>
     </span>
   );
 
