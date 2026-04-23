@@ -1,12 +1,12 @@
 import Link from "next/link";
 import Wordmark from "@/components/Wordmark";
-import { RESOURCES } from "@/lib/resources";
+import { RESOURCES, PROFESSIONAL_REFERRALS } from "@/lib/resources";
 
 export const metadata = {
   title: "Stay — Crisis Help",
 };
 
-const order = [
+const crisisOrder = [
   "988",
   "crisis_text_line",
   "dv_hotline",
@@ -22,7 +22,7 @@ const order = [
 export default function ResourcesPage() {
   return (
     <main className="relative z-10 flex min-h-full flex-1 flex-col">
-      <header className="shrink-0 border-b border-border px-6 py-4">
+      <header className="shrink-0 border-b border-border px-4 py-4 sm:px-6">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <Wordmark size="md" />
           <Link
@@ -34,7 +34,7 @@ export default function ResourcesPage() {
         </div>
       </header>
 
-      <article className="mx-auto w-full max-w-2xl flex-1 px-6 py-16 prose-stay">
+      <article className="mx-auto w-full max-w-2xl flex-1 px-4 py-12 prose-stay sm:px-6 sm:py-16">
         <h1>If you need a real human, here.</h1>
         <p className="text-foreground-secondary">
           Stay is not equipped to be your crisis line. The lines below are
@@ -42,17 +42,20 @@ export default function ResourcesPage() {
           Most are 24/7.
         </p>
 
-        <div className="mt-10 space-y-8">
-          {order.map((id) => {
+        <h2>If you need someone right now</h2>
+
+        <div className="mt-6 space-y-6">
+          {crisisOrder.map((id) => {
             const r = RESOURCES[id];
             if (!r) return null;
             return (
-              <div
-                key={id}
-                className="border-l-2 border-accent pl-5"
-              >
-                <h2 className="!mt-0">{r.name}</h2>
-                <p className="text-foreground-secondary">{r.description}</p>
+              <div key={id} className="border-l-2 border-accent pl-5">
+                <h3 className="!mt-0 font-serif text-lg font-medium">
+                  {r.name}
+                </h3>
+                <p className="!mb-1 text-foreground-secondary">
+                  {r.description}
+                </p>
                 <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 font-sans text-base">
                   {r.call && (
                     <a
@@ -74,6 +77,40 @@ export default function ResourcesPage() {
               </div>
             );
           })}
+        </div>
+
+        <hr />
+
+        <h2>If you want ongoing support (a real therapist)</h2>
+        <p className="text-foreground-secondary">
+          Finding the right therapist is often the hardest part. These
+          directories filter by insurance, cost, identity, and modality — so
+          you can find someone who fits, not just someone who has an opening.
+        </p>
+
+        <div className="mt-6 space-y-6">
+          {PROFESSIONAL_REFERRALS.map((r) => (
+            <div key={r.id} className="border-l-2 border-border-strong pl-5">
+              <h3 className="!mt-0 font-serif text-lg font-medium">
+                <a
+                  href={r.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-foreground no-underline hover:text-accent"
+                >
+                  {r.name} ↗
+                </a>
+              </h3>
+              <p className="!mb-1 text-foreground-secondary">
+                {r.description}
+              </p>
+              {r.best_for && (
+                <p className="!mb-0 font-sans text-xs text-foreground-tertiary">
+                  Best for: {r.best_for}
+                </p>
+              )}
+            </div>
+          ))}
         </div>
 
         <hr />

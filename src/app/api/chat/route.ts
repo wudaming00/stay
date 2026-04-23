@@ -64,6 +64,57 @@ const TOOLS: Anthropic.Tool[] = [
       required: ["quote"],
     },
   },
+  {
+    name: "generate_safety_plan",
+    description:
+      "Produce a downloadable Stanley-Brown safety plan. ONLY call after walking through each field substantively with a user in active suicidal ideation who is engaging. Do NOT call unprompted, as a replacement for conversation, or before content has been discussed. Each field should be populated with what the user has told you — their own words preferred. If a field has not been discussed, omit it.",
+    input_schema: {
+      type: "object",
+      properties: {
+        plan: {
+          type: "object",
+          properties: {
+            warning_signs: {
+              type: "array",
+              items: { type: "string" },
+              description:
+                "Signs the user recognizes in themselves before a crisis intensifies.",
+            },
+            coping_strategies: {
+              type: "array",
+              items: { type: "string" },
+              description:
+                "Things the user has named that help them through this.",
+            },
+            social_contacts: {
+              type: "array",
+              items: { type: "string" },
+              description:
+                "People the user could reach for distraction or support. Names/relationships, no need for exact phone numbers.",
+            },
+            professionals: {
+              type: "array",
+              items: { type: "string" },
+              description:
+                "Any professional contacts the user has — therapist, doctor, 988, etc.",
+            },
+            means_restriction: {
+              type: "string",
+              description:
+                "What the user agreed to do about access to means (move something, give something to a trusted person, etc.).",
+            },
+            reasons_for_living: {
+              type: "array",
+              items: { type: "string" },
+              description:
+                "Things the user mentioned when asked what has kept them going or what matters to them.",
+            },
+          },
+        },
+      },
+      required: ["plan"],
+    },
+  },
 ];
 
 function emit(

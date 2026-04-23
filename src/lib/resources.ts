@@ -95,6 +95,75 @@ export const RESOURCES: Record<string, CrisisResource> = {
   },
 } as const;
 
+export interface ProfessionalResource {
+  id: string;
+  name: string;
+  url: string;
+  description: string;
+  best_for?: string;
+}
+
+export const PROFESSIONAL_REFERRALS: ProfessionalResource[] = [
+  {
+    id: "psychology_today",
+    name: "Psychology Today",
+    url: "https://www.psychologytoday.com/us/therapists",
+    description:
+      "Find a licensed therapist. Filter by insurance, modality (CBT, EMDR, IFS, DBT), identity, and location.",
+    best_for: "Starting your search",
+  },
+  {
+    id: "openpath",
+    name: "Open Path Collective",
+    url: "https://openpathcollective.org",
+    description:
+      "Network of therapists offering sessions at $30-80 on a sliding scale, for people without insurance or with financial limits.",
+    best_for: "If cost is a barrier",
+  },
+  {
+    id: "inclusive_therapists",
+    name: "Inclusive Therapists",
+    url: "https://www.inclusivetherapists.com",
+    description:
+      "Identity-affirming therapist directory. Filter for Black, Latinx, Asian, LGBTQ+, and disability-affirming clinicians.",
+    best_for: "Culturally affirming care",
+  },
+  {
+    id: "nami",
+    name: "NAMI Helpline",
+    url: "https://www.nami.org/help",
+    description:
+      "Call 1-800-950-NAMI (6264) or text 62640. Navigation, family support, and mental illness resources.",
+    best_for: "Navigating the system or supporting a loved one",
+  },
+  {
+    id: "samhsa_locator",
+    name: "SAMHSA Treatment Locator",
+    url: "https://findtreatment.gov",
+    description:
+      "Federal directory for substance use, mental health, and dual diagnosis treatment programs.",
+    best_for: "Substance use or severe mental illness",
+  },
+  {
+    id: "therapy_for_black_girls",
+    name: "Therapy for Black Girls",
+    url: "https://therapyforblackgirls.com/therapist-directory",
+    description: "Directory and community for Black women and girls.",
+  },
+  {
+    id: "latinx_therapy",
+    name: "Latinx Therapy",
+    url: "https://latinxtherapy.com",
+    description: "Spanish-speaking and Latinx-affirming therapist directory.",
+  },
+  {
+    id: "asian_mental_health",
+    name: "Asian Mental Health Collective",
+    url: "https://www.asianmhc.org",
+    description: "Asian-affirming therapist directory and community.",
+  },
+];
+
 export const PHONE_PATTERNS: Array<{ pattern: RegExp; tel: string }> = [
   { pattern: /\b988\b/g, tel: "988" },
   { pattern: /\b911\b/g, tel: "911" },

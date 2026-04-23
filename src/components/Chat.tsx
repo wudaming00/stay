@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { Message, StreamEvent, ToolEvent } from "@/lib/types";
+import type { Message, SafetyPlan, StreamEvent, ToolEvent } from "@/lib/types";
 import { PHONE_PATTERNS, RESOURCES } from "@/lib/resources";
+import SafetyPlanCard from "./SafetyPlanCard";
 import {
   getCurrentSessionId,
   getSessionMeta,
@@ -613,8 +614,10 @@ function ReflectionCard({
 
 function MessageBubble({ message }: { message: Message }) {
   if (message.role === "assistant") {
-    const resourceTools = (message.tools ?? []).filter(
-      (t) => t.name === "surface_resource"
+    const tools = message.tools ?? [];
+    const resourceTools = tools.filter((t) => t.name === "surface_resource");
+    const safetyPlanTools = tools.filter(
+      (t) => t.name === "generate_safety_plan"
     );
     return (
       <div className="space-y-3">
@@ -624,6 +627,11 @@ function MessageBubble({ message }: { message: Message }) {
         {resourceTools.map((t, i) => (
           <ResourceCard key={i} resourceId={t.input.id ?? ""} />
         ))}
+        {safetyPlanTools.map((t, i) => {
+          const plan = t.input.plan as SafetyPlan | undefined;
+          if (!plan) return null;
+          return <SafetyPlanCard key={i} plan={plan} />;
+        })}
       </div>
     );
   }

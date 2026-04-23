@@ -1,10 +1,24 @@
 export type Role = "user" | "assistant";
 
+export interface SafetyPlan {
+  warning_signs?: string[];
+  coping_strategies?: string[];
+  social_contacts?: string[];
+  professionals?: string[];
+  means_restriction?: string;
+  reasons_for_living?: string[];
+}
+
 export interface ToolEvent {
-  name: "surface_resource" | "suggest_pause" | "end_with_reflection";
+  name:
+    | "surface_resource"
+    | "suggest_pause"
+    | "end_with_reflection"
+    | "generate_safety_plan";
   input: {
-    id?: string; // for surface_resource
-    quote?: string; // for end_with_reflection
+    id?: string; // surface_resource
+    quote?: string; // end_with_reflection
+    plan?: SafetyPlan; // generate_safety_plan
   };
 }
 
@@ -20,7 +34,6 @@ export interface ChatRequest {
   messages: { role: Role; content: string }[];
 }
 
-// Stream events from /api/chat (JSONL, one per line)
 export type StreamEvent =
   | { type: "text"; data: string }
   | { type: "tool"; name: ToolEvent["name"]; input: ToolEvent["input"] };

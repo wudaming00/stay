@@ -90,6 +90,37 @@ export default function TermsPage() {
           suitability of the service for any particular purpose.
         </p>
 
+        <h2>Specific credible threats to identifiable people</h2>
+        <p>
+          Stay is an AI tool, not a licensed mental-health professional under
+          legal duty-to-warn or mandated-reporting statutes. However, if you
+          describe a specific, credible, and imminent threat against an
+          identifiable person, you should know:
+        </p>
+        <ul>
+          <li>
+            The AI will not help you plan or rehearse harm to another person.
+          </li>
+          <li>
+            The AI will urge you to reach a crisis line (988) and, if
+            imminent, emergency services (911).
+          </li>
+          <li>
+            Under legal process (valid court order, subpoena), we will comply
+            with lawful requests. By architecture, our ability to produce
+            anything meaningful is minimal — we do not store the content of
+            your conversations on our servers. But threats that have already
+            been reported to or identified by external authorities may
+            intersect with any logs we do keep (see{" "}
+            <Link href="/privacy">privacy</Link>).
+          </li>
+        </ul>
+        <p>
+          If you or someone you love is in immediate danger from someone,
+          please call 911 (US) or reach the appropriate local emergency
+          service.
+        </p>
+
         <h2>Limitation of liability</h2>
         <p>
           To the maximum extent permitted by law, neither Stay nor its
