@@ -412,8 +412,8 @@ export default function Chat() {
         <div ref={bottomRef} className="h-2" />
       </div>
 
-      <div className="shrink-0 bg-background px-4 pb-4 pt-3 sm:px-6 sm:pb-6">
-        <div className="flex items-end gap-2 rounded-2xl border border-border-strong bg-background-elevated px-3 py-2.5 shadow-sm transition-colors focus-within:border-accent sm:px-4 sm:py-3">
+      <div className="shrink-0 bg-background px-4 pb-5 pt-3 sm:px-6 sm:pb-6">
+        <div className="group flex items-end gap-2 rounded-2xl border border-border-strong bg-background-sunken px-3 py-2.5 transition-all duration-300 focus-within:border-accent focus-within:bg-background-elevated focus-within:shadow-[0_2px_24px_-8px_rgba(123,143,110,0.2)] sm:px-4 sm:py-3">
           <textarea
             ref={inputRef}
             value={displayInput}
@@ -423,7 +423,7 @@ export default function Chat() {
             rows={1}
             disabled={streaming || !loaded}
             maxLength={MAX_INPUT_CHARS}
-            className="flex-1 resize-none bg-transparent font-sans text-base leading-relaxed text-foreground placeholder:text-foreground-tertiary focus:outline-none"
+            className="flex-1 resize-none bg-transparent font-sans text-[15px] leading-relaxed text-foreground placeholder:text-foreground-tertiary/80 focus:outline-none sm:text-base"
           />
           <VoiceInput
             onTranscript={onVoiceTranscript}
@@ -434,18 +434,19 @@ export default function Chat() {
             onClick={send}
             disabled={!canSend}
             aria-label="send"
-            className="shrink-0 self-end pb-0.5 font-sans text-lg text-foreground-tertiary transition-colors hover:text-foreground disabled:opacity-30 enabled:text-accent"
+            className="shrink-0 self-end rounded-md p-1.5 text-foreground-tertiary transition-all hover:bg-accent-soft hover:text-accent-hover disabled:opacity-30 enabled:text-accent"
           >
-            ↩
+            <SendIcon />
           </button>
         </div>
-        <div className="mt-1.5 flex items-center justify-between font-sans text-[11px] text-foreground-tertiary">
+        <div className="mt-2 flex items-center justify-between px-1 font-sans text-[11px] text-foreground-tertiary">
           <button
             type="button"
             onClick={startTranslation}
-            className="transition-colors hover:text-foreground"
+            className="inline-flex items-center gap-1 transition-colors hover:text-foreground"
           >
-            draft a message →
+            <DraftIcon />
+            <span>draft a message</span>
           </button>
           {remaining < 200 && <span>{remaining} characters left</span>}
         </div>
@@ -456,22 +457,25 @@ export default function Chat() {
 
 function Welcome() {
   return (
-    <div className="relative min-h-[10rem] font-serif text-lg leading-relaxed text-foreground sm:min-h-[8rem]">
+    <div className="relative min-h-[11rem] font-serif text-xl leading-relaxed text-foreground sm:min-h-[9rem] sm:text-2xl">
       <div
-        className="absolute inset-x-0 top-0 animate-show-then-hide space-y-3"
+        className="absolute inset-x-0 top-0 animate-show-then-hide space-y-3 tracking-tight"
         style={{ animationDelay: "200ms" }}
       >
         <p>I&apos;m here.</p>
-        <p>I&apos;m Stay — an AI to think out loud with.</p>
+        <p className="text-foreground-secondary">
+          I&apos;m Stay — an AI to think out loud with.
+        </p>
       </div>
       <div
-        className="absolute inset-x-0 top-0 animate-show-then-hide"
+        className="absolute inset-x-0 top-0 animate-show-then-hide text-foreground-secondary"
         style={{ animationDelay: "3200ms" }}
       >
-        <p>You&apos;re safe with me. Whatever you say stays between us.</p>
+        <p>You&apos;re safe with me.</p>
+        <p>Whatever you say stays between us.</p>
       </div>
       <div
-        className="absolute inset-x-0 top-0 animate-fadein-slow"
+        className="absolute inset-x-0 top-0 animate-fadein-slow tracking-tight"
         style={{ animationDelay: "6200ms" }}
       >
         <p>Tell me what&apos;s happening.</p>
@@ -621,8 +625,20 @@ function MessageBubble({ message }: { message: Message }) {
     );
     return (
       <div className="space-y-3">
-        <div className="animate-fadein border-l-2 border-accent/30 pl-4 font-serif text-base leading-relaxed text-foreground sm:pl-5 sm:text-lg">
-          {message.content ? renderWithPhones(message.content) : <BreathingDot />}
+        <div className="animate-fadein font-serif text-base leading-relaxed text-foreground sm:text-lg">
+          {message.content ? (
+            <div className="relative pl-5 sm:pl-6">
+              <span
+                aria-hidden
+                className="absolute left-0 top-[0.65em] h-1.5 w-1.5 rounded-full bg-accent"
+              />
+              {renderWithPhones(message.content)}
+            </div>
+          ) : (
+            <div className="pl-5 sm:pl-6">
+              <BreathingDot />
+            </div>
+          )}
         </div>
         {resourceTools.map((t, i) => (
           <ResourceCard key={i} resourceId={t.input.id ?? ""} />
@@ -658,19 +674,19 @@ function UserMessage({ content }: { content: string }) {
   }
 
   return (
-    <div className="ml-auto flex max-w-[88%] flex-col items-end gap-1 sm:max-w-[85%]">
-      <div className="animate-fadein whitespace-pre-wrap rounded-2xl bg-background-elevated px-4 py-3 font-sans text-sm leading-relaxed text-foreground/85 sm:text-base">
+    <div className="group ml-auto flex max-w-[88%] flex-col items-end gap-1 sm:max-w-[82%]">
+      <div className="animate-fadein whitespace-pre-wrap rounded-[18px] rounded-br-sm border border-border/60 bg-background-elevated px-4 py-2.5 font-sans text-sm leading-relaxed text-foreground sm:text-[15px]">
         {content}
       </div>
       <button
         type="button"
         onClick={keep}
         disabled={pending}
-        title={saved ? "saved" : "keep this"}
+        title={saved ? "saved to insights" : "keep this"}
         aria-label={saved ? "insight saved" : "keep this insight"}
-        className="font-sans text-[10px] text-foreground-tertiary opacity-0 transition-opacity hover:text-foreground group-hover:opacity-100"
+        className="font-sans text-[10px] text-foreground-tertiary opacity-0 transition-opacity hover:text-accent-hover group-hover:opacity-100"
       >
-        {saved ? "✓ kept" : "★ keep"}
+        {saved ? "✓ kept" : "keep"}
       </button>
     </div>
   );
@@ -680,37 +696,124 @@ function ResourceCard({ resourceId }: { resourceId: string }) {
   const r = RESOURCES[resourceId];
   if (!r) return null;
   return (
-    <div className="ml-4 animate-fadein rounded-xl border border-accent/40 bg-background-elevated/80 px-4 py-3 font-sans sm:ml-5">
-      <p className="text-sm font-medium text-foreground">{r.name}</p>
-      <p className="mt-0.5 text-xs text-foreground-secondary">{r.description}</p>
-      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-        {r.call && (
-          <a
-            href={`tel:${r.call.replace(/\D/g, "")}`}
-            className="text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent"
-          >
-            📞 call {r.call}
-          </a>
-        )}
-        {r.text && (
-          <a
-            href={`sms:${r.text}`}
-            className="text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent"
-          >
-            💬 text {r.text}
-          </a>
-        )}
+    <div className="animate-fadein ml-5 sm:ml-6">
+      <div className="rounded-xl border border-accent/30 bg-accent-soft/40 px-4 py-3 font-sans">
+        <div className="mb-1 flex items-center gap-1.5">
+          <span
+            aria-hidden
+            className="inline-block h-1.5 w-1.5 rounded-full bg-accent"
+          />
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-accent-hover">
+            crisis resource
+          </p>
+        </div>
+        <p className="text-[15px] font-medium text-foreground">{r.name}</p>
+        <p className="mt-0.5 text-xs text-foreground-secondary">
+          {r.description}
+        </p>
+        <div className="mt-2.5 flex flex-wrap gap-2">
+          {r.call && (
+            <a
+              href={`tel:${r.call.replace(/\D/g, "")}`}
+              className="btn btn-primary btn-xs"
+            >
+              <PhoneIcon />
+              <span>call {r.call}</span>
+            </a>
+          )}
+          {r.text && (
+            <a
+              href={`sms:${r.text}`}
+              className="btn btn-secondary btn-xs"
+            >
+              <ChatIcon />
+              <span>text {r.text}</span>
+            </a>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
+function SendIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M3 8h10M9 4l4 4-4 4" />
+    </svg>
+  );
+}
+
+function DraftIcon() {
+  return (
+    <svg
+      width="10"
+      height="10"
+      viewBox="0 0 12 12"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M8.5 2.5l1 1-5 5H3.5V7z" />
+    </svg>
+  );
+}
+
+function PhoneIcon() {
+  return (
+    <svg
+      width="11"
+      height="11"
+      viewBox="0 0 14 14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M3 2.5h2l1 2.5-1.5 1a6 6 0 0 0 3.5 3.5l1-1.5 2.5 1v2a1 1 0 0 1-1 1A9 9 0 0 1 2 3.5a1 1 0 0 1 1-1z" />
+    </svg>
+  );
+}
+
+function ChatIcon() {
+  return (
+    <svg
+      width="11"
+      height="11"
+      viewBox="0 0 14 14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M2 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H6l-3 2v-2H4a2 2 0 0 1-2-2z" />
+    </svg>
+  );
+}
+
 function BreathingDot() {
   return (
-    <span className="inline-flex items-center gap-2 align-middle">
-      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-foreground-tertiary" />
-      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-foreground-tertiary [animation-delay:200ms]" />
-      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-foreground-tertiary [animation-delay:400ms]" />
+    <span className="inline-flex items-center gap-1.5 align-middle">
+      <span className="h-1.5 w-1.5 animate-breath rounded-full bg-accent" />
+      <span className="h-1.5 w-1.5 animate-breath rounded-full bg-accent [animation-delay:266ms]" />
+      <span className="h-1.5 w-1.5 animate-breath rounded-full bg-accent [animation-delay:533ms]" />
     </span>
   );
 }

@@ -2,59 +2,51 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="shrink-0 border-t border-border px-4 py-3 sm:px-6">
-      <div className="mx-auto flex max-w-2xl flex-col items-center gap-2 font-sans text-[11px] text-foreground-tertiary sm:flex-row sm:justify-between sm:text-xs">
-        <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
-          <Link
-            href="/about"
-            className="transition-colors hover:text-foreground"
-          >
-            about
-          </Link>
-          <Link
-            href="/promises"
-            className="transition-colors hover:text-foreground"
-          >
-            promises
-          </Link>
-          <Link
-            href="/privacy"
-            className="transition-colors hover:text-foreground"
-          >
-            privacy
-          </Link>
-          <Link
-            href="/faq"
-            className="transition-colors hover:text-foreground"
-          >
-            faq
-          </Link>
-          <Link
-            href="/resources"
-            className="transition-colors hover:text-foreground"
-          >
-            crisis help
-          </Link>
-          <Link
-            href="/settings"
-            className="transition-colors hover:text-foreground"
-          >
-            settings
-          </Link>
-          <Link
-            href="/terms"
-            className="transition-colors hover:text-foreground"
-          >
-            terms
-          </Link>
+    <footer className="shrink-0 border-t border-border/70 bg-background/80 px-4 py-3 backdrop-blur sm:px-6">
+      <div className="mx-auto flex max-w-2xl flex-col items-center gap-2 font-sans text-[11px] text-foreground-tertiary sm:flex-row sm:justify-between">
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+          <FooterLink href="/about">about</FooterLink>
+          <Dot />
+          <FooterLink href="/promises">promises</FooterLink>
+          <Dot />
+          <FooterLink href="/privacy">privacy</FooterLink>
+          <Dot />
+          <FooterLink href="/resources">crisis help</FooterLink>
+          <Dot />
+          <FooterLink href="/faq">faq</FooterLink>
+          <Dot />
+          <FooterLink href="/settings">settings</FooterLink>
         </div>
-        <Link
-          href="/promises"
-          className="text-center transition-colors hover:text-foreground"
-        >
+        <FooterLink href="/promises">
           free for everyone, forever
-        </Link>
+        </FooterLink>
       </div>
     </footer>
+  );
+}
+
+function FooterLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className="transition-colors hover:text-foreground"
+    >
+      {children}
+    </Link>
+  );
+}
+
+function Dot() {
+  return (
+    <span
+      aria-hidden
+      className="inline-block h-1 w-1 rounded-full bg-accent/60"
+    />
   );
 }

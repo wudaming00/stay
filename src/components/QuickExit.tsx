@@ -4,18 +4,11 @@ import { useEffect, useState } from "react";
 
 /**
  * Emergency Quick Exit — DV-shelter pattern.
- *
- * One click (or Esc key):
- *  - fires `stay:quick-exit` event so Chat clears in-memory state
- *  - replaces window history so back-button doesn't return to Stay
- *  - redirects to google.com (neutral cover page)
- *
- * Used when someone needs to leave fast — abusive partner approaching, shared
- * device situation, parent walking in. The Esc key binding matters because
- * users may not have time to look for the button.
+ * One click (or Escape) redirects to google.com, clears in-memory state,
+ * and overwrites history.
  */
 export default function QuickExit() {
-  const [hovering, setHovering] = useState(false);
+  const [hover, setHover] = useState(false);
 
   function exit() {
     try {
@@ -38,24 +31,49 @@ export default function QuickExit() {
   }, []);
 
   return (
-    <button
-      type="button"
-      onClick={exit}
-      onMouseEnter={() => setHovering(true)}
-      onMouseLeave={() => setHovering(false)}
-      onFocus={() => setHovering(true)}
-      onBlur={() => setHovering(false)}
-      title="Leave this page immediately. Goes to google.com and clears your screen. (Esc)"
-      aria-label="Emergency quick exit — leave this page immediately"
-      className="group relative flex items-center gap-1.5 rounded-md border border-border-strong bg-background-elevated px-2.5 py-1 font-sans text-xs text-foreground-secondary transition-colors hover:border-foreground-secondary hover:text-foreground"
-    >
-      <span aria-hidden className="text-sm leading-none">↗</span>
-      <span>quick exit</span>
-      {hovering && (
-        <span className="absolute right-0 top-full z-50 mt-1 whitespace-nowrap rounded-md border border-border bg-background px-2.5 py-1.5 font-sans text-[11px] text-foreground-secondary shadow-sm">
-          leaves to google.com · clears screen · press Esc anytime
+    <div className="relative">
+      <button
+        type="button"
+        onClick={exit}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        onFocus={() => setHover(true)}
+        onBlur={() => setHover(false)}
+        title="Emergency exit — press Esc anytime"
+        aria-label="Emergency quick exit — leaves this page and clears screen"
+        className="btn btn-secondary btn-xs"
+      >
+        <ExitIcon />
+        <span>exit</span>
+      </button>
+      {hover && (
+        <span
+          role="tooltip"
+          className="absolute right-0 top-full z-50 mt-2 whitespace-nowrap rounded-md border border-border bg-background px-3 py-1.5 font-sans text-[11px] leading-relaxed text-foreground-secondary shadow-sm"
+        >
+          goes to google.com · clears screen · Esc anytime
         </span>
       )}
-    </button>
+    </div>
+  );
+}
+
+function ExitIcon() {
+  return (
+    <svg
+      width="11"
+      height="11"
+      viewBox="0 0 14 14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <path d="M5 2H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h2" />
+      <path d="M8 4l3 3-3 3" />
+      <path d="M11 7H5" />
+    </svg>
   );
 }

@@ -1,5 +1,4 @@
-import Link from "next/link";
-import Wordmark from "@/components/Wordmark";
+import PageShell from "@/components/PageShell";
 import { RESOURCES, PROFESSIONAL_REFERRALS } from "@/lib/resources";
 
 export const metadata = {
@@ -21,56 +20,50 @@ const crisisOrder = [
 
 export default function ResourcesPage() {
   return (
-    <main className="relative z-10 flex min-h-full flex-1 flex-col">
-      <header className="shrink-0 border-b border-border px-4 py-4 sm:px-6">
-        <div className="mx-auto flex max-w-2xl items-center justify-between">
-          <Wordmark size="md" />
-          <Link
-            href="/"
-            className="font-sans text-xs text-foreground-tertiary transition-colors hover:text-foreground"
-          >
-            ← back
-          </Link>
-        </div>
-      </header>
-
-      <article className="mx-auto w-full max-w-2xl flex-1 px-4 py-12 prose-stay sm:px-6 sm:py-16">
+    <PageShell>
+      <article className="mx-auto w-full max-w-2xl flex-1 px-5 py-12 prose-stay sm:px-6 sm:py-16">
         <h1>If you need a real human, here.</h1>
-        <p className="text-foreground-secondary">
+        <p>
           Stay is not equipped to be your crisis line. The lines below are
-          run by trained humans, free, confidential, available right now.
-          Most are 24/7.
+          run by trained humans, free, confidential, and most are 24/7.
         </p>
 
         <h2>If you need someone right now</h2>
 
-        <div className="mt-6 space-y-6">
+        <div className="not-prose mt-6 space-y-3 font-sans">
           {crisisOrder.map((id) => {
             const r = RESOURCES[id];
             if (!r) return null;
             return (
-              <div key={id} className="border-l-2 border-accent pl-5">
-                <h3 className="!mt-0 font-serif text-lg font-medium">
-                  {r.name}
-                </h3>
-                <p className="!mb-1 text-foreground-secondary">
-                  {r.description}
-                </p>
-                <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 font-sans text-base">
+              <div
+                key={id}
+                className="rounded-xl border border-border bg-background-elevated/60 p-4 transition-colors hover:border-accent"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <p className="text-[15px] font-medium text-foreground">
+                      {r.name}
+                    </p>
+                    <p className="mt-1 text-[13px] leading-relaxed text-foreground-secondary">
+                      {r.description}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
                   {r.call && (
                     <a
                       href={`tel:${r.call.replace(/\D/g, "")}`}
-                      className="text-accent hover:text-accent-hover"
+                      className="btn btn-primary btn-xs"
                     >
-                      📞 call {r.call}
+                      call {r.call}
                     </a>
                   )}
                   {r.text && (
                     <a
                       href={`sms:${r.text}`}
-                      className="text-accent hover:text-accent-hover"
+                      className="btn btn-secondary btn-xs"
                     >
-                      💬 text {r.text}
+                      text {r.text}
                     </a>
                   )}
                 </div>
@@ -79,56 +72,56 @@ export default function ResourcesPage() {
           })}
         </div>
 
-        <hr />
-
-        <h2>If you want ongoing support (a real therapist)</h2>
-        <p className="text-foreground-secondary">
+        <h2>If you want ongoing support — a real therapist</h2>
+        <p>
           Finding the right therapist is often the hardest part. These
-          directories filter by insurance, cost, identity, and modality — so
-          you can find someone who fits, not just someone who has an opening.
+          directories filter by insurance, cost, identity, and modality —
+          so you can find someone who fits, not just someone with an
+          opening.
         </p>
 
-        <div className="mt-6 space-y-6">
+        <div className="not-prose mt-6 space-y-3 font-sans">
           {PROFESSIONAL_REFERRALS.map((r) => (
-            <div key={r.id} className="border-l-2 border-border-strong pl-5">
-              <h3 className="!mt-0 font-serif text-lg font-medium">
-                <a
-                  href={r.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-foreground no-underline hover:text-accent"
-                >
-                  {r.name} ↗
-                </a>
-              </h3>
-              <p className="!mb-1 text-foreground-secondary">
-                {r.description}
-              </p>
-              {r.best_for && (
-                <p className="!mb-0 font-sans text-xs text-foreground-tertiary">
-                  Best for: {r.best_for}
-                </p>
-              )}
-            </div>
+            <a
+              key={r.id}
+              href={r.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block rounded-xl border border-border bg-background-elevated/40 p-4 transition-colors hover:border-accent"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex-1">
+                  <p className="text-[15px] font-medium text-foreground">
+                    {r.name}{" "}
+                    <span
+                      className="text-foreground-tertiary"
+                      aria-hidden
+                    >
+                      ↗
+                    </span>
+                  </p>
+                  <p className="mt-1 text-[13px] leading-relaxed text-foreground-secondary">
+                    {r.description}
+                  </p>
+                  {r.best_for && (
+                    <p className="mt-2 text-[11px] uppercase tracking-widest text-accent-hover">
+                      best for · {r.best_for}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </a>
           ))}
         </div>
 
         <hr />
 
-        <p className="text-sm text-foreground-secondary">
-          If you&apos;re in immediate physical danger, call 911. If you have a
-          plan to hurt yourself, call 988 right now — they will stay with you
-          on the line. You don&apos;t have to know what to say.
+        <p className="!text-sm !text-foreground-secondary">
+          If you&apos;re in immediate physical danger, call 911. If you
+          have a plan to hurt yourself, call 988 right now — they will stay
+          with you on the line. You don&apos;t have to know what to say.
         </p>
       </article>
-
-      <footer className="shrink-0 border-t border-border px-6 py-4">
-        <div className="mx-auto max-w-2xl text-center font-sans text-xs text-foreground-tertiary">
-          <Link href="/" className="hover:text-foreground">
-            ← talk to Stay
-          </Link>
-        </div>
-      </footer>
-    </main>
+    </PageShell>
   );
 }

@@ -1,5 +1,4 @@
-import Link from "next/link";
-import Wordmark from "@/components/Wordmark";
+import PageShell from "@/components/PageShell";
 
 export const metadata = {
   title: "Stay — FAQ",
@@ -20,7 +19,7 @@ const QA = [
   },
   {
     q: "Will my data be sold or used to train AI models?",
-    a: "No. We don't have a database of your conversations. They live encrypted on your device. The model that powers Stay (Anthropic's Claude) does not train on your conversation per their policy. Even if we wanted to read what you wrote, we structurally cannot. See privacy for the full architecture.",
+    a: "No. We don't have a database of your conversations. They live encrypted on your device. The model that powers Stay (Anthropic's Claude) does not train on your conversation per their policy. Even if we wanted to read what you wrote, we structurally cannot.",
   },
   {
     q: "Why is this free? What's the catch?",
@@ -28,7 +27,7 @@ const QA = [
   },
   {
     q: "Will the AI remember me when I come back?",
-    a: "Yes, on the same device. Your conversation is encrypted and stored locally for 90 days by default. When you return, you can pick up where you left off or start fresh. Cross-device sync (with a recovery phrase only you hold) is coming.",
+    a: "Yes, on the same device. Your conversation is encrypted and stored locally for 90 days by default. When you return, you can pick up where you left off or start fresh.",
   },
   {
     q: "What if I'm in crisis right now?",
@@ -44,37 +43,29 @@ const QA = [
   },
   {
     q: "Is Stay watching me or listening through the microphone?",
-    a: "No. Stay only sees what you type. It has no access to your microphone, camera, location, contacts, or anything outside the conversation you choose to have with it.",
+    a: "No. Stay only sees what you type. It has no access to your microphone unless you explicitly tap the voice input button, no camera, no location, no contacts.",
   },
   {
     q: "What if the AI says something harmful or wrong?",
-    a: "Please email hello@thestay.app and tell us what happened. We take this seriously — the design intentionally tries to prevent it, but no system is perfect. Your feedback is how we make it better.",
+    a: "Please email hello@thestay.app and tell us what happened. We take this seriously — the design intentionally tries to prevent it, but no system is perfect.",
   },
   {
     q: "Are conversations shared with anyone else?",
-    a: "No. Not with us. Not with researchers. Not with anyone. Your conversations exist between you and the AI on your device. The conversation passes through Anthropic's servers transiently to generate responses (this is unavoidable for any AI product), but it is not stored there past 30 days and is not used for training. We never see it.",
+    a: "No. Not with us. Not with researchers. Not with anyone. Your conversations exist between you and the AI on your device. The conversation passes through Anthropic's servers transiently to generate responses (this is unavoidable for any AI product), but it is not stored there past 30 days and is not used for training.",
   },
 ];
 
 export default function FaqPage() {
   return (
-    <main className="relative z-10 flex min-h-full flex-1 flex-col">
-      <header className="shrink-0 border-b border-border px-4 py-4 sm:px-6">
-        <div className="mx-auto flex max-w-2xl items-center justify-between">
-          <Wordmark size="md" />
-          <Link
-            href="/"
-            className="font-sans text-xs text-foreground-tertiary transition-colors hover:text-foreground"
-          >
-            ← back
-          </Link>
-        </div>
-      </header>
-
-      <article className="mx-auto w-full max-w-2xl flex-1 px-4 py-12 prose-stay sm:px-6 sm:py-16">
+    <PageShell>
+      <article className="mx-auto w-full max-w-2xl flex-1 px-5 py-12 prose-stay sm:px-6 sm:py-16">
         <h1>Common questions, honestly answered.</h1>
+        <p>
+          If you don&apos;t see yours here, email{" "}
+          <a href="mailto:hello@thestay.app">hello@thestay.app</a>.
+        </p>
 
-        <div className="mt-10 space-y-10">
+        <div className="mt-12 space-y-10">
           {QA.map(({ q, a }) => (
             <div key={q}>
               <h2 className="!mt-0">{q}</h2>
@@ -85,19 +76,11 @@ export default function FaqPage() {
 
         <hr />
 
-        <p className="text-sm text-foreground-secondary">
+        <p className="!text-sm !text-foreground-secondary">
           Didn&apos;t find what you needed?{" "}
           <a href="mailto:hello@thestay.app">hello@thestay.app</a>
         </p>
       </article>
-
-      <footer className="shrink-0 border-t border-border px-6 py-4">
-        <div className="mx-auto max-w-2xl text-center font-sans text-xs text-foreground-tertiary">
-          <Link href="/" className="hover:text-foreground">
-            ← talk to Stay
-          </Link>
-        </div>
-      </footer>
-    </main>
+    </PageShell>
   );
 }
