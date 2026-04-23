@@ -92,12 +92,8 @@ export default function VoiceInput({
       if (final) onTranscript(final, true);
       else if (interim) onTranscript(interim, false);
     };
-    r.onerror = () => {
-      setListening(false);
-    };
-    r.onend = () => {
-      setListening(false);
-    };
+    r.onerror = () => setListening(false);
+    r.onend = () => setListening(false);
     try {
       r.start();
       recognitionRef.current = r;
@@ -127,13 +123,69 @@ export default function VoiceInput({
       disabled={disabled}
       aria-label={listening ? "stop voice input" : "start voice input"}
       title={listening ? "stop listening" : "speak instead of type"}
-      className={`shrink-0 self-end pb-0.5 font-sans text-base transition-colors disabled:opacity-30 ${
+      className={`shrink-0 self-end rounded-md p-1.5 transition-colors disabled:opacity-30 ${
         listening
-          ? "text-accent"
-          : "text-foreground-tertiary hover:text-foreground"
+          ? "bg-accent-soft text-accent-hover"
+          : "text-foreground-tertiary hover:bg-background-sunken hover:text-foreground"
       }`}
     >
-      {listening ? "● rec" : "🎙"}
+      {listening ? <MicActiveIcon /> : <MicIcon />}
     </button>
+  );
+}
+
+function MicIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <rect x="6" y="2" width="4" height="8" rx="2" />
+      <path d="M3.5 7v0.5a4.5 4.5 0 0 0 9 0V7" />
+      <path d="M8 12v2.5" />
+      <path d="M5.5 14.5h5" />
+    </svg>
+  );
+}
+
+function MicActiveIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="currentColor"
+      aria-hidden
+    >
+      <rect x="6" y="2" width="4" height="8" rx="2" />
+      <path
+        d="M3.5 7v0.5a4.5 4.5 0 0 0 9 0V7"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M8 12v2.5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M5.5 14.5h5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }

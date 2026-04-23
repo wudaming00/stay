@@ -413,7 +413,7 @@ export default function Chat() {
       </div>
 
       <div className="shrink-0 bg-background px-4 pb-5 pt-3 sm:px-6 sm:pb-6">
-        <div className="group flex items-end gap-2 rounded-2xl border border-border-strong bg-background-sunken px-3 py-2.5 transition-all duration-300 focus-within:border-accent focus-within:bg-background-elevated focus-within:shadow-[0_2px_24px_-8px_rgba(123,143,110,0.2)] sm:px-4 sm:py-3">
+        <div className="flex items-end gap-1 rounded-lg border border-border-strong bg-background px-3 py-2 transition-colors duration-150 focus-within:border-accent focus-within:bg-background-raised sm:px-3.5 sm:py-2.5">
           <textarea
             ref={inputRef}
             value={displayInput}
@@ -423,7 +423,7 @@ export default function Chat() {
             rows={1}
             disabled={streaming || !loaded}
             maxLength={MAX_INPUT_CHARS}
-            className="flex-1 resize-none bg-transparent font-sans text-[15px] leading-relaxed text-foreground placeholder:text-foreground-tertiary/80 focus:outline-none sm:text-base"
+            className="flex-1 resize-none bg-transparent py-1 font-sans text-[15px] leading-relaxed text-foreground placeholder:text-foreground-tertiary disabled:opacity-50 sm:text-base"
           />
           <VoiceInput
             onTranscript={onVoiceTranscript}
@@ -434,12 +434,12 @@ export default function Chat() {
             onClick={send}
             disabled={!canSend}
             aria-label="send"
-            className="shrink-0 self-end rounded-md p-1.5 text-foreground-tertiary transition-all hover:bg-accent-soft hover:text-accent-hover disabled:opacity-30 enabled:text-accent"
+            className="shrink-0 self-end rounded-md p-1.5 text-foreground-tertiary transition-colors hover:bg-background-sunken hover:text-foreground disabled:opacity-30 enabled:text-accent enabled:hover:bg-accent-soft enabled:hover:text-accent-hover"
           >
             <SendIcon />
           </button>
         </div>
-        <div className="mt-2 flex items-center justify-between px-1 font-sans text-[11px] text-foreground-tertiary">
+        <div className="mt-1.5 flex items-center justify-between px-1 font-sans text-[11px] text-foreground-tertiary">
           <button
             type="button"
             onClick={startTranslation}

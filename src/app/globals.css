@@ -116,6 +116,15 @@ body {
   border-radius: 3px;
 }
 
+/* Form controls have their own wrapper-level focus indication.
+   Suppress the global focus ring on them to prevent double-borders. */
+textarea:focus,
+textarea:focus-visible,
+input:focus,
+input:focus-visible {
+  outline: none;
+}
+
 /* ============================================================
  * Wordmark — UPRIGHT, more authoritative
  * No more italic flourish. Period stays as a tiny anchor.
