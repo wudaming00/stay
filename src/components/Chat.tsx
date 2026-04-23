@@ -115,13 +115,16 @@ export default function Chat() {
     if (loaded) inputRef.current?.focus();
   }, [loaded]);
 
+  // Surface example prompts only after a long silence. Welcome ends
+  // around 7s; jumping in at 8s felt pushy. 25s gives users real space
+  // to sit with silence before the product nudges.
   useEffect(() => {
     if (!loaded) return;
     if (messages.length > 0) return;
     if (input.length > 0) return;
     const t = setTimeout(() => {
       if (messagesRef.current.length === 0) setShowExamples(true);
-    }, 8000);
+    }, 25000);
     return () => clearTimeout(t);
   }, [loaded, messages.length, input.length]);
 
