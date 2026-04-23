@@ -2,26 +2,38 @@ import Link from "next/link";
 
 /**
  * Persistent credibility strip. Shown below the chat header.
- * Communicates: this is a real product with real guarantees, with
- * verifiable facts (open source, encryption, version, last update).
+ *
+ * Each badge LINKS somewhere that makes the claim verifiable. Trust comes
+ * from the click-through, not the label.
  */
 export default function TrustBar() {
   return (
     <div className="border-b border-border bg-background-raised/40 px-4 py-2 sm:px-6">
       <div className="mx-auto flex max-w-2xl flex-wrap items-center justify-between gap-x-3 gap-y-1.5 font-sans text-[10px] text-foreground-tertiary">
         <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
-          <span className="badge badge-trust">
+          <Link
+            href="/architecture"
+            className="badge badge-trust transition-opacity hover:opacity-70"
+            title="See how encryption actually works"
+          >
             <span className="badge-dot" aria-hidden /> encrypted on device
-          </span>
+          </Link>
           <a
             href="https://github.com/wudaming00/stay"
             target="_blank"
             rel="noopener noreferrer"
             className="badge badge-version transition-opacity hover:opacity-70"
+            title="Read every line of code"
           >
             open source · github
           </a>
-          <span className="badge badge-version">v0.9</span>
+          <Link
+            href="/architecture"
+            className="badge badge-version transition-opacity hover:opacity-70"
+            title="Full version + architecture"
+          >
+            v0.9.1
+          </Link>
         </div>
         <Link
           href="/resources"

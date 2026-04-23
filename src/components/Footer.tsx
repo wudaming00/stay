@@ -11,6 +11,8 @@ export default function Footer() {
           <Sep />
           <FooterLink href="/privacy">privacy</FooterLink>
           <Sep />
+          <FooterLink href="/architecture">how it works</FooterLink>
+          <Sep />
           <FooterLink href="/resources">crisis help</FooterLink>
           <Sep />
           <FooterLink href="/faq">faq</FooterLink>
@@ -31,7 +33,7 @@ export default function Footer() {
               open source · MIT
             </a>
           </span>
-          <span className="font-mono">v0.9 · 2026.04.23</span>
+          <span className="font-mono">v0.9.1 · 2026.04.23</span>
         </div>
       </div>
     </footer>
