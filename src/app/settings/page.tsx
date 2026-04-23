@@ -262,6 +262,50 @@ export default function SettingsPage() {
             from this device. Use this if someone walks in unexpectedly.
           </p>
         </section>
+
+        <section className="mt-12 border-t border-border pt-8">
+          <h2 className="font-serif text-xl font-medium">
+            Help make Stay better
+          </h2>
+          <p className="mt-2 font-serif text-foreground-secondary">
+            This is v0. I&apos;m one person, and I read every piece of
+            feedback personally. If Stay said something harmful or missed
+            something important, I really want to know.
+          </p>
+          <p className="mt-3 font-serif text-foreground-secondary">
+            <strong>If you want to share a specific conversation</strong>{" "}
+            (good, bad, or anywhere in between):
+          </p>
+          <ol className="mt-2 list-decimal space-y-1 pl-5 font-serif text-base text-foreground-secondary">
+            <li>
+              Use the <strong>Download</strong> button above to get your
+              conversation as a JSON file.
+            </li>
+            <li>
+              Email it to{" "}
+              <a
+                href="mailto:hello@thestay.app?subject=Stay%20feedback"
+                className="text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent"
+              >
+                hello@thestay.app
+              </a>{" "}
+              with any context you want to share.
+            </li>
+          </ol>
+          <p className="mt-3 font-serif text-foreground-secondary">
+            I read it personally. Your identity never appears (I don&apos;t
+            have it), and nothing goes anywhere else. If you want to
+            withdraw it later, just email and say so — I&apos;ll delete it.
+          </p>
+          <div className="mt-5">
+            <a
+              href="mailto:hello@thestay.app?subject=Stay%20feedback&body=What%20happened%3A%20%0A%0AWhat%20I%20wish%20had%20happened%20instead%3A%20%0A%0A(paste%20or%20attach%20your%20Download%20if%20relevant)"
+              className="inline-block rounded-md border border-accent bg-accent px-3 py-1.5 font-sans text-xs text-background transition-colors hover:bg-accent-hover"
+            >
+              open email draft
+            </a>
+          </div>
+        </section>
       </article>
 
       <footer className="shrink-0 border-t border-border px-6 py-4">
