@@ -2,9 +2,9 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="shrink-0 border-t border-foreground/5 px-6 py-3">
-      <div className="mx-auto flex max-w-2xl items-center justify-between font-sans text-xs text-foreground/40">
-        <div className="flex gap-4">
+    <footer className="shrink-0 border-t border-border px-4 py-3 sm:px-6">
+      <div className="mx-auto flex max-w-2xl flex-col items-center gap-2 font-sans text-[11px] text-foreground-tertiary sm:flex-row sm:justify-between sm:text-xs">
+        <div className="flex flex-wrap justify-center gap-x-4 gap-y-1">
           <Link
             href="/promises"
             className="transition-colors hover:text-foreground"
@@ -23,8 +23,25 @@ export default function Footer() {
           >
             crisis help
           </Link>
+          <Link
+            href="/settings"
+            className="transition-colors hover:text-foreground"
+          >
+            settings
+          </Link>
+          <Link
+            href="/terms"
+            className="transition-colors hover:text-foreground"
+          >
+            terms
+          </Link>
         </div>
-        <span>free for everyone, forever</span>
+        <Link
+          href="/promises"
+          className="text-center transition-colors hover:text-foreground"
+        >
+          free for everyone, forever
+        </Link>
       </div>
     </footer>
   );

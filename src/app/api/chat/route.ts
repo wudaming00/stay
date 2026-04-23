@@ -4,6 +4,9 @@ import type { ChatRequest } from "@/lib/types";
 
 export const runtime = "nodejs";
 
+const MAX_MESSAGES = 80;
+const MAX_TOTAL_BYTES = 80_000;
+
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
@@ -13,7 +16,7 @@ export async function POST(req: Request) {
     return new Response(
       JSON.stringify({
         error:
-          "Server is missing ANTHROPIC_API_KEY. The model is offline. If this is urgent, please reach 988 (suicide & crisis), 1-800-799-SAFE (DV), or 911.",
+          "Server is missing ANTHROPIC_API_KEY. The model is offline. If this is urgent, please reach 988 (suicide & crisis), 1-800-799-7233 (DV), or 911.",
       }),
       { status: 503, headers: { "Content-Type": "application/json" } }
     );
@@ -34,6 +37,30 @@ export async function POST(req: Request) {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
+  }
+
+  if (body.messages.length > MAX_MESSAGES) {
+    return new Response(
+      JSON.stringify({ error: "Conversation too long for one request." }),
+      {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
+  const totalBytes = body.messages.reduce(
+    (acc, m) => acc + (m.content?.length ?? 0),
+    0
+  );
+  if (totalBytes > MAX_TOTAL_BYTES) {
+    return new Response(
+      JSON.stringify({ error: "Message payload too large." }),
+      {
+        status: 413,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 
   const stream = new ReadableStream({
@@ -64,7 +91,7 @@ export async function POST(req: Request) {
           err instanceof Error ? err.message : "Unknown model error.";
         controller.enqueue(
           encoder.encode(
-            `\n\n[The model is having trouble right now. If this is urgent, please reach 988, 1-800-799-SAFE, or 911. — ${message}]`
+            `\n\n[The model is having trouble. If this is urgent, please reach 988, 1-800-799-7233, or 911. — ${message}]`
           )
         );
       } finally {

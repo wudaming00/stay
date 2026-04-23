@@ -6,6 +6,7 @@ import { PHONE_PATTERNS } from "@/lib/resources";
 import {
   getCurrentSessionId,
   loadSession,
+  newSession,
   saveSession,
   deleteEverything,
 } from "@/lib/storage";
@@ -14,11 +15,15 @@ function generateId() {
   return Math.random().toString(36).slice(2) + Date.now().toString(36);
 }
 
+const MAX_INPUT_CHARS = 4000;
+const MAX_MESSAGES_KEPT = 60; // sliding window sent to API; older stays in storage
+
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [outage, setOutage] = useState(false);
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -53,7 +58,7 @@ export default function Chat() {
     };
   }, []);
 
-  // Quick-exit handler — clear in-memory state instantly
+  // Quick-exit handler — clear everything
   useEffect(() => {
     async function onQuickExit() {
       setMessages([]);
@@ -64,8 +69,19 @@ export default function Chat() {
         // best effort
       }
     }
+    function onNewConversation() {
+      sessionIdRef.current = newSession();
+      setMessages([]);
+      setInput("");
+      setOutage(false);
+      requestAnimationFrame(() => inputRef.current?.focus());
+    }
     window.addEventListener("stay:quick-exit", onQuickExit);
-    return () => window.removeEventListener("stay:quick-exit", onQuickExit);
+    window.addEventListener("stay:new-conversation", onNewConversation);
+    return () => {
+      window.removeEventListener("stay:quick-exit", onQuickExit);
+      window.removeEventListener("stay:new-conversation", onNewConversation);
+    };
   }, []);
 
   // Auto-focus input
@@ -105,8 +121,13 @@ export default function Chat() {
   async function send() {
     const trimmed = input.trim();
     if (!trimmed || streaming) return;
+    if (trimmed.length > MAX_INPUT_CHARS) {
+      setInput(trimmed.slice(0, MAX_INPUT_CHARS));
+      return;
+    }
 
     stickyBottomRef.current = true;
+    setOutage(false);
 
     const userMsg: Message = {
       id: generateId(),
@@ -127,9 +148,13 @@ export default function Chat() {
     setStreaming(true);
 
     try {
-      const apiMessages = next
-        .filter((m) => m.id !== assistantMsg.id)
-        .map((m) => ({ role: m.role, content: m.content }));
+      // Send sliding window of recent messages to API
+      const allButAssistant = next.filter((m) => m.id !== assistantMsg.id);
+      const window_ = allButAssistant.slice(-MAX_MESSAGES_KEPT);
+      const apiMessages = window_.map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
 
       const res = await fetch("/api/chat", {
         method: "POST",
@@ -137,12 +162,18 @@ export default function Chat() {
         body: JSON.stringify({ messages: apiMessages }),
       });
 
-      if (!res.ok || !res.body) {
-        const errBody = await res.text();
+      if (res.status === 429) {
+        setOutage(true);
         setMessages((prev) =>
-          prev.map((m) =>
-            m.id === assistantMsg.id ? { ...m, content: errBody } : m
-          )
+          prev.filter((m) => m.id !== assistantMsg.id)
+        );
+        return;
+      }
+
+      if (!res.ok || !res.body) {
+        setOutage(true);
+        setMessages((prev) =>
+          prev.filter((m) => m.id !== assistantMsg.id)
         );
         return;
       }
@@ -161,21 +192,18 @@ export default function Chat() {
           )
         );
       }
+
+      if (!acc.trim()) {
+        setOutage(true);
+        setMessages((prev) =>
+          prev.filter((m) => m.id !== assistantMsg.id)
+        );
+      }
     } catch {
-      setMessages((prev) =>
-        prev.map((m) =>
-          m.id === assistantMsg.id
-            ? {
-                ...m,
-                content:
-                  "Something interrupted. If this is urgent, please reach 988, 1-800-799-7233, or 911.",
-              }
-            : m
-        )
-      );
+      setOutage(true);
+      setMessages((prev) => prev.filter((m) => m.id !== assistantMsg.id));
     } finally {
       setStreaming(false);
-      // Save once at end of round-trip (encryption is heavy; don't save per chunk)
       void saveSession(sessionIdRef.current, messagesRef.current).catch(() => {});
       requestAnimationFrame(() => inputRef.current?.focus());
     }
@@ -188,16 +216,18 @@ export default function Chat() {
     }
   }
 
-  const canSend = input.trim().length > 0 && !streaming;
+  const canSend = input.trim().length > 0 && !streaming && loaded;
+  const remaining = MAX_INPUT_CHARS - input.length;
 
   return (
     <div className="mx-auto flex w-full max-w-2xl min-h-0 flex-1 flex-col">
       <div
         ref={scrollerRef}
         onScroll={handleScroll}
-        className="min-h-0 flex-1 overflow-y-auto px-6 pt-12 pb-6"
+        className="min-h-0 flex-1 overflow-y-auto px-4 pt-8 pb-6 sm:px-6 sm:pt-12"
       >
-        {loaded && messages.length === 0 && <Welcome />}
+        {loaded && messages.length === 0 && !outage && <Welcome />}
+        {outage && <OutagePanel />}
 
         <div className="space-y-7">
           {messages.map((m) => (
@@ -208,16 +238,17 @@ export default function Chat() {
         <div ref={bottomRef} className="h-2" />
       </div>
 
-      <div className="shrink-0 bg-background px-6 pb-6 pt-3">
-        <div className="flex items-end gap-3 rounded-2xl border border-border-strong bg-background-elevated px-4 py-3 shadow-sm transition-colors focus-within:border-accent">
+      <div className="shrink-0 bg-background px-4 pb-4 pt-3 sm:px-6 sm:pb-6">
+        <div className="flex items-end gap-3 rounded-2xl border border-border-strong bg-background-elevated px-3 py-2.5 shadow-sm transition-colors focus-within:border-accent sm:px-4 sm:py-3">
           <textarea
             ref={inputRef}
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => setInput(e.target.value.slice(0, MAX_INPUT_CHARS))}
             onKeyDown={handleKey}
             placeholder="say anything…"
             rows={1}
             disabled={streaming || !loaded}
+            maxLength={MAX_INPUT_CHARS}
             className="flex-1 resize-none bg-transparent font-sans text-base leading-relaxed text-foreground placeholder:text-foreground-tertiary focus:outline-none"
           />
           <button
@@ -230,6 +261,11 @@ export default function Chat() {
             ↩
           </button>
         </div>
+        {remaining < 200 && (
+          <p className="mt-1.5 text-right font-sans text-[11px] text-foreground-tertiary">
+            {remaining} characters left
+          </p>
+        )}
       </div>
     </div>
   );
@@ -237,7 +273,7 @@ export default function Chat() {
 
 function Welcome() {
   return (
-    <div className="relative min-h-[10rem] font-serif text-lg leading-relaxed text-foreground">
+    <div className="relative min-h-[10rem] font-serif text-lg leading-relaxed text-foreground sm:min-h-[8rem]">
       <div
         className="absolute inset-x-0 top-0 animate-show-then-hide space-y-3"
         style={{ animationDelay: "200ms" }}
@@ -261,17 +297,40 @@ function Welcome() {
   );
 }
 
+function OutagePanel() {
+  return (
+    <div className="animate-fadein space-y-4 rounded-2xl border border-border-strong bg-background-elevated p-5 font-serif text-base leading-relaxed text-foreground">
+      <p>I&apos;m having trouble reaching the model right now.</p>
+      <p>
+        If this is something that can wait, please try again in a few
+        minutes. If it can&apos;t —
+      </p>
+      <ul className="space-y-1.5 font-sans text-sm">
+        <li>
+          <strong>988</strong> — call or text — suicide & crisis (24/7, free)
+        </li>
+        <li>
+          <strong>1-800-799-7233</strong> — National DV Hotline
+        </li>
+        <li>
+          <strong>911</strong> — for immediate physical danger
+        </li>
+      </ul>
+    </div>
+  );
+}
+
 function MessageBubble({ message }: { message: Message }) {
   if (message.role === "assistant") {
     return (
-      <div className="animate-fadein border-l-2 border-accent/30 pl-5 font-serif text-lg leading-relaxed text-foreground">
+      <div className="animate-fadein border-l-2 border-accent/30 pl-4 font-serif text-base leading-relaxed text-foreground sm:pl-5 sm:text-lg">
         {message.content ? renderWithPhones(message.content) : <BreathingDot />}
       </div>
     );
   }
 
   return (
-    <div className="ml-auto max-w-[85%] animate-fadein whitespace-pre-wrap rounded-2xl bg-background-elevated px-4 py-3 font-sans text-base leading-relaxed text-foreground/85">
+    <div className="ml-auto max-w-[88%] animate-fadein whitespace-pre-wrap rounded-2xl bg-background-elevated px-4 py-3 font-sans text-sm leading-relaxed text-foreground/85 sm:max-w-[85%] sm:text-base">
       {message.content}
     </div>
   );
@@ -287,12 +346,6 @@ function BreathingDot() {
   );
 }
 
-/**
- * Render text with phone numbers turned into tappable tel: links.
- * AI text from Claude — find any phone matching our hardcoded patterns and
- * make it clickable. Anything not matching the directory stays as plain text
- * (so hallucinated numbers don't get blessed as clickable).
- */
 function renderWithPhones(text: string): React.ReactNode {
   const segments: React.ReactNode[] = [];
   let remaining = text;
@@ -328,7 +381,5 @@ function renderWithPhones(text: string): React.ReactNode {
     remaining = remaining.slice(earliest.index + earliest.match.length);
   }
 
-  return (
-    <span className="whitespace-pre-wrap">{segments}</span>
-  );
+  return <span className="whitespace-pre-wrap">{segments}</span>;
 }
