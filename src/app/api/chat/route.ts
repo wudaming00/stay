@@ -11,6 +11,17 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
+/**
+ * Tools definition with cache_control on the last entry.
+ *
+ * Marking the last tool with ephemeral cache_control tells Anthropic to
+ * cache everything up to (and including) this block. System prompt and
+ * tools are static across every request, so every request past the first
+ * pays ~10% of normal input cost for the cached portion — a roughly
+ * 30-50% total API cost reduction for multi-turn conversations.
+ *
+ * Cache TTL: 5 minutes. Active users will keep the cache warm.
+ */
 const TOOLS: Anthropic.Tool[] = [
   {
     name: "surface_resource",
@@ -114,6 +125,7 @@ const TOOLS: Anthropic.Tool[] = [
       },
       required: ["plan"],
     },
+    cache_control: { type: "ephemeral" },
   },
 ];
 
@@ -179,7 +191,16 @@ export async function POST(req: Request) {
         const response = await anthropic.messages.stream({
           model: "claude-sonnet-4-6",
           max_tokens: 1024,
-          system: SYSTEM_PROMPT,
+          // System prompt as a cache-controlled text block.
+          // Cached portion costs 10% of normal input for subsequent requests
+          // within 5 minutes — 30-50% API cost reduction for active users.
+          system: [
+            {
+              type: "text",
+              text: SYSTEM_PROMPT,
+              cache_control: { type: "ephemeral" },
+            },
+          ],
           tools: TOOLS,
           messages: body.messages.map((m) => ({
             role: m.role,
@@ -187,7 +208,6 @@ export async function POST(req: Request) {
           })),
         });
 
-        // Track active tool_use block (Anthropic streams input JSON in chunks)
         let activeTool: { name: string; jsonBuf: string } | null = null;
 
         for await (const event of response) {
