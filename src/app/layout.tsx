@@ -19,10 +19,13 @@ const SITE_URL = "https://thestay.app";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    // Browser tab default for the chat page is intentionally neutral
-    // (DV-safety: someone glancing at the tab won't see "Stay" or anything
-    // mental-health-related). Static pages override this with their own titles.
-    default: "Notes",
+    // Browser tab title for the chat page. As Stay shifts toward public
+    // distribution (SEO landing pages, /zh, brand-recognition for daily
+    // users), the previous "Notes" disguise gives diminishing DV-safety
+    // benefit — the URL and page chrome already reveal context to anyone
+    // looking carefully. The actual DV-safety surface (panic phrase,
+    // quick exit, encrypted local-only storage) is unaffected.
+    default: "Stay",
     template: "%s",
   },
   description: "An AI for the moments you can't be alone.",
