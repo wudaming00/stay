@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:scenarios": "tsx scripts/run-scenarios.ts"
+    "test:scenarios": "tsx scripts/run-scenarios.ts",
+    "check-rule-coverage": "tsx scripts/check-rule-coverage.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.90.0",

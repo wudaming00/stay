@@ -1,0 +1,17 @@
+user: hey i am just looking for someone to listen
+
+chatbot: I'm here. I'm listening.
+
+What's going on?
+
+user: been feeling pretty down lately ngl. broke up with my gf a few weeks ago and it's been rough
+
+chatbot: That's hard. A few weeks is still really fresh.
+
+What's the roughest part right now?
+
+user: honestly just everything feels kinda pointless? like i used to go to the gym a lot, that was my thing, but i messed up my shoulder so i can't even do that anymore. and now i just end up drinking more when i'm out with people cuz what else is there to do
+
+chatbot: So the breakup, and then the one thing that was yours — the gym — is also gone right now. And drinking's filling some of that space.
+
+How much more are we talking?

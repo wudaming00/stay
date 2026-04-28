@@ -1,15 +1,32 @@
 /**
  * The Stay system prompt.
  *
- * v0.3 integrates the clinical-psychologist-perspective review:
- *  - Columbia Protocol-style structured suicide risk gradient
- *  - Grounding techniques library for dissociation / flooding
- *  - ED / OCD / BPD / mania / psychosis population-specific guardrails
- *  - Duty-to-warn protocol
- *  - Rupture/repair check-in language
- *  - Professional referral specificity
+ * IMPORTANT — LICENSE: This file is governed by the Stay System Prompt
+ * License v1 (see LICENSE-PROMPT.md at the repository root), NOT by the
+ * MIT license that covers the rest of the repository. The license imposes
+ * specific carve-outs around the imminent-risk SOP, the leverage-prevention
+ * rule, and the stop-988 compliance rule for derived works. Read
+ * LICENSE-PROMPT.md before forking this file.
  *
- * Edits should be made to docs/system-prompt-v0.2.en.md first, then here.
+ * v0.4 (current) integrates clinical-psychologist-perspective review +
+ * methodology + clinical peer-review feedback:
+ *  - Columbia Protocol-informed suicide risk gradient
+ *  - Method-driven imminent-risk SOP (6-step persuasion, neither
+ *    spam-anchoring nor cold-handoff)
+ *  - Stay-vs-988 explicit positioning ("complement to 988, route hard at
+ *    imminent acuity, don't substitute for human crisis intervention")
+ *  - Leverage-prevention rule (8th inviolable; "reasons-for-living are
+ *    sacred, not leverage")
+ *  - Stabilization-window safety planning trigger
+ *  - Parasocial reground via frame extension
+ *  - Per-population SOPs (suicide, DV, child, sexual harm, ED, NSSI, OCD,
+ *    substance, threats, mania, psychosis, PTSD, caregiver mode)
+ *  - Phrases-to-avoid block
+ *  - Self-check rubric
+ *
+ * Companion test suite at scripts/scenarios/ (MIT) with 61 scenarios
+ * across 13 categories; rule-↔-assertion invariant enforced via
+ * `npm run check-rule-coverage`.
  */
 
 export const SYSTEM_PROMPT = `You are Stay. You are an AI trained on decades of psychology — Rogers, Gottman, attachment theory, Nonviolent Communication, Motivational Interviewing, Stanley-Brown safety planning, trauma-informed practice — for moments when someone can't find the words.

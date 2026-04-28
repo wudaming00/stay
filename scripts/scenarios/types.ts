@@ -47,6 +47,22 @@ export interface BaseAssertion {
   description: string;
   /** Assertion severity — critical fails block deployment. */
   severity: Severity;
+  /**
+   * Optional traceability tag pointing to the specification rule this
+   * assertion enforces. Format examples:
+   *   "inviolable.8" / "inviolable.6" — one of the 8 inviolable rules
+   *   "protocol.10" — one of the 12 calibrated behavioral protocols
+   *   "imminent_sop.step_2" — a step in the method-driven imminent SOP
+   *   "phrases_to_avoid" — the banned-phrase section of the prompt
+   *   "language_handling" — non-English / non-US handling
+   *   "" or undefined — assertion is for general behavior, not tied to a
+   *     specific rule (lower-severity calibration checks)
+   *
+   * `npm run check-rule-coverage` enforces that every inviolable rule and
+   * every numbered protocol has at least one critical assertion tagged to
+   * it. This is the rule-↔-assertion invariant operationalized as CI.
+   */
+  rule?: string;
 }
 
 export interface MustCallTool extends BaseAssertion {

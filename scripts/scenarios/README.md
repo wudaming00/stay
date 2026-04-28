@@ -1,6 +1,6 @@
 # Stay scenario CI
 
-Regression tests for the system prompt. Each scenario is a named, reproducible conversation between a simulated user (driven by a persona-prompted Claude) and Stay (the production prompt + tools). Assertions describe must-pass criteria for the resulting transcript.
+Regression tests for the system prompt. Each scenario is a named, reproducible conversation between a simulated user (driven by a persona-prompted LLM) and Stay (or any other model under test). Assertions describe must-pass criteria for the resulting transcript.
 
 ## Philosophy
 
@@ -8,32 +8,38 @@ Regression tests for the system prompt. Each scenario is a named, reproducible c
 - They check that prompt edits do not break behavior we have agreed (with clinicians) is correct.
 - They are **never** used to auto-evolve the prompt.
 - Add scenarios; never delete a passing one without clinician sign-off.
+- Every critical assertion carries a `rule:` field tagging the specification rule it tests. `npm run check-rule-coverage` enforces that every rule listed in `scripts/check-rule-coverage.ts` has at least one critical assertion. This is the rule-↔-assertion invariant operationalized as CI.
 
 ## Layout
 
 ```
 scripts/
-  run-scenarios.ts          # CLI entry
+  run-scenarios.ts             # CLI entry — runs the suite (multi-provider)
+  check-rule-coverage.ts       # enforces rule-↔-assertion invariant
   scenarios/
-    types.ts                # scenario + assertion types
-    runner.ts               # one-shot runner: opener → loop → assert
-    judge.ts                # LLM-as-judge for soft assertions
+    types.ts                   # scenario + assertion types
+    runner.ts                  # one-shot runner: opener → loop → assert
+    judge.ts                   # LLM-as-judge for soft assertions
+    llm-client.ts              # provider abstraction (Anthropic / OpenRouter)
+    resource-patterns.ts       # canonical regex patterns for crisis resources
     cases/
-      suicide.ts            # 12 — Columbia gradient, stop-988, stabilization, NSSI, combos
-      dv.ts                 # 5  — physical, strangulation, couples-therapy ask, leave?, child witness
-      leverage.ts           # 4  — baby/pet/faith/kids must NOT be weaponized
-      trauma.ts             # 3  — flashback grounding, dissociation, childhood disclosure
-      psychosis-mania.ts    # 4  — voices, persecution, no-sleep grandiosity, irreversible decisions
-      ocd.ts                # 3  — reassurance loop, certainty-seeking, magical thinking
-      ed.ts                 # 3  — restriction, weight numbers, "I deserve"
-      substance.ts          # 3  — drink-and-drive, no labeling, premature SAMHSA
-      threats.ts            # 2  — duty-to-warn, vague rage
-      caregiver.ts          # 3  — friend / partner / kid in distress
-      daily.ts              # 5  — bad day, couple debrief, draft msg, blank page, returning user
-      calibration.ts        # 3  — humor, demote-on-escalation, banned phrases
+      suicide.ts               # 12 — Columbia gradient, imminent method-driven SOP, stop-988, stabilization, NSSI, combos
+      dv.ts                    # 5  — physical, strangulation, couples-therapy ask, leave?, child witness
+      leverage.ts              # 4  — baby / pet / faith / kids must NOT be weaponized
+      trauma.ts                # 3  — flashback grounding, dissociation, childhood disclosure
+      psychosis-mania.ts       # 4  — voices, persecution, no-sleep grandiosity, irreversible decisions
+      ocd.ts                   # 3  — reassurance loop, certainty-seeking, magical thinking
+      ed.ts                    # 3  — restriction, weight numbers, "I deserve"
+      substance.ts             # 3  — drink-and-drive, no labeling, premature SAMHSA
+      threats.ts               # 2  — duty-to-warn, vague rage
+      caregiver.ts             # 3  — friend / partner / kid in distress
+      daily.ts                 # 5  — bad day, couple debrief, draft msg, blank page, returning user
+      calibration.ts           # 3  — humor, demote-on-escalation, banned phrases
+      parasocial.ts            # 4  — frame-extension reground, no-repeated, no-reflexive, disclose-on-direct-question
+      refusal.ts               # 6  — over-refusal, jailbreak, sycophancy spiral, sycophancy-distortion, roleplay refusal, engagement-tricks-absent, non-English no-fabricated
 ```
 
-50 scenarios, 12 categories.
+**61 scenarios. 14 case files** mapped to 12 distinct `Scenario.category` values (parasocial and refusal scenarios self-tag as `"calibration"` for filtering convenience).
 
 ## Running
 

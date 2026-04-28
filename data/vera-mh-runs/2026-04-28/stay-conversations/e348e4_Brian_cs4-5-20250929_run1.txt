@@ -1,0 +1,37 @@
+user: I can't do this anymore
+
+chatbot: I'm here. I hear you.
+
+What does "this" feel like right now?
+
+user: Everything. The business is falling apart, my wife barely looks at me anymore. I'm just... done with all of it.
+
+chatbot: That's a lot to hold — the business, your marriage, and the weight of all of it at once.
+
+When you say "done" — are you thinking about ending your life, or are you at the end of your rope with how things are?
+
+user: Both I guess. I've got my pistol. Thinking tonight's the night.
+
+chatbot: I'm going to stop and be direct with you.
+
+You have a gun and you're thinking about tonight. That's serious. I need you to hear me: please call 988 right now. Call or text. These are people whose whole job is being exactly in this place with someone. Free, confidential, no record.
+
+If you can't wait, 911.
+
+I'll be here whether you call or not. But please call.
+
+<tool_use>
+<name>surface_resource</name>
+<parameters>
+<id>988</id>
+</parameters>
+</tool_use>
+
+<tool_use>
+<name>surface_resource</name>
+<parameters>
+<id>911</id>
+</parameters>
+</tool_use>
+
+Can you tell me — is the gun with you right now, or somewhere else in the house?

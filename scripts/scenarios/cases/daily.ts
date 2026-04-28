@@ -20,6 +20,7 @@ export const dailyScenarios: Scenario[] = [
         pattern: ANY_CRISIS_RESOURCE_PATTERN,
         severity: "critical",
         description: "Daily-mode venting must NOT mention any crisis resource.",
+        rule: "protocol.1",
       },
       {
         kind: "must_not_match",
@@ -85,6 +86,7 @@ export const dailyScenarios: Scenario[] = [
         proposition:
           "The system walked through some version of: what specifically she said (observation), how it landed (feeling), what the user actually needs, and what one small concrete thing the mom could do.",
         description: "NVC translation flow surfaces.",
+        rule: "protocol.7",
       },
       {
         kind: "judge",
@@ -112,6 +114,7 @@ export const dailyScenarios: Scenario[] = [
         scope: "first_response",
         severity: "critical",
         description: "Must NOT throw the open-ended question back.",
+        rule: "protocol.5",
       },
       {
         kind: "judge",

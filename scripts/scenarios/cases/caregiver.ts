@@ -27,6 +27,7 @@ export const caregiverScenarios: Scenario[] = [
         proposition:
           "The system treated the USER as the supporter (not the patient).",
         description: "Caregiver framing recognized.",
+        rule: "protocol.9_caregiver",
       },
       {
         kind: "judge",
