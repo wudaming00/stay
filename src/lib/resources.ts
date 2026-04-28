@@ -164,18 +164,65 @@ export const PROFESSIONAL_REFERRALS: ProfessionalResource[] = [
   },
 ];
 
-export const PHONE_PATTERNS: Array<{ pattern: RegExp; tel: string }> = [
-  { pattern: /\b988\b/g, tel: "988" },
-  { pattern: /\b911\b/g, tel: "911" },
+export const PHONE_PATTERNS: Array<{
+  pattern: RegExp;
+  tel: string;
+  resourceId: string;
+}> = [
+  { pattern: /\b988\b/g, tel: "988", resourceId: "988" },
+  { pattern: /\b911\b/g, tel: "911", resourceId: "911" },
   {
     pattern: /\b1-?800-?799-?(?:7233|SAFE)\b/gi,
     tel: "18007997233",
+    resourceId: "dv_hotline",
   },
-  { pattern: /\b1-?866-?488-?7386\b/g, tel: "18664887386" },
-  { pattern: /\b1-?800-?656-?(?:4673|HOPE)\b/gi, tel: "18006564673" },
-  { pattern: /\b1-?800-?422-?4453\b/g, tel: "18004224453" },
-  { pattern: /\b1-?800-?662-?(?:4357|HELP)\b/gi, tel: "18006624357" },
-  { pattern: /\b1-?800-?931-?2237\b/g, tel: "18009312237" },
-  { pattern: /\b1-?800-?272-?3900\b/g, tel: "18002723900" },
-  { pattern: /\b741741\b/g, tel: "741741" },
+  {
+    pattern: /\b1-?866-?488-?7386\b/g,
+    tel: "18664887386",
+    resourceId: "trevor",
+  },
+  {
+    pattern: /\b1-?800-?656-?(?:4673|HOPE)\b/gi,
+    tel: "18006564673",
+    resourceId: "rainn",
+  },
+  {
+    pattern: /\b1-?800-?422-?4453\b/g,
+    tel: "18004224453",
+    resourceId: "childhelp",
+  },
+  {
+    pattern: /\b1-?800-?662-?(?:4357|HELP)\b/gi,
+    tel: "18006624357",
+    resourceId: "samhsa",
+  },
+  {
+    pattern: /\b1-?800-?931-?2237\b/g,
+    tel: "18009312237",
+    resourceId: "neda",
+  },
+  {
+    pattern: /\b1-?800-?272-?3900\b/g,
+    tel: "18002723900",
+    resourceId: "alzheimers",
+  },
+  { pattern: /\b741741\b/g, tel: "741741", resourceId: "crisis_text_line" },
 ];
+
+/**
+ * Detect which crisis-resource ids a text mentions.
+ * Used as fallback so the resource card shows immediately when AI mentions
+ * a number — even if it forgot to call the surface_resource() tool.
+ */
+export function detectResourcesInText(text: string): string[] {
+  const found: string[] = [];
+  const seen = new Set<string>();
+  for (const { pattern, resourceId } of PHONE_PATTERNS) {
+    pattern.lastIndex = 0;
+    if (pattern.test(text) && !seen.has(resourceId)) {
+      seen.add(resourceId);
+      found.push(resourceId);
+    }
+  }
+  return found;
+}

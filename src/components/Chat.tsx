@@ -2,7 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { Message, SafetyPlan, StreamEvent, ToolEvent } from "@/lib/types";
-import { PHONE_PATTERNS, RESOURCES } from "@/lib/resources";
+import {
+  PHONE_PATTERNS,
+  RESOURCES,
+  detectResourcesInText,
+} from "@/lib/resources";
 import SafetyPlanCard from "./SafetyPlanCard";
 import {
   getCurrentSessionId,
@@ -622,7 +626,21 @@ function ReflectionCard({
 function MessageBubble({ message }: { message: Message }) {
   if (message.role === "assistant") {
     const tools = message.tools ?? [];
-    const resourceTools = tools.filter((t) => t.name === "surface_resource");
+    const explicitResourceIds = tools
+      .filter((t) => t.name === "surface_resource")
+      .map((t) => t.input.id)
+      .filter((id): id is string => !!id);
+    // Fallback: if AI mentioned a crisis number in text but didn't fire
+    // surface_resource() tool, still render the card immediately.
+    const detectedResourceIds = detectResourcesInText(message.content);
+    const allResourceIds: string[] = [];
+    const seen = new Set<string>();
+    for (const id of [...explicitResourceIds, ...detectedResourceIds]) {
+      if (!seen.has(id)) {
+        seen.add(id);
+        allResourceIds.push(id);
+      }
+    }
     const safetyPlanTools = tools.filter(
       (t) => t.name === "generate_safety_plan"
     );
@@ -643,8 +661,8 @@ function MessageBubble({ message }: { message: Message }) {
             </div>
           )}
         </div>
-        {resourceTools.map((t, i) => (
-          <ResourceCard key={i} resourceId={t.input.id ?? ""} />
+        {allResourceIds.map((id) => (
+          <ResourceCard key={id} resourceId={id} />
         ))}
         {safetyPlanTools.map((t, i) => {
           const plan = t.input.plan as SafetyPlan | undefined;
@@ -832,7 +850,7 @@ function renderWithPhones(text: string): React.ReactNode {
       pattern.lastIndex = 0;
       const m = pattern.exec(remaining);
       if (m && (earliest === null || m.index < earliest.index)) {
-        earliest = { index: m.index, match: m[0], tel };
+        earliest = { index: m.index, match: m[0], tel: tel };
       }
     }
 
