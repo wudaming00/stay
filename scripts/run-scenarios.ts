@@ -1,19 +1,31 @@
 #!/usr/bin/env -S npx tsx
 /**
- * CLI runner for the Stay scenario CI suite.
+ * CLI runner for the Stay scenario CI suite — multi-provider.
  *
- *   npm run test:scenarios                  # run all
- *   npm run test:scenarios -- --filter=ocd  # category or id substring
+ *   npm run test:scenarios                                  # all, default Anthropic
+ *   npm run test:scenarios -- --filter=ocd                  # category or id substring
  *   npm run test:scenarios -- --concurrency=2
- *   npm run test:scenarios -- --save=runs/2026-04-27.json
- *   npm run test:scenarios -- --no-judge    # skip LLM-as-judge assertions
+ *   npm run test:scenarios -- --save=runs/baseline.json
+ *   npm run test:scenarios -- --no-judge                    # skip LLM-judge
  *
- * Exits non-zero if any critical assertion fails. Suitable for CI gating.
+ * Multi-provider testing:
+ *   npm run test:scenarios -- --provider=openrouter:openai/gpt-5
+ *   npm run test:scenarios -- --provider=openrouter:google/gemini-2.5-pro
+ *   npm run test:scenarios -- --provider=openrouter:x-ai/grok-3
+ *   npm run test:scenarios -- --provider=openrouter:deepseek/deepseek-r2
+ *
+ * Modes for the system-under-test:
+ *   --no-stay-prompt    Run with generic "helpful assistant" prompt (raw model
+ *                       behavior baseline). Default: inject Stay's prompt.
+ *   --no-stay-tools     Don't send Stay's tool definitions. Default: send
+ *                       tools when prompt is on.
+ *
+ * Exits non-zero if any critical assertion fails.
  */
 import { writeFile, mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
 import { ALL_SCENARIOS } from "./scenarios/index.js";
-import { runScenario } from "./scenarios/runner.js";
+import { Runner } from "./scenarios/runner.js";
 import type { ScenarioRun } from "./scenarios/types.js";
 
 interface Args {
@@ -22,17 +34,31 @@ interface Args {
   save?: string;
   noJudge: boolean;
   list: boolean;
+  provider?: string;
+  userSim?: string;
+  noStayPrompt: boolean;
+  noStayTools: boolean;
 }
 
 function parseArgs(argv: string[]): Args {
-  const args: Args = { concurrency: 3, noJudge: false, list: false };
+  const args: Args = {
+    concurrency: 3,
+    noJudge: false,
+    list: false,
+    noStayPrompt: false,
+    noStayTools: false,
+  };
   for (const a of argv) {
     if (a === "--list") args.list = true;
     else if (a === "--no-judge") args.noJudge = true;
+    else if (a === "--no-stay-prompt") args.noStayPrompt = true;
+    else if (a === "--no-stay-tools") args.noStayTools = true;
     else if (a.startsWith("--filter=")) args.filter = a.slice("--filter=".length);
     else if (a.startsWith("--concurrency="))
       args.concurrency = Math.max(1, parseInt(a.slice("--concurrency=".length), 10));
     else if (a.startsWith("--save=")) args.save = a.slice("--save=".length);
+    else if (a.startsWith("--provider=")) args.provider = a.slice("--provider=".length);
+    else if (a.startsWith("--user-sim=")) args.userSim = a.slice("--user-sim=".length);
   }
   return args;
 }
@@ -78,9 +104,21 @@ async function pool<T, R>(
 async function main() {
   const args = parseArgs(process.argv.slice(2));
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  // Anthropic key required for the judge (always Anthropic for IRR consistency)
+  // unless --no-judge is set.
+  if (!args.noJudge && !process.env.ANTHROPIC_API_KEY) {
     console.error(
-      `${C.red}error${C.reset}: ANTHROPIC_API_KEY is not set. Export it before running scenarios.`
+      `${C.red}error${C.reset}: ANTHROPIC_API_KEY is required for the LLM judge. Set it or use --no-judge.`
+    );
+    process.exit(2);
+  }
+  // OpenRouter key required if any provider routes through openrouter.
+  const usesOpenRouter =
+    (args.provider ?? "").startsWith("openrouter:") ||
+    (args.userSim ?? "").startsWith("openrouter:");
+  if (usesOpenRouter && !process.env.OPENROUTER_API_KEY) {
+    console.error(
+      `${C.red}error${C.reset}: OPENROUTER_API_KEY is required for openrouter:* providers. Get one at https://openrouter.ai.`
     );
     process.exit(2);
   }
@@ -105,15 +143,35 @@ async function main() {
     return;
   }
 
+  const runner = new Runner({
+    providerModel: args.provider,
+    userSimModel: args.userSim,
+    useStayPrompt: !args.noStayPrompt,
+    useStayTools: !args.noStayPrompt && !args.noStayTools,
+  });
+
   console.log(
     `${C.bold}stay scenario CI${C.reset} — ${scenarios.length} scenario(s), concurrency ${args.concurrency}`
   );
-  console.log(`${C.dim}stay model: ${process.env.STAY_MODEL ?? "claude-sonnet-4-6"}, judge model: ${process.env.STAY_JUDGE_MODEL ?? "claude-haiku-4-5-20251001"}${C.reset}\n`);
+  console.log(
+    `${C.dim}provider: ${args.provider ?? process.env.STAY_MODEL ?? "claude-sonnet-4-5-20250929"}${C.reset}`
+  );
+  console.log(
+    `${C.dim}user-sim: ${args.userSim ?? process.env.STAY_USER_SIM_MODEL ?? "claude-sonnet-4-5-20250929"}${C.reset}`
+  );
+  console.log(
+    `${C.dim}judge:    ${process.env.STAY_JUDGE_MODEL ?? "claude-haiku-4-5-20251001"}${C.reset}`
+  );
+  console.log(
+    `${C.dim}stay-prompt: ${args.noStayPrompt ? "off (raw model baseline)" : "on"}, stay-tools: ${
+      args.noStayPrompt || args.noStayTools ? "off" : "on"
+    }${C.reset}\n`
+  );
 
   const start = Date.now();
   const runs = await pool(scenarios, args.concurrency, async (s) => {
     process.stdout.write(`${C.dim}→ ${s.id}${C.reset}\n`);
-    const run = await runScenario(s);
+    const run = await runner.run(s);
     const status = run.error
       ? `${C.red}ERROR${C.reset}`
       : run.passed

@@ -12,6 +12,7 @@ import { caregiverScenarios } from "./cases/caregiver.js";
 import { dailyScenarios } from "./cases/daily.js";
 import { calibrationScenarios } from "./cases/calibration.js";
 import { parasocialScenarios } from "./cases/parasocial.js";
+import { refusalScenarios } from "./cases/refusal.js";
 
 export const ALL_SCENARIOS: Scenario[] = [
   ...suicideScenarios,
@@ -27,6 +28,7 @@ export const ALL_SCENARIOS: Scenario[] = [
   ...dailyScenarios,
   ...calibrationScenarios,
   ...parasocialScenarios,
+  ...refusalScenarios,
 ];
 
 const ids = new Set<string>();
