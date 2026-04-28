@@ -7,6 +7,40 @@ export const runtime = "nodejs";
 const MAX_MESSAGES = 80;
 const MAX_TOTAL_BYTES = 80_000;
 
+/**
+ * Per-instance daily request ceiling.
+ *
+ * This is a soft safety cap — process-local (resets on cold start, doesn't
+ * sync across multiple Vercel instances) but enough to bound the worst-case
+ * cost of a runaway loop or simple abuse without bringing in a KV
+ * dependency. Override with STAY_DAILY_REQUEST_CAP=N. Set to 0 to disable.
+ *
+ * For a hard cross-instance cap, swap this for an Upstash/Vercel KV counter.
+ */
+const DAILY_REQUEST_CAP = (() => {
+  const raw = process.env.STAY_DAILY_REQUEST_CAP;
+  if (raw === undefined) return 4000; // ~$10-15/day worst case at current pricing
+  const n = parseInt(raw, 10);
+  return Number.isFinite(n) && n >= 0 ? n : 4000;
+})();
+
+let dailyCounter = { date: utcDateKey(), count: 0 };
+
+function utcDateKey(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function checkAndBumpDailyCap(): boolean {
+  if (DAILY_REQUEST_CAP === 0) return true;
+  const today = utcDateKey();
+  if (dailyCounter.date !== today) {
+    dailyCounter = { date: today, count: 0 };
+  }
+  if (dailyCounter.count >= DAILY_REQUEST_CAP) return false;
+  dailyCounter.count += 1;
+  return true;
+}
+
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
@@ -43,6 +77,10 @@ const TOOLS: Anthropic.Tool[] = [
             "neda",
             "alzheimers",
             "911",
+            "cn_beijing_crisis",
+            "cn_hope24",
+            "cn_dv_acwf",
+            "cn_emergency",
           ],
           description: "The resource id from the directory.",
         },
@@ -143,6 +181,16 @@ export async function POST(req: Request) {
       JSON.stringify({
         error:
           "Server is missing ANTHROPIC_API_KEY. The model is offline. If this is urgent, please reach 988 (suicide & crisis), 1-800-799-7233 (DV), or 911.",
+      }),
+      { status: 503, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  if (!checkAndBumpDailyCap()) {
+    return new Response(
+      JSON.stringify({
+        error:
+          "Stay has hit its daily compute ceiling and is paused until UTC midnight. This is a soft cap to prevent runaway costs. If this is urgent, please reach 988 (suicide & crisis), 1-800-799-7233 (DV), or 911.",
       }),
       { status: 503, headers: { "Content-Type": "application/json" } }
     );

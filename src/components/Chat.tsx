@@ -19,6 +19,7 @@ import {
 import { isInsightSaved, saveInsight } from "@/lib/insights";
 import { matchesPanicPhrase } from "@/lib/panic";
 import { deleteDeviceKey } from "@/lib/crypto";
+import { track } from "@/lib/telemetry";
 import VoiceInput from "./VoiceInput";
 
 function generateId() {
@@ -27,6 +28,28 @@ function generateId() {
 
 const MAX_INPUT_CHARS = 4000;
 const MAX_MESSAGES_KEPT = 60;
+const RETURNING_THRESHOLD_MS = 12 * 60 * 60 * 1000;
+const HEAVY_CHECKIN_WINDOW_MS = 72 * 60 * 60 * 1000;
+// Resources that classify a prior session as "heavy" and qualify it for a
+// quiet next-open check-in. Stored locally only; never sent anywhere.
+const HEAVY_RESOURCE_IDS = new Set(["988", "911", "dv_hotline"]);
+
+function classifyAsHeavy(messages: Message[]): boolean {
+  for (const m of messages) {
+    if (m.role !== "assistant") continue;
+    for (const t of m.tools ?? []) {
+      if (t.name === "generate_safety_plan") return true;
+      if (
+        t.name === "surface_resource" &&
+        typeof t.input.id === "string" &&
+        HEAVY_RESOURCE_IDS.has(t.input.id)
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
 
 const EXAMPLE_PROMPTS = [
   "I just had a hard conversation and I'm spinning",
@@ -37,6 +60,15 @@ const EXAMPLE_PROMPTS = [
 const TRANSLATION_STARTER =
   "I'm trying to figure out how to say something to someone. Can you help me find the words?\n\nHere's what's going on: ";
 
+const HELP_SOMEONE_STARTER =
+  "Someone I love is in a really dark place and I don't know what to do. ";
+
+/** Seed prefills sent via ?seed= URL param from SEO landing pages. */
+const SEED_PREFILLS: Record<string, string> = {
+  draft: TRANSLATION_STARTER,
+  "help-someone": HELP_SOMEONE_STARTER,
+};
+
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -44,7 +76,13 @@ export default function Chat() {
   const [streaming, setStreaming] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [outage, setOutage] = useState(false);
+  /** When non-null and `messages` is empty, prior session exists but was not
+   *  auto-restored — user gets explicit pick-up/start-fresh choice. */
   const [returningSince, setReturningSince] = useState<number | null>(null);
+  /** Stashed prior messages awaiting user "pick up where we were" choice. */
+  const [pendingResume, setPendingResume] = useState<Message[] | null>(null);
+  /** Was the prior (unresumed) session heavy enough to merit a check-in? */
+  const [resumeWasHeavy, setResumeWasHeavy] = useState(false);
   const [showExamples, setShowExamples] = useState(false);
   const [pauseSuggested, setPauseSuggested] = useState(false);
   const [reflectionQuote, setReflectionQuote] = useState<string | null>(null);
@@ -67,14 +105,18 @@ export default function Chat() {
       try {
         sessionIdRef.current = getCurrentSessionId();
         const stored = await loadSession(sessionIdRef.current);
-        if (!cancelled && stored && stored.length > 0) {
-          const meta = await getSessionMeta(sessionIdRef.current);
-          if (meta) {
-            const ageMs = Date.now() - meta.updatedAt;
-            if (ageMs > 12 * 60 * 60 * 1000) {
-              setReturningSince(meta.updatedAt);
-            }
-          }
+        if (cancelled || !stored || stored.length === 0) return;
+        const meta = await getSessionMeta(sessionIdRef.current);
+        const ageMs = meta ? Date.now() - meta.updatedAt : Infinity;
+        if (ageMs > RETURNING_THRESHOLD_MS) {
+          // Don't auto-restore stale sessions. Surface the welcome and let
+          // the user choose to resume or start fresh.
+          setReturningSince(meta?.updatedAt ?? Date.now());
+          setPendingResume(stored);
+          setResumeWasHeavy(
+            classifyAsHeavy(stored) && ageMs < HEAVY_CHECKIN_WINDOW_MS
+          );
+        } else {
           setMessages(stored);
         }
       } catch {
@@ -87,6 +129,15 @@ export default function Chat() {
       cancelled = true;
     };
   }, []);
+
+  function resumePending() {
+    if (!pendingResume) return;
+    setMessages(pendingResume);
+    setPendingResume(null);
+    setReturningSince(null);
+    setResumeWasHeavy(false);
+    requestAnimationFrame(() => inputRef.current?.focus());
+  }
 
   useEffect(() => {
     async function onQuickExit() {
@@ -103,6 +154,8 @@ export default function Chat() {
       setInput("");
       setOutage(false);
       setReturningSince(null);
+      setPendingResume(null);
+      setResumeWasHeavy(false);
       setPauseSuggested(false);
       setReflectionQuote(null);
       requestAnimationFrame(() => inputRef.current?.focus());
@@ -117,6 +170,32 @@ export default function Chat() {
 
   useEffect(() => {
     if (loaded) inputRef.current?.focus();
+  }, [loaded]);
+
+  // Apply ?seed=draft / ?seed=help-someone prefill from SEO landing pages.
+  // Only applies on a fresh session (no messages, no input typed yet).
+  useEffect(() => {
+    if (!loaded) return;
+    if (typeof window === "undefined") return;
+    if (messages.length > 0 || input.length > 0) return;
+    const params = new URLSearchParams(window.location.search);
+    const seed = params.get("seed");
+    if (!seed) return;
+    const prefill = SEED_PREFILLS[seed];
+    if (!prefill) return;
+    setInput(prefill);
+    requestAnimationFrame(() => {
+      const el = inputRef.current;
+      if (el) {
+        el.focus();
+        el.setSelectionRange(prefill.length, prefill.length);
+      }
+    });
+    // Clean the URL so refresh doesn't re-prefill on top of typed content.
+    const url = new URL(window.location.href);
+    url.searchParams.delete("seed");
+    window.history.replaceState({}, "", url.toString());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded]);
 
   // Surface example prompts only after a long silence. Welcome ends
@@ -165,6 +244,7 @@ export default function Chat() {
 
   async function handlePanicCheck(value: string): Promise<boolean> {
     if (!matchesPanicPhrase(value)) return false;
+    track("panic_phrase_triggered");
     try {
       await deleteEverything();
       deleteDeviceKey();
@@ -196,6 +276,7 @@ export default function Chat() {
   function startTranslation() {
     setInput(TRANSLATION_STARTER);
     setShowExamples(false);
+    track("translation_started");
     requestAnimationFrame(() => {
       inputRef.current?.focus();
       const el = inputRef.current;
@@ -218,6 +299,12 @@ export default function Chat() {
     } else if (evt.name === "end_with_reflection") {
       const q = evt.input.quote?.trim();
       if (q) setReflectionQuote(q);
+      track("reflection_card_shown");
+    } else if (evt.name === "surface_resource") {
+      const id = typeof evt.input.id === "string" ? evt.input.id : undefined;
+      if (id) track("crisis_resource_surfaced", { resourceId: id });
+    } else if (evt.name === "generate_safety_plan") {
+      track("safety_plan_generated");
     }
     setMessages((prev) =>
       prev.map((m) =>
@@ -237,6 +324,14 @@ export default function Chat() {
     }
     if (await handlePanicCheck(trimmed)) return;
 
+    // If a stale session is pending and the user typed instead of clicking
+    // "pick up where we were", treat that as start-fresh so we don't
+    // overwrite the prior session's storage blob under the same id.
+    if (pendingResume !== null) {
+      sessionIdRef.current = newSession();
+      setPendingResume(null);
+      setResumeWasHeavy(false);
+    }
     stickyBottomRef.current = true;
     setOutage(false);
     setReturningSince(null);
@@ -257,6 +352,7 @@ export default function Chat() {
     };
 
     const next = [...messages, userMsg, assistantMsg];
+    if (messages.length === 0) track("session_started");
     setMessages(next);
     setInput("");
     setInterimVoice("");
@@ -346,6 +442,9 @@ export default function Chat() {
 
   function acceptPause() {
     setPauseSuggested(false);
+    track("session_ended_naturally", {
+      turnCount: messagesRef.current.filter((m) => m.role === "user").length,
+    });
     void saveSession(sessionIdRef.current, messagesRef.current).catch(() => {});
   }
 
@@ -374,7 +473,12 @@ export default function Chat() {
       >
         {showWelcome && <Welcome />}
         {showReturning && returningSince && (
-          <ReturningWelcome since={returningSince} />
+          <ReturningWelcome
+            since={returningSince}
+            heavy={resumeWasHeavy}
+            canResume={pendingResume !== null}
+            onResume={resumePending}
+          />
         )}
         {outage && <OutagePanel />}
 
@@ -495,23 +599,56 @@ function Welcome() {
   );
 }
 
-function ReturningWelcome({ since }: { since: number }) {
+function ReturningWelcome({
+  since,
+  heavy,
+  canResume,
+  onResume,
+}: {
+  since: number;
+  heavy: boolean;
+  canResume: boolean;
+  onResume: () => void;
+}) {
   const ago = formatTimeAgo(since);
   return (
-    <div className="animate-fadein-slow space-y-3 font-serif text-lg leading-relaxed text-foreground">
-      <p>It&apos;s been {ago} since we talked.</p>
-      <p>I&apos;m here. Pick up where we were, or start something new.</p>
-      <p className="text-foreground-secondary">
+    <div className="animate-fadein-slow space-y-4 font-serif text-lg leading-relaxed text-foreground">
+      {heavy ? (
+        <>
+          <p>It&apos;s been {ago}. I&apos;ve been thinking about you.</p>
+          <p className="text-foreground-secondary">
+            Last time was a lot. No pressure to pick it back up — but I&apos;m
+            here either way. How are you tonight?
+          </p>
+        </>
+      ) : (
+        <>
+          <p>It&apos;s been {ago} since we talked.</p>
+          <p className="text-foreground-secondary">
+            I&apos;m here. Pick up where we were, or start something new.
+          </p>
+        </>
+      )}
+      <div className="flex flex-wrap gap-2 pt-1 font-sans text-sm">
+        {canResume && (
+          <button
+            type="button"
+            onClick={onResume}
+            className="rounded-md border border-accent bg-accent px-3 py-1.5 text-xs text-background transition-colors hover:bg-accent-hover"
+          >
+            pick up where we were
+          </button>
+        )}
         <button
           type="button"
           onClick={() =>
             window.dispatchEvent(new Event("stay:new-conversation"))
           }
-          className="text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent"
+          className="rounded-md border border-border-strong px-3 py-1.5 text-xs text-foreground-secondary transition-colors hover:text-foreground"
         >
-          start fresh →
+          start fresh
         </button>
-      </p>
+      </div>
     </div>
   );
 }

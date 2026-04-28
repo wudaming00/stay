@@ -21,6 +21,11 @@ import {
   setPanicPhrase,
   clearPanicPhrase,
 } from "@/lib/panic";
+import {
+  isTelemetryOptedIn,
+  setTelemetryOptIn,
+  clearTelemetry,
+} from "@/lib/telemetry";
 
 export default function SettingsPage() {
   const [count, setCount] = useState<number | null>(null);
@@ -28,6 +33,7 @@ export default function SettingsPage() {
   const [phrase, setPhraseInput] = useState("");
   const [phraseSaved, setPhraseSaved] = useState(false);
   const [working, setWorking] = useState<string | null>(null);
+  const [telemetryOn, setTelemetryOn] = useState(false);
 
   async function refresh() {
     try {
@@ -40,6 +46,7 @@ export default function SettingsPage() {
       setCount(0);
     }
     setPhraseInput(getPanicPhrase() ?? "");
+    setTelemetryOn(isTelemetryOptedIn());
   }
 
   useEffect(() => {
@@ -81,6 +88,29 @@ export default function SettingsPage() {
     }
   }
 
+  /**
+   * Therapist export: a clean Markdown transcript of the current session.
+   * Designed to be readable, printable, and small enough to email or paste
+   * into a clinician's intake notes. No tool-call clutter, no JSON.
+   */
+  async function downloadForTherapist() {
+    setWorking("therapist");
+    try {
+      const id = getCurrentSessionId();
+      const stored = await loadSession(id);
+      const md = formatForTherapist(stored ?? []);
+      const blob = new Blob([md], { type: "text/markdown;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `stay-session-${new Date().toISOString().slice(0, 10)}.md`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setWorking(null);
+    }
+  }
+
   async function deleteAll() {
     const phrase = window.prompt(
       'This will permanently delete every conversation and every saved insight on this device. Type "delete" to confirm.'
@@ -91,11 +121,18 @@ export default function SettingsPage() {
       await deleteEverything();
       await deleteAllInsights();
       clearPanicPhrase();
+      clearTelemetry();
       deleteDeviceKey();
       await refresh();
     } finally {
       setWorking(null);
     }
+  }
+
+  function toggleTelemetry() {
+    const next = !telemetryOn;
+    setTelemetryOptIn(next);
+    setTelemetryOn(next);
   }
 
   function savePanic() {
@@ -154,6 +191,13 @@ export default function SettingsPage() {
             value="Export the current conversation and saved insights as a JSON file."
             actionLabel={working === "download" ? "preparing…" : "download"}
             onAction={downloadAll}
+            disabled={working !== null}
+          />
+          <Row
+            label="Share this with your therapist"
+            value="A clean, readable Markdown transcript of this conversation — for emailing or printing. No tool-call clutter, no JSON."
+            actionLabel={working === "therapist" ? "preparing…" : "download .md"}
+            onAction={downloadForTherapist}
             disabled={working !== null}
           />
           <Row
@@ -255,6 +299,42 @@ export default function SettingsPage() {
         </section>
 
         <section className="mt-12 border-t border-border pt-8">
+          <h2 className="font-serif text-xl font-medium">
+            Anonymous usage stats
+          </h2>
+          <p className="mt-2 font-serif text-foreground-secondary">
+            Off by default. If on, Stay sends a tiny set of event names so I
+            can see how the product is used at a population level: a session
+            started, a crisis resource was surfaced, a safety plan was
+            generated. Names only — never message content, never insights,
+            never anything you typed.
+          </p>
+          <p className="mt-2 font-serif text-sm text-foreground-secondary">
+            Each device gets a random anonymous id. There are no accounts,
+            so the id is not linked to you. Turning this off (or deleting
+            everything above) removes the id immediately.
+          </p>
+          <div className="mt-4 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={toggleTelemetry}
+              className={`rounded-md border px-3 py-2 font-sans text-xs transition-colors ${
+                telemetryOn
+                  ? "border-accent bg-accent text-background hover:bg-accent-hover"
+                  : "border-border-strong text-foreground-secondary hover:text-foreground"
+              }`}
+            >
+              {telemetryOn ? "✓ on" : "off"}
+            </button>
+            <span className="font-sans text-xs text-foreground-tertiary">
+              {telemetryOn
+                ? "thank you. helps Stay get better."
+                : "leave off if you'd rather."}
+            </span>
+          </div>
+        </section>
+
+        <section className="mt-12 border-t border-border pt-8">
           <h2 className="font-serif text-xl font-medium">Quick exit</h2>
           <p className="mt-2 font-serif text-foreground-secondary">
             The button in the top right of every page (or pressing Escape)
@@ -317,6 +397,50 @@ export default function SettingsPage() {
       </footer>
     </main>
   );
+}
+
+interface SessionMessage {
+  role: "user" | "assistant";
+  content: string;
+  createdAt: number;
+}
+
+function formatForTherapist(messages: SessionMessage[]): string {
+  const date = new Date().toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const lines: string[] = [
+    "# Stay session transcript",
+    "",
+    `Exported ${date}.`,
+    "",
+    "_This is a transcript of a conversation between the user and Stay (an AI for reflective conversation, free at thestay.app). Stay is not a therapist and does not diagnose; this transcript is shared by the user for clinical context._",
+    "",
+    "---",
+    "",
+  ];
+  if (messages.length === 0) {
+    lines.push("_(empty session)_");
+    return lines.join("\n");
+  }
+  for (const m of messages) {
+    const ts = new Date(m.createdAt).toLocaleTimeString(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+    const speaker = m.role === "user" ? "**Me**" : "**Stay**";
+    lines.push(`${speaker} _(${ts})_`);
+    lines.push("");
+    lines.push(m.content.trim());
+    lines.push("");
+    lines.push("");
+  }
+  lines.push("---");
+  lines.push("");
+  lines.push("_End of transcript._");
+  return lines.join("\n");
 }
 
 function Row({
