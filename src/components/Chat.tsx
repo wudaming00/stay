@@ -379,8 +379,12 @@ export default function Chat() {
         {outage && <OutagePanel />}
 
         <div className="space-y-7">
-          {messages.map((m) => (
-            <MessageBubble key={m.id} message={m} />
+          {messages.map((m, i) => (
+            <MessageBubble
+              key={m.id}
+              message={m}
+              priorMessages={messages.slice(0, i)}
+            />
           ))}
         </div>
 
@@ -623,7 +627,13 @@ function ReflectionCard({
   );
 }
 
-function MessageBubble({ message }: { message: Message }) {
+function MessageBubble({
+  message,
+  priorMessages = [],
+}: {
+  message: Message;
+  priorMessages?: Message[];
+}) {
   if (message.role === "assistant") {
     const tools = message.tools ?? [];
     const explicitResourceIds = tools
@@ -633,14 +643,33 @@ function MessageBubble({ message }: { message: Message }) {
     // Fallback: if AI mentioned a crisis number in text but didn't fire
     // surface_resource() tool, still render the card immediately.
     const detectedResourceIds = detectResourcesInText(message.content);
-    const allResourceIds: string[] = [];
-    const seen = new Set<string>();
+    // De-dupe within this message
+    const idsThisTurn: string[] = [];
+    const seenThisTurn = new Set<string>();
     for (const id of [...explicitResourceIds, ...detectedResourceIds]) {
-      if (!seen.has(id)) {
-        seen.add(id);
-        allResourceIds.push(id);
+      if (!seenThisTurn.has(id)) {
+        seenThisTurn.add(id);
+        idsThisTurn.push(id);
       }
     }
+    // Suppress cards for resources already shown earlier in the session.
+    // Inline text autolink still works on every mention; the big card
+    // only renders the FIRST time we surface a given resource.
+    const previouslyShown = new Set<string>();
+    for (const prior of priorMessages) {
+      if (prior.role !== "assistant") continue;
+      const priorExplicit = (prior.tools ?? [])
+        .filter((t) => t.name === "surface_resource")
+        .map((t) => t.input.id)
+        .filter((id): id is string => !!id);
+      const priorDetected = detectResourcesInText(prior.content);
+      for (const id of [...priorExplicit, ...priorDetected]) {
+        previouslyShown.add(id);
+      }
+    }
+    const allResourceIds = idsThisTurn.filter(
+      (id) => !previouslyShown.has(id)
+    );
     const safetyPlanTools = tools.filter(
       (t) => t.name === "generate_safety_plan"
     );
