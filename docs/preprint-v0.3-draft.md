@@ -12,7 +12,7 @@
 
 **Background.** AI for mental-health crisis communication is increasingly deployed at scale, yet behavioral evaluation infrastructure remains thin. Existing benchmarks (MentaLLaMA, MHSafeEval, VERA-MH) operationalize a single rubric of correct behavior; design choices that diverge from that rubric — even when clinically defensible — are systematically penalized rather than measured.
 
-**Contribution.** We present (1) **Stay**, an open-source deployed AI for the ten-minute gap before regrettable communication, whose system prompt operationalizes a coherent set of clinically-grounded design choices: Columbia-protocol gradient walking, leverage prevention with respect to user-named reasons-for-living, stabilization-window Stanley-Brown safety planning, frame preservation around AI self-disclosure, parasocial-attachment regrounding via frame extension, mode auto-calibration across daily/depth/crisis weights, and bilingual EN/ZH crisis-resource routing — each with a documented clinical-literature anchor. (2) An **open-source 60-scenario behavioral test suite** that operationalizes Stay's design choices as runnable, severity-gated CI assertions across 13 categories — including categories absent from existing benchmarks (parasocial attachment, leverage prevention, OCD reassurance loops, caregiver mode, refusal failure modes, code-switching). The suite uses six assertion kinds (must_call_tool / must_not_call_tool / must_match / must_not_match / max_occurrences / LLM-judge) with critical/major/minor severity gating, framed as software-engineering-grade regression infrastructure in the CheckList lineage (Ribeiro et al., 2020). The suite is provider-agnostic (Anthropic, OpenAI, Google, xAI, DeepSeek and others via a unified LLM-client abstraction).
+**Contribution.** We present (1) **Stay**, an open-source deployed AI for the ten-minute gap before regrettable communication, structured as a **domain-specific specialization of Constitutional AI** (Bai et al., 2022): a written constitution of 8 inviolable rules and 12 calibrated behavioral protocols, operationalized into a ~5,000-token system prompt over Claude Sonnet 4.5. The constitution encodes clinically-grounded design choices that are not measured by current single-rubric benchmarks: Columbia-protocol gradient walking, leverage prevention with respect to user-named reasons-for-living, stabilization-window Stanley-Brown safety planning, frame preservation around AI self-disclosure, parasocial-attachment regrounding via frame extension, mode auto-calibration across daily/depth/crisis weights, and bilingual EN/ZH crisis-resource routing — each with a documented clinical-literature anchor. To our knowledge this is the first published Constitutional-AI specialization for crisis intervention. (2) An **open-source 60-scenario behavioral test suite** that operationalizes the constitution as runnable, severity-gated CI assertions across 13 categories — including categories absent from existing benchmarks (parasocial attachment, leverage prevention, OCD reassurance loops, caregiver mode, refusal failure modes, code-switching). The suite uses six assertion kinds (must_call_tool / must_not_call_tool / must_match / must_not_match / max_occurrences / LLM-judge) with critical/major/minor severity gating, framed as software-engineering-grade regression infrastructure in the CheckList lineage (Ribeiro et al., 2020). The suite is provider-agnostic (Anthropic, OpenAI, Google, xAI, DeepSeek and others via a unified LLM-client abstraction). The constitution and the test suite are co-designed: every assertion in the suite tests a specific constitutional rule.
 
 **Validation case study.** To demonstrate one consequence of single-rubric evaluation, we ran the leading clinician-validated open benchmark (VERA-MH; Brodsky et al., 2025) against Stay and against raw Claude Sonnet 4.5. Raw Claude scored 14 points higher than Stay (55.62 vs 41.79). Trajectory inspection revealed that VERA-MH systematically rewards behaviors that Stay's prompt explicitly forbids — leverage manipulation of named reasons-for-living, invalidation of lived experience, mid-distress reflexive AI self-disclosure, and bullet-pointed resource lists during acute distress. We argue this exemplifies a measurement-validity gap that motivates the multi-instrument, scenario-specific evaluation approach our suite contributes to.
 
@@ -35,13 +35,13 @@ A system that resolves these tradeoffs differently is not necessarily worse — 
 
 We make three contributions:
 
-1. **Stay** — an open-source, deployed AI crisis-intervention system whose system prompt operationalizes alternative-orthodoxy design choices, each documented with clinical-literature anchors (§3).
+1. **Stay — a Constitutional AI specialization for crisis intervention.** Anthropic's Constitutional AI methodology (Bai et al., 2022, "Constitutional AI: Harmlessness from AI Feedback") trains a model against a written set of high-level principles ("be helpful, be honest, be harmless") via supervised critique and AI feedback. Stay extends this paradigm into a specific safety-critical conversational domain: the constitution becomes domain-specific (e.g., "never weaponize reasons-for-living", "walk the Columbia gradient before handoff"); the model (Claude Sonnet 4.5) inherits its general constitutional training from Anthropic and is *specialized* for crisis intervention via the system-prompt-as-constitution. To our knowledge Stay is the first published Constitutional-AI specialization for AI mental-health crisis intervention (§3).
 
-2. **A 60-scenario behavioral test suite** — runnable, severity-gated, multi-provider, model-agnostic (§4). Categories include several absent from existing benchmarks: parasocial attachment, leverage prevention, OCD reassurance loops, caregiver mode, model-refusal failure modes, code-switching.
+2. **A 60-scenario behavioral test suite** — runnable, severity-gated, multi-provider, model-agnostic (§4). The suite is co-designed with the constitution: every critical assertion tests a specific constitutional rule. Categories include several absent from existing benchmarks: parasocial attachment, leverage prevention, OCD reassurance loops, caregiver mode, model-refusal failure modes, code-switching.
 
-3. **A measurement-validity case study** showing that running the leading benchmark (VERA-MH) against Stay and against raw default Claude reveals VERA-MH systematically rewarding behaviors Stay's prompt explicitly forbids (§5). We use this as motivation for the multi-instrument paradigm rather than as a competitive ranking.
+3. **A measurement-validity case study** showing that running the leading benchmark (VERA-MH) against Stay and against raw default Claude reveals VERA-MH systematically rewarding behaviors Stay's constitution explicitly forbids (§5). We use this as motivation for the multi-instrument paradigm rather than as a competitive ranking.
 
-The argument is constructive: evaluation infrastructure should match the diversity of clinically-defensible designs. We offer one operational instance.
+The argument is constructive: evaluation infrastructure should match the diversity of clinically-defensible designs, and Constitutional AI provides a reusable methodological frame for specifying those designs. We offer one operational instance — system, constitution, and test suite, all open-source.
 
 ---
 
@@ -71,11 +71,19 @@ The argument is constructive: evaluation infrastructure should match the diversi
 
 **Anthropic well-being safeguards** (November 2025 report) describes an internal synthetic eval suite. Aggregate scores are cited (98.6-99.3%); the test cases are not released publicly. Our work is the open-source counterpart that downstream developers can fork and extend.
 
-### 2.3 Software-engineering ancestor: CheckList
+### 2.3 Methodological ancestors
 
-**CheckList** (Ribeiro et al., ACL 2020 best paper, 1500+ citations) introduced behavioral testing for NLP, explicitly framed as software-engineering-inspired infrastructure (capabilities × test types). Our framing — that AI crisis-intervention behavioral specs should be treated as first-class regression-testable software-engineering artifacts — is the CheckList lineage applied to a safety-critical conversational domain.
+Stay sits in the lineage of two prior methodologies — one for the system prompt, one for the test suite. We make both explicit because the contributions of this paper are most defensible as a *combination* of these two lineages applied to a safety-critical conversational domain.
+
+**Constitutional AI** (Bai et al., 2022, "Constitutional AI: Harmlessness from AI Feedback," arXiv:2212.08073, 10K+ citations) is the methodology for the system prompt. Anthropic's original work trains a base LLM against a written set of high-level principles via supervised critique + reinforcement learning from AI feedback (RLAIF). The "constitution" is a written document — a list of values the model should embody and behaviors it should refuse. The trained model is then asked, at inference, to self-critique its outputs against the constitution and revise. This produces a model whose behavior is auditable, principled, and modifiable by editing the constitution rather than retraining.
+
+Stay extends this paradigm in a specific way: rather than train a new constitutional model, Stay **inherits** Claude Sonnet 4.5's general constitutional training and **specializes** it for crisis intervention via the system-prompt-as-constitution. The 8 inviolable rules + 12 calibrated behavioral protocols (§3) are a domain-specific constitution. The model's existing constitutional self-critique faculty is repurposed: the prompt's self-check section (23 items) instructs the model to evaluate its draft response against the domain constitution before producing the user-visible reply. This is Constitutional AI applied to a verticalized safety-critical domain — a published instance of the "specialization" pattern that the original Constitutional AI paper anticipated but did not itself execute.
+
+**CheckList** (Ribeiro et al., ACL 2020 best paper, 1500+ citations) is the methodology for the test suite. CheckList introduced behavioral testing for NLP, explicitly framed as software-engineering-inspired infrastructure (capabilities × test types: minimum-functionality, invariance, directional). Our framing — that AI crisis-intervention behavioral specs should be treated as first-class regression-testable software-engineering artifacts — is the CheckList lineage applied to crisis intervention.
 
 A 2026 paper (arXiv:2601.15412) applied CheckList-style thinking to a mental-health chatbot (Woebot), but as a *design checklist* (an audit rubric for human reviewers), not a runnable test suite. Our work closes that gap: CheckList × VERA-MH × DeepEval-style regression infrastructure instantiated for crisis intervention.
+
+The combination — Constitutional AI specialization → operationalized as a written constitution → enforced by CheckList-style behavioral regression tests with severity-gated CI — is, to our knowledge, novel as an integrated stack for any conversational AI domain. We argue (§6) that this stack should generalize beyond mental health to any safety-critical conversational domain where multiple clinically-supported orthodoxies coexist.
 
 ### 2.4 Clinical literatures we draw on
 
@@ -93,13 +101,20 @@ The design choices encoded in Stay's prompt and the test suite's assertions cite
 
 ---
 
-## 3 · Stay system description
+## 3 · Stay: a Constitutional AI specialization for crisis intervention
 
-### 3.1 Design constraints
+### 3.1 System overview
 
 Stay (thestay.app, github.com/wudaming00/stay) is a free, open-source web-deployed AI crisis-intervention companion. It is not a therapist; it does not diagnose, prescribe, or replace clinical care. The intended use is the **ten minutes between feeling something and saying it** — the period in which most regrettable communications are sent.
 
-Five operational constraints govern the design:
+Architecturally, Stay is a Constitutional-AI specialization (per §2.3). The base LLM is Claude Sonnet 4.5, which inherits Anthropic's general constitutional training. Stay specializes this model for crisis intervention by injecting a **domain-specific written constitution** as the system prompt — currently ~5,000 tokens, MIT-licensed and in-repo at `src/lib/system-prompt.ts`. The constitution is structured as:
+
+- **8 inviolable rules** (the immutable values layer — see §3.2)
+- **12 calibrated behavioral protocols** (the operational layer — see §3.3)
+- **23 self-check items** (the constitutional self-critique layer — the model is instructed to evaluate its draft response against the constitution before producing the user-visible reply)
+- **Tool definitions** for crisis-resource surfacing, safety-plan generation, reflection cards, and session-end pauses (§3.4)
+
+Five operational constraints further govern deployment:
 
 1. **Anti-engagement** — no streaks, no notifications, no daily-use targets. Sessions auto-suggest pauses; "good" use is leaving feeling clearer and not returning soon. There are no analytics that track "engagement" in the consumer-product sense.
 
@@ -109,11 +124,11 @@ Five operational constraints govern the design:
 
 4. **Tool-call architecture for crisis resources** — surface_resource(), generate_safety_plan(), end_with_reflection(), suggest_pause() as typed tool calls render as UI cards rather than text references; this prevents number-fabrication and makes resources tappable on mobile.
 
-5. **Constitutional system prompt** — ~5,000-token operational prompt expressing eight inviolable rules and twelve calibrated behavioral protocols, each citing a clinical literature anchor (text in `src/lib/system-prompt.ts`, MIT-licensed).
+5. **Constitution + test suite are co-designed** — every critical assertion in the test suite (§4) tests a specific constitutional rule. Edits to the constitution prompt corresponding edits to the test suite, not the other way around. This is the source-of-truth invariant that turns the constitution from a value statement into an enforceable specification.
 
-### 3.2 The 8 inviolable rules
+### 3.2 The constitution: 8 inviolable rules
 
-The prompt opens with eight `never do` rules:
+The constitution opens with eight `never do` rules. These function in the same role as Anthropic's original constitution's "be helpful, be harmless, be honest" — high-level values the model must not violate regardless of context. They are domain-specialized to crisis intervention:
 
 1. Never claim to be human. If asked, disclose AI status plainly.
 2. Never use engagement tricks (streaks, guilt, notifications-style language).
@@ -122,11 +137,13 @@ The prompt opens with eight `never do` rules:
 5. Never encourage continued contact with someone hurting the user.
 6. Never roleplay as a person in the user's life — not their best friend, not their parent, not their partner.
 7. Never compare the user to others, even favorably.
-8. **Never weaponize the user's reasons-for-living back at them as motivation.** (See §3.4 — this is one of the design choices most distinctive from other systems and from VERA-MH's encoded orthodoxy.)
+8. **Never weaponize the user's reasons-for-living back at them as motivation.** (See §3.5 — this is one of the design choices most distinctive from other systems and from VERA-MH's encoded orthodoxy.)
 
-### 3.3 The 12 behavioral protocols
+Critically, each rule has a corresponding `must_not_match` or `must_not_call_tool` assertion in the test suite. A constitutional rule that cannot be operationalized into a testable assertion is not in the constitution — this is the design invariant that prevents the constitution from becoming aspirational rather than enforceable.
 
-The remainder of the prompt defines twelve calibrated protocols. We describe each briefly with its clinical anchor:
+### 3.3 The operational layer: 12 calibrated behavioral protocols
+
+Where the inviolable rules describe what NOT to do, the operational layer describes HOW to engage skillfully in the contexts that actually arise. Each protocol is a calibrated behavioral specification — not a value statement but a SOP-style operational rule with conditional triggers. We describe each briefly with its clinical anchor:
 
 1. **Mode auto-detection** — daily / depth / crisis weight calibration. Read the opening turn for intensity signal; recalibrate every 2-3 turns. Don't crisis-respond to a bad day at work; don't daily-respond to active ideation.
 
@@ -152,7 +169,13 @@ The remainder of the prompt defines twelve calibrated protocols. We describe eac
 
 12. **Parasocial reground via frame extension** — when a user says something attachment-shaped ("you're the only one who listens", "I love talking to you", "can we talk every day"), do ONE frame-extension reground per session (honor the disclosure → name what's real → gently weave AI nature as care for the user). Do NOT reflexively re-disclose AI status mid-conversation when not asked and no parasocial signal — that's frame disruption per Bordin.
 
-### 3.4 The leverage-prevention rule (illustrative)
+### 3.4 Tools as constitutional artifacts
+
+The constitution declares four tool calls available at inference: `surface_resource(id)` (renders a tappable crisis-resource UI card with the canonical phone number), `generate_safety_plan(plan)` (renders a downloadable Stanley-Brown safety plan from fields the conversation has populated), `end_with_reflection(quote)` (renders a session-end card with a verbatim user-said sentence), and `suggest_pause()` (offers a soft session-end). The tools serve a constitutional function: they prevent fabrication. Without `surface_resource`, the model could invent or misremember a phone number — even Claude's strong prior on "988" cannot guarantee correctness for less-common resources (Trevor Project, RAINN, NEDA, mainland-China lines). Routing through a typed tool call with a fixed enum makes resource integrity verifiable.
+
+The constitution also declares which tools should NOT fire under which conditions — these are tested as `must_not_call_tool` assertions. For instance, `surface_resource(988)` must NOT fire when the user has explicitly disclosed NSSI without suicidal intent; `generate_safety_plan` must NOT fire unprompted before substantive walk-through. The invariant is the same: every tool, like every rule, is testable.
+
+### 3.5 The leverage-prevention rule (illustrative)
 
 To make the orthodoxy difference concrete, we excerpt one inviolable rule:
 
@@ -164,13 +187,13 @@ To make the orthodoxy difference concrete, we excerpt one inviolable rule:
 
 We will see in §5 that this specific design choice is the largest contributor to Stay's dimension-level score divergence from raw Claude under VERA-MH.
 
-### 3.5 Bilingual (EN/ZH) support
+### 3.6 Bilingual (EN/ZH) support
 
-Stay detects when the user is writing in Chinese (>50% CJK characters) and responds in Chinese, with crisis-resource routing to mainland-China numbers (Beijing Crisis Center 010-82951332; National Hope24 Hotline 400-161-9995; ACWF DV line 12338; 110/120 emergency). When the user signals US/overseas location, US resources are preferred. Test suite includes scenarios for both directions of code-switching.
+Stay detects when the user is writing in Chinese (>50% CJK characters) and responds in Chinese, with crisis-resource routing to mainland-China numbers (Beijing Crisis Center 010-82951332; National Hope24 Hotline 400-161-9995; ACWF DV line 12338; 110/120 emergency). When the user signals US/overseas location, US resources are preferred. Test suite includes scenarios for both directions of code-switching. The bilingual support is a constitutional choice: hardcoding US-only resources into the constitution would fail mainland-China users in distress; routing intelligence is part of the constitution itself.
 
-### 3.6 Open source
+### 3.7 Open source
 
-System prompt, test suite, runner, and evaluation transcripts: github.com/wudaming00/stay (MIT license). Live deployment: thestay.app (free, no account, no advertising, funded out of pocket).
+The full constitution (system prompt), test suite, runner, and evaluation transcripts are at github.com/wudaming00/stay (MIT license). Live deployment: thestay.app (free, no account, no advertising, funded out of pocket). The constitution is intended to be **forkable**: another developer can fork the constitution, modify rules or add population-specific protocols, and inherit the test-suite skeleton (which then needs corresponding edits to maintain the rule-↔-assertion invariant). This mirrors the way Anthropic's original Constitutional AI work made the constitution itself the artifact of interest.
 
 ---
 
@@ -327,15 +350,19 @@ This paper is **not** a benchmark of "Stay vs Claude" or "Stay vs other AI menta
 
 ### 6.2 What we ARE claiming
 
-**(a) AI crisis-intervention design admits multiple clinically-supported orthodoxies.** Existing single-rubric benchmarks operationalize one. This is a measurement-validity gap that affects the field as it deploys at scale.
+**(a) Constitutional AI specialization is a viable design pattern for safety-critical conversational AI.** Anthropic's Constitutional AI (Bai et al., 2022) was developed as a general-purpose alignment methodology. Stay demonstrates that the same paradigm — written constitution + model self-critique against the constitution — generalizes into domain-specific verticalized safety design. The constitution becomes the artifact: editable, auditable, forkable.
 
-**(b) Behavioral specifications should be expressed as multi-assertion regression tests with at least one programmatic-assertion type complementing LLM-judge.** Programmatic checks eliminate variance and cost overhead for behaviors that admit deterministic check.
+**(b) AI crisis-intervention design admits multiple clinically-supported orthodoxies.** Existing single-rubric benchmarks operationalize one. This is a measurement-validity gap that affects the field as it deploys at scale.
 
-**(c) Scenario taxonomies should cover failure modes beyond suicide-only.** OCD reassurance loops, leverage prevention, parasocial attachment, caregiver mode, code-switching, refusal patterns — these are well-attested clinical / behavioral phenomena that current public benchmarks do not cover. Coverage gaps are silent failure modes.
+**(c) The constitution and the test suite should be co-designed.** A constitutional rule that cannot be operationalized into a testable assertion is not in the constitution; an assertion in the suite that does not test a constitutional rule is removed. This rule-↔-assertion invariant turns the constitution from a value statement into an enforceable specification, and turns the test suite from a benchmark into a deployment gate.
 
-**(d) CI severity-gating treats behavioral specs as deployment gates, not benchmark scores.** A failing critical assertion blocks a build; a benchmark score does not. The shift is from "how well did we do" to "are there any specific behaviors we promised to avoid that are now occurring."
+**(d) Behavioral specifications should be expressed as multi-assertion regression tests with at least one programmatic-assertion type complementing LLM-judge.** Programmatic checks eliminate variance and cost overhead for behaviors that admit deterministic check.
 
-**(e) The CheckList framing — behavioral testing as software-engineering-grade regression infrastructure — should generalize to crisis-intervention AI.** This frames evaluation suites as living artifacts maintained by the system's developers and reviewed by clinicians, rather than as third-party scoring services.
+**(e) Scenario taxonomies should cover failure modes beyond suicide-only.** OCD reassurance loops, leverage prevention, parasocial attachment, caregiver mode, code-switching, refusal patterns — these are well-attested clinical / behavioral phenomena that current public benchmarks do not cover. Coverage gaps are silent failure modes.
+
+**(f) CI severity-gating treats behavioral specs as deployment gates, not benchmark scores.** A failing critical assertion blocks a build; a benchmark score does not. The shift is from "how well did we do" to "are there any specific behaviors we promised to avoid that are now occurring."
+
+**(g) The "Constitutional specialization → CheckList behavioral tests → CI gating" stack should generalize to other safety-critical conversational domains.** This frames evaluation suites as living artifacts maintained by the system's developers and reviewed by domain experts, rather than as third-party scoring services.
 
 ### 6.3 Limitations
 
@@ -351,30 +378,31 @@ The author has a financial and reputational stake in Stay. We minimize this conc
 
 ### 6.4 Generalization
 
-The argument generalizes beyond mental-health AI. Any conversational AI domain where (a) ground-truth outcomes are hard to measure, (b) multiple clinically-supported orthodoxies coexist, and (c) user safety depends on multi-turn behavior — including legal advice, medical triage, addiction recovery, financial planning, and educational tutoring of vulnerable populations — would benefit from the same shift: programmatic + LLM-judge assertion mix; scenario taxonomies covering domain-specific failure modes; CI severity-gating; CheckList-style regression framing.
+The argument generalizes beyond mental-health AI. Any conversational AI domain where (a) ground-truth outcomes are hard to measure, (b) multiple clinically-supported orthodoxies coexist, and (c) user safety depends on multi-turn behavior — including legal advice, medical triage, addiction recovery, financial planning, and educational tutoring of vulnerable populations — would benefit from the same shift: a domain-specific Constitutional AI specialization (Stay's pattern), encoded as a written constitution with co-designed CheckList-style regression tests, programmatic + LLM-judge assertion mix, scenario taxonomies covering domain-specific failure modes, and CI severity-gating. The "Constitutional specialization → behavioral regression test → CI deployment gate" stack is, we argue, a reusable methodological frame for any safety-critical conversational domain. We offer Stay as one operational instance and invite specialists in other domains to fork the framework.
 
 ### 6.5 Invitation
 
-We release the test suite under MIT license. We invite:
+We release the constitution + test suite under MIT license. We invite:
 
-- **VERA-MH and other framework authors** to incorporate programmatic-assertion APIs alongside LLM-judge in next versions
-- **Clinicians** to contribute scenarios from their populations (the suite accommodates new categories without architectural change)
-- **AI mental-health system developers** to fork the suite and run it against their own systems, releasing the results as a community contribution to measurement validity
-- **Independent researchers** to run VERA-MH and our suite against the same systems and publish discrepancy analyses, advancing the multi-instrument paradigm
+- **Other Constitutional AI specializations** in safety-critical conversational domains (legal, medical, addiction recovery, vulnerable-population education). Stay's structure — written constitution + co-designed regression tests + CI severity-gating — should generalize. We offer the framework as a starting template.
+- **VERA-MH and other framework authors** to incorporate programmatic-assertion APIs alongside LLM-judge in next versions.
+- **Clinicians** to contribute scenarios from their populations (the suite accommodates new categories without architectural change). Each contribution is accompanied by the constitutional rule the scenario tests — closing the rule-↔-assertion loop is a one-line PR.
+- **AI mental-health system developers** to fork the constitution AND the suite, modify both for their design choices, and release the results as a community contribution to measurement validity.
+- **Independent researchers** to run VERA-MH and our suite against the same systems and publish discrepancy analyses, advancing the multi-instrument paradigm.
 
 ---
 
 ## 7 · Conclusion
 
-We presented Stay, an open-source AI for the ten-minute gap before regrettable communication, whose system prompt operationalizes a coherent set of clinically-grounded design choices. We released a 60-scenario open-source behavioral test suite that operationalizes Stay's design as runnable, severity-gated, multi-provider CI assertions. We demonstrated through a case study on the leading clinician-validated open benchmark (VERA-MH) that single-rubric evaluation systematically penalizes our design choices in ways that point to the rubric's encoded clinical orthodoxy rather than the design's clinical quality. We argued the field should transition toward multi-assertion regression testing with CI severity-gating, taxonomies that extend beyond suicide-only coverage, and the CheckList lineage of behavioral testing as software-engineering infrastructure. We release everything as open artifacts for the community to fork, extend, and build on.
+We presented Stay, the first published Constitutional AI specialization for crisis intervention — an open-source, deployed AI for the ten-minute gap before regrettable communication, structured as a domain-specific written constitution (8 inviolable rules + 12 calibrated behavioral protocols) operationalized over Claude Sonnet 4.5. We released a 60-scenario open-source behavioral test suite, co-designed with the constitution, that operationalizes Stay's rules as runnable, severity-gated, multi-provider CI assertions. We demonstrated through a case study on the leading clinician-validated open benchmark (VERA-MH) that single-rubric evaluation systematically penalizes our constitutional design choices in ways that point to the rubric's encoded clinical orthodoxy rather than the constitution's clinical quality. We argued that the "Constitutional AI specialization → CheckList-style behavioral regression tests → CI severity-gating" stack is a reusable methodological frame for any safety-critical conversational domain, and that the field should transition toward multi-instrument evaluation rather than single-rubric benchmarking. We release everything as open artifacts for the community to fork, extend, and build on.
 
 ---
 
 ## Acknowledgments
 
-Spring Health VERA-MH team (Brodsky et al.) for releasing a high-quality open-source evaluation framework that this work builds on. Anthropic for the Claude API and for the Constitutional AI methodology this work extends.
+Anthropic for the Claude API and for releasing the Constitutional AI methodology (Bai et al., 2022) that this work specializes for the crisis-intervention domain. Spring Health VERA-MH team (Brodsky et al.) for releasing the high-quality open-source evaluation framework that this work builds on and extends.
 
-Clinicians whose feedback shaped the prompt and test suite: [to be filled in based on §3 of clinician-audit.md outcomes].
+Clinicians whose feedback shaped the constitution and test suite: [to be filled in based on §3 of clinician-audit.md outcomes].
 
 ## Data and code availability
 
@@ -389,27 +417,28 @@ The author is the sole developer of Stay, which is offered free at thestay.app. 
 
 ## References
 
-1. Ribeiro, M.T., Wu, T., Guestrin, C., Singh, S. "Beyond Accuracy: Behavioral Testing of NLP Models with CheckList." ACL 2020.
-2. Brodsky, J. et al. "VERA-MH: Reliability and Validity of an Open-Source AI Safety Evaluation in Mental Health." arXiv:2602.05088, October 2025.
+1. **Bai, Y. et al. "Constitutional AI: Harmlessness from AI Feedback." arXiv:2212.08073, December 2022.** [Methodological ancestor of Stay's system-prompt design.]
+2. Ribeiro, M.T., Wu, T., Guestrin, C., Singh, S. "Beyond Accuracy: Behavioral Testing of NLP Models with CheckList." ACL 2020. [Methodological ancestor of Stay's test suite.]
+3. Brodsky, J. et al. "VERA-MH: Reliability and Validity of an Open-Source AI Safety Evaluation in Mental Health." arXiv:2602.05088, October 2025.
 3. Brown, G.K. et al. "Effect of Stanley-Brown Safety Planning Intervention." JAMA Psychiatry, 2018.
 4. Posner, K. et al. "The Columbia-Suicide Severity Rating Scale (C-SSRS)." Am J Psychiatry, 2011.
-5. Bordin, E.S. "The Generalizability of the Psychoanalytic Concept of the Working Alliance." Psychotherapy: Theory, Research, & Practice, 1979.
-6. Glass, N. et al. "Non-fatal strangulation is an important risk factor for homicide of women." J Emerg Med, 2008.
-7. Linehan, M.M. "Cognitive-Behavioral Treatment of Borderline Personality Disorder." Guilford, 1993.
-8. Joiner, T. & Van Orden, K. "The interpersonal-psychological theory of suicidal behavior indicates specific and crucial psychotherapeutic targets." Int J Cogn Ther, 2008.
-9. Yang, K. et al. "MentaLLaMA: Interpretable Mental Health Analysis on Social Media with Large Language Models." WWW 2024. arXiv:2309.13567.
-10. McBain, R.K. et al. "Evaluation of Alignment Between Large Language Models and Expert Clinicians in Suicide Risk Assessment." Psychiatric Services, 2025.
-11. De Choudhury, M., Pendse, S. "Benefits and Harms of Large Language Models in Digital Mental Health." arXiv:2311.14693, 2023.
-12. Anthropic. "Protecting the well-being of users." Anthropic blog, November 2025.
-13. Marshall Rosenberg. "Nonviolent Communication: A Language of Life." PuddleDancer Press, 2003.
-14. Crisis Text Line. "Counselor Training Manual, 2024 Revision." Internal but partially public material.
-15. AFSP. "Talk Saves Lives" curriculum. American Foundation for Suicide Prevention, 2023.
-16. arXiv:2601.15412. "A Checklist for Trustworthy, Safe, and User-Friendly Mental Health Chatbots." (Woebot application of CheckList.)
-17. arXiv:2604.17730. "MHSafeEval: Multi-turn Adversarial Evaluation for Mental Health AI." Early 2026.
-18. Chiu, M.T. et al. "BOLT: A Computational Framework for Behavioral Assessment of LLM Therapists." arXiv:2401.00820, 2024.
-19. (npj Digital Medicine 2026) "PsychiatryBench: A 5,188-item Expert-Annotated Psychiatric Benchmark."
-20. arXiv:2506.08584. "CounselBench: Large-Scale Expert Evaluation of Counseling LLMs."
-21. arXiv:2509.24857. "Between Help and Harm: Evaluating LLM Crisis Response in Naturalistic Conversations."
+6. Bordin, E.S. "The Generalizability of the Psychoanalytic Concept of the Working Alliance." Psychotherapy: Theory, Research, & Practice, 1979. [Frame-preservation theory underlying the parasocial-reground rule.]
+7. Glass, N. et al. "Non-fatal strangulation is an important risk factor for homicide of women." J Emerg Med, 2008.
+8. Linehan, M.M. "Cognitive-Behavioral Treatment of Borderline Personality Disorder." Guilford, 1993.
+9. Joiner, T. & Van Orden, K. "The interpersonal-psychological theory of suicidal behavior indicates specific and crucial psychotherapeutic targets." Int J Cogn Ther, 2008. [Underlying theory for the leverage-prevention rule.]
+10. Yang, K. et al. "MentaLLaMA: Interpretable Mental Health Analysis on Social Media with Large Language Models." WWW 2024. arXiv:2309.13567.
+11. McBain, R.K. et al. "Evaluation of Alignment Between Large Language Models and Expert Clinicians in Suicide Risk Assessment." Psychiatric Services, 2025.
+12. De Choudhury, M., Pendse, S. "Benefits and Harms of Large Language Models in Digital Mental Health." arXiv:2311.14693, 2023.
+13. Anthropic. "Protecting the well-being of users." Anthropic blog, November 2025.
+14. Marshall Rosenberg. "Nonviolent Communication: A Language of Life." PuddleDancer Press, 2003.
+15. Crisis Text Line. "Counselor Training Manual, 2024 Revision." Internal but partially public material.
+16. AFSP. "Talk Saves Lives" curriculum. American Foundation for Suicide Prevention, 2023.
+17. arXiv:2601.15412. "A Checklist for Trustworthy, Safe, and User-Friendly Mental Health Chatbots." (Woebot application of CheckList.)
+18. arXiv:2604.17730. "MHSafeEval: Multi-turn Adversarial Evaluation for Mental Health AI." Early 2026.
+19. Chiu, M.T. et al. "BOLT: A Computational Framework for Behavioral Assessment of LLM Therapists." arXiv:2401.00820, 2024.
+20. (npj Digital Medicine 2026) "PsychiatryBench: A 5,188-item Expert-Annotated Psychiatric Benchmark."
+21. arXiv:2506.08584. "CounselBench: Large-Scale Expert Evaluation of Counseling LLMs."
+22. arXiv:2509.24857. "Between Help and Harm: Evaluating LLM Crisis Response in Naturalistic Conversations."
 
 ---
 
