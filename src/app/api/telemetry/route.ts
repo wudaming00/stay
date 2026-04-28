@@ -37,10 +37,6 @@ const ALLOWED_RESOURCE_IDS = new Set([
   "neda",
   "alzheimers",
   "911",
-  "cn_beijing_crisis",
-  "cn_hope24",
-  "cn_dv_acwf",
-  "cn_emergency",
 ]);
 
 interface IncomingPayload {

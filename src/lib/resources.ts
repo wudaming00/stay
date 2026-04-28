@@ -93,38 +93,6 @@ export const RESOURCES: Record<string, CrisisResource> = {
     call: "911",
     description: "Life-threatening emergencies. Police, fire, medical.",
   },
-  // ---- China-mainland resources ----
-  // Surfaced when Stay detects the user is writing in Chinese AND likely in
-  // mainland China. Numbers verified against the most-cited public lists in
-  // 2024-2026; may change. Update if a number is reported wrong.
-  cn_beijing_crisis: {
-    id: "cn_beijing_crisis",
-    name: "北京心理危机研究与干预中心 (24h)",
-    shortName: "北京心理危机热线",
-    call: "010-82951332",
-    description: "免费、24小时心理危机干预热线 (北京中心，全国可拨打)。",
-  },
-  cn_hope24: {
-    id: "cn_hope24",
-    name: "全国希望24热线",
-    shortName: "希望24",
-    call: "400-161-9995",
-    description: "全国24小时心理援助热线，免费，匿名。",
-  },
-  cn_dv_acwf: {
-    id: "cn_dv_acwf",
-    name: "全国妇联反家暴维权",
-    shortName: "妇联 12338",
-    call: "12338",
-    description: "全国妇联维权与反家暴援助热线，工作日工作时间。",
-  },
-  cn_emergency: {
-    id: "cn_emergency",
-    name: "110 — 报警 / 120 — 急救",
-    shortName: "110 / 120",
-    call: "110",
-    description: "立即危险或伤害：110 报警；120 医疗急救。",
-  },
 } as const;
 
 export interface ProfessionalResource {
