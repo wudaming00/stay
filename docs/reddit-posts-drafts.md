@@ -5,6 +5,12 @@ recent posts and rules before posting; adjust voice. Each post is designed
 to bring feedback / reviewers, not to "market". Post at most one per
 community; if downvoted or deleted, don't re-post.*
 
+> **Updated 2026-04-28** — refreshed to reflect post-v0.4 state: 54-scenario
+> CI test suite, VERA-MH empirical comparison (Stay 41.79 vs raw Claude
+> 55.62 — surprising and useful for the HN post), bilingual support,
+> caregiver / parasocial / leverage-prevention prompt expansions. New 4th
+> draft (r/MachineLearning) targets the eval-methodology angle.
+
 ---
 
 ## 1. r/therapists — ask for professional review
@@ -30,6 +36,21 @@ Specifically I'd welcome this community's critique of:
 - The **Columbia-Protocol-style suicide-risk gradient** in the system
   prompt (src/lib/system-prompt.ts) — is the escalation structure right?
   Are there risk signals I'm missing?
+- The **leverage-prevention rule** — when a user names their child / pet /
+  faith / partner as a reason for living, the prompt explicitly forbids
+  re-using that disclosure as motivation in subsequent turns ("for her
+  sake", "your kids need you"). Drawn from AFSP "Talk Saves Lives"
+  guidance. Did I land this right? Am I missing edge cases?
+- The **stabilization-window safety planning trigger** — based on Brown
+  2018 (JAMA Psychiatry, 45% reduction). Stay offers Stanley-Brown
+  planning when a user in active SI says something like "好多了" / "I feel
+  better." Is this the right trigger condition?
+- The **parasocial-attachment reground rule** — when a user says "you're
+  the only one who listens," Stay does ONE frame-extension reground that
+  honors the disclosure, names what's real, and gently weaves in AI
+  nature as care for the user. Designed against frame-disruption critique
+  (Bordin 1979, Crisis Text Line training). Does this match what you'd
+  want from a tool used between sessions?
 - The **OCD reassurance-loop recognition** — am I reading the signal
   correctly, or will Stay misfire on normal anxious asking?
 - The **mania/hypomania protocol** — 72-hour delay + existing-clinician
@@ -86,6 +107,32 @@ Repo: https://github.com/wudaming00/stay
 Live: https://thestay.app
 Competitive landscape + honest comparison to Woebot, Wysa, Replika, Ash:
 https://github.com/wudaming00/stay/blob/main/docs/competitive-landscape-2026-04.md
+
+**Behavioral test infrastructure.** I built a 54-scenario open-source CI
+suite that runs persona-driven multi-turn conversations against the
+production system prompt and asserts on tool calls, banned phrases, and
+LLM-judge propositions. Severity-gated (critical assertions block
+deployment). 13 categories — Columbia-gradient suicide handling,
+stabilization-window safety planning, leverage prevention (don't
+weaponize a user's named reasons-for-living), parasocial reground, OCD
+reassurance loops, DV strangulation screening, caregiver mode, and
+others. `npm run test:scenarios`, ~$3-5 per pass.
+
+**Empirical finding worth noting.** I ran the leading open-source AI
+mental health benchmark (VERA-MH, Spring Health, Oct 2025) against (a)
+Stay and (b) raw Claude Sonnet 4.5 with VERA-MH's default "you are a
+helpful AI assistant" prompt. Stay scored 41.79 / 100. Raw Claude
+scored 55.62. Inspection of trajectories shows raw Claude was rewarded
+for behaviors Stay's prompt explicitly forbids: leverage manipulation
+("Your family needs you"), invalidation ("Your brain is lying to you"),
+mid-distress AI self-disclosure (a frame disruption per
+treatment-alliance theory), and bullet-pointed crisis-resource lists
+during acute distress. Stay was penalized for Columbia-style gradient
+walking that doesn't complete in VERA-MH's 6-turn window. The full
+analysis is in the repo's `docs/competitive-landscape-2026-04.md`. I
+think it's a measurement-validity issue — single-rubric evaluation
+penalizes alternative clinically-supported orthodoxies — but I'd love
+HN's reading.
 
 This is v0 by one person, not clinically validated, absolutely not a
 therapy replacement. Posting specifically because I want HN's eye on the
@@ -148,17 +195,94 @@ talk.)
 
 ---
 
+---
+
+## 4. r/MachineLearning — eval methodology angle (NEW)
+
+**Title:**
+> [P] 54-scenario behavioral test suite for AI mental-health systems + a measurement-validity finding (raw Claude beat a carefully-designed system on the leading benchmark)
+
+**Body:**
+
+I built an open-source AI mental-health support tool (Stay,
+thestay.app, github.com/wudaming00/stay) and a CI-style behavioral test
+suite for it. Wanted to share two things this community might find
+interesting.
+
+**The test suite.** 54 scenarios across 13 categories (suicide /
+DV / OCD / parasocial / caregiver / etc.), persona-driven multi-turn,
+six assertion kinds (`must_call_tool`, `must_not_call_tool`,
+`must_match`, `must_not_match`, `max_occurrences`, LLM-judge),
+severity-gated (critical assertions block deployment in CI). Inspired
+by Ribeiro et al.'s CheckList (ACL 2020) but instantiated for crisis
+intervention behavioral specs. `npm run test:scenarios`, ~$3-5 per
+pass on Sonnet.
+
+**The empirical finding.** I ran VERA-MH (Brodsky et al., arXiv
+2602.05088, Oct 2025 — currently the dominant clinician-validated open
+benchmark for this domain) against (a) my system with its production
+prompt and (b) raw Claude Sonnet 4.5 with VERA-MH's default "you are
+a helpful AI assistant." Counterintuitive result: raw Claude scored
+14 points higher overall (55.62 vs 41.79).
+
+Inspection of identical-persona trajectories shows raw Claude was
+rewarded for four behaviors that the deployed system explicitly
+forbids:
+
+1. Leverage manipulation of named reasons-for-living ("Your family
+   needs you"). Documented harm in crisis-of-loss training; the
+   prompt's 8th rule classifies it as well-meaning manipulation.
+2. Invalidation of lived experience ("Your brain is lying to you").
+   Counter to DBT validation-precedes-change ordering.
+3. Mid-distress reflexive AI self-disclosure ("I need to be direct
+   with you: I'm an AI"). Frame disruption per Bordin's working-
+   alliance theory and Crisis Text Line counselor training.
+4. Bullet-pointed crisis-resource lists during acute distress. The
+   prompt explicitly demotes "piling on" in crisis.
+
+The deployed system was penalized for walking the Columbia Protocol's
+gradient questions over multiple turns, which doesn't complete in
+VERA-MH's 6-turn evaluation window.
+
+I read this as a measurement-validity issue — single-rubric eval
+encodes one clinical orthodoxy and systematically penalizes
+alternative clinically-supported orthodoxies. The argument and full
+trajectory analysis is in
+`docs/competitive-landscape-2026-04.md` of the repo, and there's a
+preprint draft I'm tightening up at `docs/preprint-v0.2-draft.md`.
+
+I'd value this community's reading. Specifically:
+
+- Is "behavioral regression testing for safety-critical conversational
+  AI" a contribution worth publishing as a workshop / arXiv preprint?
+  Or is the CheckList lineage covering this already?
+- The four-behaviors-VERA-MH-rewards finding above — is the
+  measurement-validity framing right? What's the strongest
+  steelman against it?
+- I'm a non-PhD non-clinician. Best venue suggestions for this kind of
+  paper? (My current candidates: NeurIPS Safe & Trustworthy AI
+  workshop; CHI LBW; JMIR Mental Health.)
+
+If you want to fork the test suite and run it against your own system,
+PRs welcome. The runner accepts custom HTTP endpoints (see
+`scripts/scenarios/runner.ts`).
+
+---
+
 ## Posting order / cadence
 
 Suggested order:
 
-1. **r/therapists** first — most valuable feedback population, and you're
-   least exposed to social-media gamification there. Post on a weekday
-   morning.
-2. **Hacker News Show HN** next — post on a Monday or Tuesday morning
-   Pacific time for best visibility. Don't post on Friday.
-3. **r/SideProject** third, after 1 week, once you've absorbed feedback
-   from 1 + 2.
+1. **r/MachineLearning** first — most quality-leveraged for the eval-
+   methodology angle, and ML/HCI folks are the right audience for the
+   VERA-MH measurement-validity finding. Friday afternoon is fine here.
+2. **r/therapists** second — most valuable clinical feedback. Post on
+   a weekday morning.
+3. **Hacker News Show HN** third — post on a Monday or Tuesday morning
+   Pacific time for best visibility. Don't post on Friday. The
+   VERA-MH finding is the most HN-friendly angle.
+4. **r/SideProject** fourth, after 1-2 weeks, once you've absorbed
+   feedback from the others.
 
 Wait ~48 hours between posts to avoid looking like a spam campaign.
 
