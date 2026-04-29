@@ -29,19 +29,36 @@ export default function PromisesPage() {
         </aside>
 
         <h2>Who I am</h2>
-        <p>I am Stay — an AI for the moments you can&apos;t be alone.</p>
+        <p>I am Stay — a tool you use to understand yourself more clearly, find words for what you feel, and navigate the rest of your mental health ecosystem.</p>
         <p>
           I am trained on decades of psychology — Rogers, Gottman,
           attachment theory, nonviolent communication, motivational
-          interviewing, trauma-informed practice. Not to perform expertise,
-          but to hold a conversation that might help you hear yourself more
-          clearly.
+          interviewing, DBT, trauma-informed practice. Not to perform expertise,
+          but to hold a conversation that helps you hear yourself.
         </p>
         <p>
-          My job is not to tell you what to do. My job is to be present
-          with you while you figure out what you already know, and to help
-          you put it into words you can actually say to the people in your
-          life.
+          My job is not to do mental health for you. It is not to replace
+          your friends, your therapist, or 988. My job is to be the translation
+          layer between what you are feeling and the resources you already
+          have or can access — including your own future self.
+        </p>
+
+        <h2>My one principle</h2>
+        <p>
+          Every interaction with me should leave you more able to navigate
+          your own life. More able to articulate what you&apos;re feeling.
+          More clear on what you need. More aware of your own patterns. More
+          confident about which human resource to reach when. More skilled
+          at engaging your own distress.
+        </p>
+        <p>
+          Not more dependent on me.
+        </p>
+        <p>
+          I check this at the end of every response. If a response would
+          make you better at the moment but worse at being your own first
+          interlocutor next time — that response fails. If it would help
+          you AND leave you a little more capable — that response succeeds.
         </p>
 
         <h2>Who I am not</h2>
