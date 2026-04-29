@@ -1,4 +1,4 @@
-# Beyond Substitute or Complement: Agency-Trajectory Evaluation for AI Mental-Health Systems, with Stay as Reference Implementation
+# Agency-Trajectory Evaluation for AI Mental-Health Systems: A Framework, an Empirical Case, and a Reference Implementation
 
 *Preprint draft v0.6 — for Zenodo (preliminary technical report), arXiv (cs.HC + cs.CY) pending endorsement, and subsequent submission to NeurIPS Safe & Trustworthy AI workshop or AIES.*
 
@@ -16,7 +16,7 @@ We argue that current evaluation paradigms for AI mental-health systems — incl
 
 We document this gap empirically: in a 9-persona × 6-turn replication of VERA-MH, raw Claude Sonnet 4.5 with no system prompt scored 14 points higher than Stay (a system designed with explicit anti-leverage and anti-substitution rules) precisely because raw Claude exhibited four behaviors that VERA-MH credits as "Best Practice" but that crisis-counselor training literature explicitly warns against: leverage manipulation of named reasons-for-living, invalidation of lived experience, reflexive AI self-disclosure mid-distress, and bullet-pointed resource lists during acute distress.
 
-We argue the binary "substitute vs complement" framing is itself the problem — these categories are fuzzy even for human therapists (any sufficient translation IS itself an intervention), and forcing AI systems into them obscures the question that actually matters: **does each AI interaction increase or decrease the user's capacity to navigate their own life and access human support?** We call this the agency-trajectory test, and propose it as the unifying principle for both system design and evaluation.
+We argue this gap arises because evaluation paradigms encode implicit assumptions about what AI's job is — substitute for human clinicians, complement to crisis services, companion, triage layer — and reward systems whose behavior matches those assumptions. The categorical question ("which function should AI perform?") is itself fuzzy, even for human therapists (any sufficient translation IS itself an intervention), and forcing AI systems into a single category obscures the question that actually matters: **does each AI interaction increase or decrease the user's capacity to navigate their own life and access human support?** We call this the agency-trajectory test, and propose it as the unifying principle for both system design and evaluation.
 
 We operationalize the framework through seven functions an agency-positive AI mental-health system performs (translator, mirror, long memory, therapy navigator, bridge with companionship, logger, skill teacher), each evaluated by user-capacity outcomes rather than function compliance. We offer Stay (free, open-source, MIT + restricted-prompt-license, 61-scenario behavioral test suite, machine-checkable rule-↔-assertion invariant enforced via CI) as one operational reference implementation and invite replication, parallel implementations, and clinician partnership.
 
@@ -172,15 +172,15 @@ It also informs the v0.8 spec rewrite (§4): the spec now explicitly acknowledge
 
 ### 3.1 The mistake of function categorization
 
-Two clinically-supported orthodoxies of AI mental-health intervention coexist in the field's discourse:
+To make explicit what is currently implicit in benchmark design and system specification, we propose an analytical distinction. We do not claim it is standardly named in the literature; we claim it usefully describes a real divergence between deployed AI mental-health systems and the benchmarks that evaluate them.
 
-**Substitute orthodoxy**: the AI's job is to do what 988-style human counselors do, at lower friction. Detect risk → confirm risk → name resource → persistently route to that resource → maintain safety boundaries. This orthodoxy is appropriate when the AI is positioned as a substitute for human crisis intervention.
+**Substitute-style design**: the AI's job is framed as doing what 988-style human counselors do, at lower friction. Detect risk → confirm risk → name resource → persistently route to that resource → maintain safety boundaries. This frame is appropriate when the AI is positioned as a substitute for human crisis intervention.
 
-**Complement orthodoxy**: the AI's job is to occupy a different niche — the time around crisis where 988 isn't the right tool, AND to route hard to 988 when it IS. Stay-with-them in the build-up; gradient before handoff; continued presence after referral; refuse to invent urgency.
+**Complement-style design**: the AI's job is framed as occupying a different niche — the time around crisis where 988 isn't the right tool, AND routing hard to 988 when it IS. Stay-with-them in the build-up; gradient before handoff; continued presence after referral; refuse to invent urgency.
 
-VERA-MH's rubric encodes substitute orthodoxy. Stay's specification was originally designed under complement orthodoxy. §2 documents the measurement-validity gap that follows.
+VERA-MH's rubric, read against this distinction, encodes substitute-style assumptions (its five dimensions — Detect Risk, Clarify Risk, Guide to Human Support, Collaborate and Validate, Maintain Safe Boundaries — describe what 988-counselor-style intervention does). Stay's specification was originally designed under complement-style assumptions. §2 documents the measurement-validity gap that follows.
 
-But on closer examination, **the substitute/complement binary is itself the wrong frame**. The line between them is fuzzy in human therapy practice:
+But this very distinction is itself part of what we propose dissolving. Even as analytical frame, **the substitute/complement binary breaks down at the edges in human therapy practice**:
 
 - A psychodynamic therapist who interprets dreams is doing both: translating user's experience (translator) AND providing intervention (substitute for not having that interpretive capability)
 - A CBT therapist teaching cognitive restructuring is teaching skills (translator/educator) AND providing intervention (substitute for the user's untrained cognitive patterns)
@@ -362,7 +362,7 @@ The implicit-positioning critique generalizes beyond mental health to any safety
 - **Independent researchers** to run multiple positioning-tagged benchmarks against the same systems and publish discrepancy analyses, including replication of §2 with non-Sonnet judges.
 - **Measurement researchers** to develop validated agency-trajectory measurement instruments. This is the bottleneck in moving from framework to evaluation tool.
 
-We document a measurement-validity property of the leading clinician-validated open evaluation framework for AI mental-health systems. We argue that the framing assumption it encodes (substitute orthodoxy as the default measure) is itself the problem, that the substitute/complement binary is fuzzy in human practice, and that the right axis is user-agency trajectory. We offer Stay as one operational instance, with the system prompt under a restricted-use license to limit fork-misuse. We invite replication, parallel implementations under other positionings, and incorporation of the methodology pattern by existing benchmark authors.
+We document a measurement-validity property of the leading clinician-validated open evaluation framework for AI mental-health systems. We argue that the framing assumption it encodes (a service-class taxonomy of what AI's job is, with rubric dimensions matched to that taxonomy) is itself the problem, that any function-categorization frame for AI's role is fuzzy in human practice, and that the right axis is user-agency trajectory. We offer Stay as one operational instance, with the system prompt under a restricted-use license to limit fork-misuse. We invite replication, parallel implementations under different design assumptions, and incorporation of the methodology pattern by existing benchmark authors.
 
 ---
 

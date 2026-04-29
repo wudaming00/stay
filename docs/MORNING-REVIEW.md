@@ -53,7 +53,9 @@ Spec went from ~6500 chars (v0.7 deployed) to ~8500 chars. Anthropic API handles
 
 **`docs/preprint-v0.6-draft.md`** (NEW, ~6800 words):
 
-Title: **"Beyond Substitute or Complement: Agency-Trajectory Evaluation for AI Mental-Health Systems, with Stay as Reference Implementation"**
+Title: **"Agency-Trajectory Evaluation for AI Mental-Health Systems: A Framework, an Empirical Case, and a Reference Implementation"**
+
+(Title revised from earlier "Beyond Substitute or Complement..." after the user pushed back: that framing implied a named field debate that doesn't actually exist in literature. Current title just states what's in the paper.)
 
 Structure:
 - §1 Intro — opens with 2am vignette, not Omar attack. Frames paper as "what should AI do, how should we measure" — methodology-first.

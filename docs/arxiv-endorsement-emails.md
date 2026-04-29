@@ -15,7 +15,7 @@ below take you straight to where to find them.
 > The paper title in the email templates below ("Behavioral Specifications and
 > Co-Designed Tests for AI Crisis Intervention") is the v0.5 framing. Paper has
 > been rewritten to v0.6 with title:
-> **"Beyond Substitute or Complement: Agency-Trajectory Evaluation for AI Mental-Health Systems, with Stay as Reference Implementation"**
+> **"Agency-Trajectory Evaluation for AI Mental-Health Systems: A Framework, an Empirical Case, and a Reference Implementation"**
 >
 > See `docs/preprint-v0.6-draft.md`.
 >

@@ -73,9 +73,12 @@ Two specific asks before I push:
    discussion section before the paper goes public?
 
 Either way, the paper engages with VERA-MH as the high-quality
-reference our field needs. The argument is that the field needs
-multiple positioning-tagged rubrics (substitute orthodoxy vs
-complement orthodoxy), not that VERA-MH should be replaced.
+reference our field needs. The argument is that benchmarks should
+make explicit the design assumptions they encode (about what AI's
+job is, who it serves, what success looks like) rather than aiming
+for universal rankings across systems with different design
+assumptions. VERA-MH is not the target — the implicit-positioning
+gap is.
 
 If silence is your preferred response, that's fine and noted —
 I'll push to arXiv on my planned timeline. If you'd like a 30-min
@@ -161,8 +164,9 @@ distress).
 The paper engages with VERA-MH as the high-quality reference our field
 needs, not as a target. The methodology argument in §3 proposes
 agency-trajectory evaluation (orthogonal to function compliance) and
-suggests benchmarks tag the orthodoxy they encode rather than aiming for
-universal rankings. Stay scoring lower than raw Claude is the empirical
+suggests benchmarks make explicit the design assumptions they encode
+rather than aiming for universal rankings across systems with different
+design assumptions. Stay scoring lower than raw Claude is the empirical
 hook — exactly because it goes against my own product, the finding has
 diagnostic value about the rubric assumptions rather than the systems.
 
