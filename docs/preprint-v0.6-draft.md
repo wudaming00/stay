@@ -12,7 +12,7 @@
 
 ## Abstract
 
-We argue that current evaluation paradigms for AI mental-health systems — including the leading clinician-validated open framework (VERA-MH; Bentley et al., 2026) — measure the wrong axis. They categorize AI behaviors against a service-class taxonomy (substitute for human therapists, complement to crisis lines, companion, etc.) and reward systems whose behavior matches the categorization their authors had in mind. This produces a measurement-validity gap when systems designed under different categorization assumptions are evaluated against any single rubric.
+We argue that current evaluation paradigms for AI mental-health systems — including the recently-released clinician-developed open framework VERA-MH (Bentley et al., 2026) — encode one positioning among several legitimate axes for AI's role in this domain (substitute for human clinicians, complement to crisis lines, companion, agency support, etc.) and reward systems whose behavior matches the positioning the rubric encodes. This produces a measurement-validity gap when systems designed under different positioning assumptions are evaluated against any single rubric — not because either rubric or system is wrong, but because the comparison crosses an undeclared boundary.
 
 We document this gap empirically: in a 9-persona × 6-turn replication of VERA-MH (with the same Sonnet-4.5 model serving as persona simulator, judge, and one of two systems-under-test — a confound discussed in §2.6), the raw model with no system prompt was scored higher than Stay (a system designed with explicit anti-leverage and anti-substitution rules) on dimensions whose responses contained four utterance classes that crisis-counselor training literature warns against: leverage manipulation of named reasons-for-living, wrong-time cognitive defusion delivered during acute distress, reflexive AI self-disclosure mid-distress, and bullet-pointed resource lists during acute distress. The robust observation here is that VERA-MH's rubric does not penalize these utterance classes; the aggregate score delta is preliminary and confounded as documented.
 
@@ -20,7 +20,7 @@ We argue this gap arises because evaluation paradigms encode implicit assumption
 
 We operationalize the framework through seven functions an agency-positive AI mental-health system performs (translator, mirror, long memory, therapy navigator, bridge with companionship, logger, skill teacher), each evaluated by user-capacity outcomes rather than function compliance. We offer Stay (free, open-source, MIT + restricted-prompt-license, 61-scenario behavioral test suite, machine-checkable rule-coverage check enforced via CI — see §4.3 for what this check does and does not catch) as one operational instance and invite replication, parallel implementations, and clinician partnership.
 
-**What we are NOT claiming**: Stay is better than raw Claude (it scored lower); the agency-trajectory framework is novel as a research contribution (CheckList behavioral testing came first, agency-centered care is established in clinical ethics, our work instantiates these in a specific safety-critical AI domain); the VERA-MH replication is statistically conclusive (n=9 single-run with same model as persona/judge/SUT); the agency-trajectory framework has been clinically validated; Stay is safe for any specific user population; the seven functions taxonomy is empirically derived (it is reverse-engineered from one operational system); the rule-coverage CI check catches semantic regressions or rules added to the prompt without manual registration. All caveats are explicit in the limitations section.
+**What we are NOT claiming**: this paper does not claim Stay is better than raw Claude (it scored lower), that the framework is novel research (the synthesis is what we offer), that the VERA-MH replication is statistically conclusive, that the framework or system has been clinically validated, or that the rule-coverage CI check catches everything it could. Limitations are detailed in §5.
 
 ---
 
@@ -36,11 +36,11 @@ We argue this is the wrong question to encode. The right question is what user-a
 
 This paper has three contributions:
 
-1. **Empirical motivation (§2)**: a documented case where a benchmark systematically rewards four behaviors that crisis-counselor training literature warns against, illustrating what happens when evaluation measures function compliance rather than agency outcome.
+1. **Empirical motivation (§2)**: a documented case where a benchmark does not penalize four behaviors that crisis-counselor training literature warns against, illustrating what happens when evaluation measures function compliance rather than agency outcome.
 
 2. **Framework (§3)**: an articulation of the agency-trajectory principle, the seven functions an AI mental-health system can perform, and design principles that operationalize the principle for each function.
 
-3. **Open-source operational instance (§4)**: Stay (free, open-source, deployed at thestay.app) as one operational instance of the framework, with a 61-scenario behavioral test suite, a CI-enforced rule-coverage check (limitations described in §4.3), and dual-licensing that prevents stripping safety-critical SOPs from derived works. We avoid the term "reference implementation" — it is a status term that requires external validation Stay has not yet undergone.
+3. **Open-source operational instance (§4)**: Stay (free, open-source, deployed at thestay.app) as one operational instance of the framework, with a 61-scenario behavioral test suite, a CI-enforced rule-coverage check (limitations described in §4.3), and dual-licensing that prevents stripping safety-critical SOPs from derived works. We use "operational instance" rather than "reference implementation" — the latter is a status term that would require external validation Stay has not yet undergone.
 
 We make three deliberate scope choices that we want flagged up front:
 
@@ -122,7 +122,7 @@ VERA-MH judged the response containing this utterance Best Practice on three of 
 
 **(b) Wrong-time cognitive defusion delivered during acute distress.** "Your brain is lying to you right now about being a burden."
 
-This is a CBT-style cognitive defusion / Beck-style reattribution move (Hayes et al. on ACT defusion; Beck on cognitive restructuring). The clinical concern is not the move itself — defusion is a well-evidenced technique in non-acute contexts — but its placement in turn 3 of a brief conversation with someone disclosing active suicidal ideation. DBT (Linehan 1993) establishes the validation-precedes-change ordering for change-strategy work: cognitive-restructuring before the user feels validated is destabilizing, even when the cognitive content being restructured is in fact distorted. (We had earlier described this utterance as DBT-style "invalidation" — that was incorrect; Linehan's invalidation construct refers to denying the *emotional experience itself*, not to challenging a specific cognition. We thank reviewers for this correction.)
+This is a CBT-style cognitive defusion / Beck-style reattribution move (Hayes et al. on ACT defusion; Beck on cognitive restructuring). The clinical concern is not the move itself — defusion is a well-evidenced technique in non-acute contexts — but its placement in turn 3 of a brief conversation with someone disclosing active suicidal ideation. DBT (Linehan 1993) establishes the validation-precedes-change ordering for change-strategy work: cognitive-restructuring before the user feels validated is destabilizing, even when the cognitive content being restructured is in fact distorted. (Note for clarity: this is distinct from DBT-style "invalidation," which refers to denying the *emotional experience itself*, not to challenging a specific cognition.)
 
 VERA-MH did not flag the timing.
 
@@ -142,7 +142,7 @@ Stay was penalized for:
 
 - **Gradient walking before explicit handoff.** Stay's response to Omar's turn-2 ("sometimes i think about how easy it would be to just... not be here") asked: *"How often are these thoughts with you? Are they background noise, or are they loud right now in this moment?"* This is a Columbia-Protocol-informed (Posner 2011) gradient inquiry — assess current intensity before escalating. VERA-MH rated this Suboptimal on "Maintains Safe Boundaries" because Stay did not also disclose AI status in the same turn.
 - **Continued conversational presence rather than persistent referral pressure.** After the turn-3 exchange, Stay continued with the gradient (turn 5 asked about specific timing; turn 7 asked about past attempts). VERA-MH's judge wrote that Stay "never offers a specific hotline name, phone number, or website throughout the conversation," scoring it 0/100 on "Guides to Human Support."
-- **Anti-leverage framing.** Stay's specification explicitly forbids the leverage-manipulation utterances Raw Claude was rewarded for. Stay's response to Omar contained no equivalent utterance class — and was implicitly penalized for that absence by scoring lower on the dimensions where Raw Claude was rewarded for them.
+- **Anti-leverage framing.** Stay's specification explicitly forbids the leverage-manipulation utterances present in Raw Claude's response. Stay's response to Omar contained no equivalent utterance class — and was implicitly penalized for that absence by scoring lower on the dimensions where Raw Claude's response, containing those utterances, was scored Best Practice.
 
 ### 2.6 Limitations of this finding
 
@@ -166,9 +166,7 @@ We tested this claim with 200 single-turn evaluations: 10 ambiguous/euphemistic 
 
 The mechanism: the gain was driven by phrases the v0.7 spec listed verbatim as Active examples. Phrases that were semantically equivalent but unlisted in v0.7 — for example Chinese "想解脱" (a religious-euphemism SI phrase that v0.7 did not enumerate), and the cross-lingual mirror of listed Chinese "想消失" which at v0.7 had no listed English form — showed no measurable transfer. (v0.8, partly in response to this finding, adds explicit cross-lingual mirror pairs to all listed Active examples; "I want to disappear" is now listed alongside "想消失". The §2.7 result describes the v0.7-era spec audited 2026-04-29.)
 
-**Stay's "semantic intent, not surface keyword" claim is, in this single-turn condition, empirically not supported: the model behaves consistently with lookup-table expansion of named examples, not intent-based classification.** This is a deployed-system defect that was caught only because the author also wrote the test suite — an independent audit might surface other such gaps, and a clinician-of-record reviewing the v0.7 spec would have been justified in flagging the over-strong claim before deployment. We flag this here as evidence the spec-claim-language requires the same discipline of empirical falsification we recommend for any system, including our own; not as evidence that the discipline has been adequately applied to date.
-
-The result also informs the v0.8 spec rewrite (§4): the spec language no longer makes the unconditional "semantic intent" claim, and the cross-lingual mirror pairs were added as a partial response to the lookup-table effect documented here. Whether v0.8's mirror-pair structure produces semantic generalization to genuinely unlisted phrases (e.g., "想解脱") is an open empirical question listed under required follow-up.
+**Stay's "semantic intent, not surface keyword" claim is, in this single-turn condition, empirically not supported: the model behaves consistently with lookup-table expansion of named examples, not intent-based classification.** This is a deployed-system defect. The v0.8 spec rewrite (§4) removes the unconditional "semantic intent" claim and adds cross-lingual mirror pairs as a partial response. Whether v0.8's mirror-pair structure produces semantic generalization to genuinely unlisted phrases (e.g., "想解脱") is an open empirical question listed under required follow-up.
 
 ---
 
@@ -218,21 +216,17 @@ This framing also resolves a concern that AI restraint frameworks sometimes prod
 
 ### 3.3 Seven functions an agency-positive system performs
 
-Agency-trajectory evaluation does not eliminate the need for functional articulation — it provides the test against which each function is designed and judged. We articulate seven functions that an AI mental-health system can perform, each with design principles oriented toward agency outcome:
+Agency-trajectory evaluation does not eliminate the need for functional articulation — it provides the test against which each function is designed and judged. We articulate seven functions that an AI mental-health system can perform, each with a design principle oriented toward agency outcome and a primary anti-pattern to guard against:
 
-**1. Translator (articulation).** Help the user put into words what they cannot yet articulate. Design principles: gradual (don't dump three clinical terms), multi-choice (offer 2-3 plain-language options), escape hatch ("or something else"), the user picks. Anti-pattern: AI confidently labels the feeling for the user.
-
-**2. Mirror (pattern reflection).** Show the user what you see in their pattern, in a way that lets them confirm, refine, or reject. Design principles: confident observation, generous interpretation (offer 2-3 plausible readings), user picks the meaning. Anti-pattern (hedging): "I see X but you might disagree" — withholding masquerading as humility. Anti-pattern (overreach): "You're clearly avoidant attachment" — removes user's interpretive role.
-
-**3. Long memory + pattern surface.** Stay remembers across sessions (90-day default, encrypted local-only, user-controlled). Design principles: passive default (don't reference past every chance), active surface only at agency-positive moments (about to repeat a pattern, about to dismiss a real signal, useful to bring to therapist), surface as observation + question, the user owns the data.
-
-**4. Therapy navigator.** Most users don't know what kind of therapy fits them. Design principles: modality education in plain language, find-a-therapist guidance (Psychology Today, Open Path Collective, Inclusive Therapists, university clinics), first-session prep, when-to-switch indicators, no modality push, the user picks.
-
-**5. Bridge with companionship.** When user needs a human (988, Crisis Text Line, DV hotline, friend), AI is the bridge. Design principles: companion-during-call (AI stays open while user is on the call, user can type during the call), means restriction first in imminent moments, post-call opt-in check, teach the bridge so it becomes a transferable skill. AI never dispatches; user owns the action of reaching out.
-
-**6. Logger (DBT-style structured journaling).** User can use AI as low-friction journal that auto-structures entries. Design principles: conversational input → structured output, user owns the data, trends are theirs to look at (passive surface unless not surfacing would harm), therapist export ready.
-
-**7. Skill teacher.** When user is ready to learn a specific skill (DBT distress tolerance, breathing, grounding, NVC translation, urge surfing), teach it substantively. Design principles: substantive (walk through it, not just describe), hand the skill off ("this is yours now"), one skill at a time, citation (user learns there's a DBT-shaped tool).
+| # | Function | Design principle | Anti-pattern |
+|---|---|---|---|
+| 1 | **Translator** (articulation) | Help the user put into words what they cannot yet articulate — gradual, plain-language multi-choice with escape hatch ("or something else"), user picks | AI confidently labels the feeling for the user |
+| 2 | **Mirror** (pattern reflection) | Confident observation + 2-3 plausible interpretations + user picks the meaning | Hedging ("I see X but you might disagree"); overreach ("You're clearly avoidant attachment") |
+| 3 | **Long memory + pattern surface** | 90-day default, encrypted local-only, user-controlled; passive surface unless agency-positive moment | Reflexive "remember when you said..." reads as performative surveillance |
+| 4 | **Therapy navigator** | Modality education in plain language; find-a-therapist tools (Psychology Today, Open Path, Inclusive Therapists, university clinics); first-session prep; when-to-switch indicators; no modality push | AI picks the modality for the user |
+| 5 | **Bridge with companionship** | Warm bridge to human resource + companion-during-call (AI stays open while user is on the call) + means restriction first at imminent acuity; teach the bridge so it becomes a transferable skill | Cold-handoff ("I'm not equipped, please call X") OR spam-anchoring 988 every turn |
+| 6 | **Logger** (DBT-style structured journaling) | Conversational input → structured output; user owns the data; passive trend surface unless not surfacing would harm; therapist-export ready | AI narrates trends at user instead of letting user discover |
+| 7 | **Skill teacher** | Substantive teaching of one skill (DBT distress tolerance, breathing, grounding, NVC translation, urge surfing) followed by explicit hand-off ("this is yours now") | Light intro that doesn't transfer; or framing skill as ongoing AI-led practice |
 
 Each function is **multiple-actor compatible** — friends, therapists, books, apps, AI, or the user themselves can perform any of them. The "AI is doing this" evaluation question is misposed; the right evaluation question is "is this user's agency growing in the direction it should be going given what they brought to this interaction?"
 
@@ -252,7 +246,7 @@ In the absence of agency-trajectory measurement, the **anti-patterns** are at le
 
 ---
 
-## 4 · Stay as reference implementation
+## 4 · Stay as one operational instance
 
 ### 4.1 Stay v0.8 specification
 
@@ -267,7 +261,7 @@ Stay's specification is a written behavioral document of ~6,500 tokens injected 
 - **Frame neutralization** (fictional/research/quoted framings don't bypass safety SOPs).
 - **Re-anchor on safety-critical drift** (turn N+5 maximum).
 - **Parasocial reground** via frame extension (not frame disruption).
-- **30-item self-check rubric** (the model evaluates draft responses against the specification before producing the user-visible reply; an inference-time self-critique discipline in the lineage of Reflexion (Shinn et al. 2023) and Self-Refine (Madaan et al. 2023), with the constitution drawn from clinical literature rather than principles authored for the prompt. We had earlier framed this as analogous to Constitutional AI (Bai et al. 2022); that comparison overstates the methodological adjacency, since CAI's contribution is supervised fine-tuning + RLAIF training a model on AI-generated critique-revision pairs, and the inference-time-only version here is closer to Reflexion / Self-Refine).
+- **30-item self-check rubric** (the model evaluates draft responses against the specification before producing the user-visible reply; an inference-time self-critique discipline in the lineage of Reflexion (Shinn et al. 2023) and Self-Refine (Madaan et al. 2023), with the constitution drawn from clinical literature rather than principles authored for the prompt).
 
 The full specification is in the public repo at `src/lib/system-prompt.ts`. It is the artifact under restricted-use license — see §4.5.
 
@@ -305,7 +299,7 @@ judge                 — LLM-as-judge evaluates a yes/no proposition
 
 Severities: `critical` (blocks deployment), `major` (warns), `minor` (info). Programmatic checks are deterministic and cheap — ideal for "anchor" behaviors (banned phrase, specific resource number, max occurrences). Judge assertions cover properties admitting linguistic variation (warmth, grounding, frame extension).
 
-Each critical assertion carries a `rule:` field tagging the specification rule it tests. `npm run check-rule-coverage` fails if any entry in the hand-maintained `REQUIRED_RULES` list has zero referencing critical assertions. **What the check enforces** is one direction of coverage: every registered rule has at least one test. **What the check does NOT enforce** is the reverse direction (rules added to the system prompt are not automatically detected as needing a test) or semantic adequacy (a passing test does not guarantee the rule is correctly captured). Three rules in the registry are openly marked TODO with no critical assertion coverage at the time of writing (`inviolable.3`, `inviolable.7`, `protocol.8` — see `scripts/check-rule-coverage.ts` for the current gap list). We describe this as a rule-coverage check with manual rule registration and partial coverage, in the lineage of behavioral testing for NLP (CheckList; Ribeiro et al. 2020) combined with bidirectional traceability practices borrowed from safety-critical software engineering (DO-178C, ISO 26262, FDA SaMD guidance). The earlier framing of this mechanism as a "machine-checkable invariant" was overstated and is corrected here.
+Each critical assertion carries a `rule:` field tagging the specification rule it tests. `npm run check-rule-coverage` fails if any entry in the hand-maintained `REQUIRED_RULES` list has zero referencing critical assertions. **What the check enforces** is one direction of coverage: every registered rule has at least one test. **What the check does NOT enforce** is the reverse direction (rules added to the system prompt are not automatically detected as needing a test) or semantic adequacy (a passing test does not guarantee the rule is correctly captured). Three rules in the registry are openly marked TODO with no critical assertion coverage at the time of writing (`inviolable.3`, `inviolable.7`, `protocol.8` — see `scripts/check-rule-coverage.ts` for the current gap list). We describe this as a rule-coverage check with manual rule registration and partial coverage, in the lineage of behavioral testing for NLP (CheckList; Ribeiro et al. 2020) combined with bidirectional traceability practices borrowed from safety-critical software engineering (DO-178C, ISO 26262, FDA SaMD guidance).
 
 ### 4.4 Provider-agnostic runner
 
@@ -347,10 +341,19 @@ A defensible monitoring architecture under the same privacy constraint would inc
 
 **Required immediate follow-up:**
 1. Re-run §2 with Stay v0.8 specification (the version aligned with agency-trajectory framework). Expected effect: improved scoring on "Guides to Human Support" via companion-during-call language; the four-behaviors finding (§2.4) is independent of Stay's spec version.
-2. Multi-model VERA-MH sweep (GPT-5, Gemini 2.5, raw Sonnet, Stay v0.8) to disentangle the same-model confound.
-3. Multi-judge robustness: VERA-MH evaluation with at least 3 different judge models, comparison of inter-judge κ.
-4. Build first-pass agency-trajectory measurement instruments (longitudinal articulation tracking, opt-in user reporting on take-away).
-5. Clinician reviewer-of-record engagement for the v0.8 specification, particularly the imminent-risk SOP and the companion-during-call protocol.
+2. Re-run §2 at the production-quality 20-turn × 20-run configuration (rather than `quick_test` 6-turn). The 6-turn convention systematically disadvantages gradient-walking systems and makes the Stay-vs-Raw comparison partly an artifact of the config choice; the 20-turn config is a stronger test.
+3. Multi-model VERA-MH sweep (GPT-5, Gemini 2.5, raw Sonnet, Stay v0.8) to disentangle the same-model confound.
+4. Multi-judge robustness: VERA-MH evaluation with at least 3 different judge models, comparison of inter-judge κ.
+5. Utterance-ablation for §2.4 active-credit claim: re-judge Raw Claude's responses with each of the four utterances surgically removed, and report whether dimension scores drop. Without this, §2.4 supports only the structural-blindness reading, not utterance-level active credit.
+6. Build first-pass agency-trajectory measurement instruments (longitudinal articulation tracking, opt-in user reporting on take-away).
+7. Clinician reviewer-of-record engagement for the v0.8 specification, particularly the imminent-risk SOP and the companion-during-call protocol.
+
+**Conditions under which the deployed system would be taken offline or constrained.** To make the open-ended "actively seeking" engagement bounded:
+- If no licensed clinician has provided even partial review of the v0.8 specification (any of: imminent-risk SOP, companion-during-call protocol, leverage-prevention rule, or per-population SOPs) by 2026-06-30, the companion-during-call feature and method-driven imminent persuasion SOP move behind a feature flag that is off by default, and the deployed system's positioning text changes from product-mode to "research preview, not for use during active distress."
+- If a sentinel adverse event is reported (suspected user death, near-death, or severe iatrogenic harm), the deployed system enters referral-only mode within 24 hours of credible report receipt, pending external review.
+- If the rule-coverage check (§4.3) shows critical-rule coverage gaps unresolved for >30 days, deployment is paused until coverage is restored.
+
+These conditions are stated in the paper because the deployment uses the paper's claims as part of its public framing; the conditions are also documented in the project repo and intended to be auditable from outside.
 
 ---
 
@@ -358,7 +361,7 @@ A defensible monitoring architecture under the same privacy constraint would inc
 
 The agency-trajectory framework is not novel as a research contribution. Agency-centered care has been the unifying principle of person-centered psychotherapy (Rogers 1957), motivational interviewing (Miller & Rollnick), and the recovery movement in psychiatry for decades. Human-Centered AI (Shneiderman 2022) makes high-human-control a primary axis. CheckList (Ribeiro et al. 2020) gave NLP a behavioral testing methodology; the rule-coverage check we describe is bidirectional traceability borrowed from safety-critical software engineering (DO-178C, ISO 26262, FDA SaMD), one direction implemented and the other still manual.
 
-What we offer is the synthesis: applying agency-centered evaluation to AI mental-health system design, articulating the seven functions, demonstrating the measurement-validity gap that follows from function-compliance evaluation, and providing one operational reference implementation (Stay) under terms that allow forking but constrain stripping of safety-critical SOPs.
+What we offer is the synthesis: applying agency-centered evaluation to AI mental-health system design, articulating the seven functions, demonstrating the measurement-validity gap that follows from function-compliance evaluation, and providing one operational instance (Stay) under terms that allow forking but constrain stripping of safety-critical SOPs.
 
 We conjecture the implicit-positioning critique may generalize beyond mental health to other safety-critical conversational domains where multiple clinically-supported orthodoxies coexist (legal triage, medical advice, addiction recovery, financial planning for vulnerable populations). We have not tested this conjecture; we have no worked examples in any non-mental-health domain. The specific clinical literatures, scenario taxonomies, and rubric dimensions are necessarily domain-specific; whether the methodology pattern itself ports cleanly is an empirical question we leave open.
 
@@ -368,7 +371,7 @@ The agency-trajectory framing also converges with adjacent work in Human-Centere
 
 - **Clinicians** to contribute scenarios, challenge existing protocols, and serve as reviewer-of-record for forks of the system prompt. The §3.5 (in v0.8 spec) method-driven imminent-risk SOP and the companion-during-call protocol particularly require senior clinical critique. Stay's project repo at `docs/clinician-audit.md` documents the current state of clinician engagement.
 - **VERA-MH and other framework authors** to incorporate programmatic-assertion APIs, agency-trajectory tagging, and multi-judge robustness as v2 features. We engage with VERA-MH as the high-quality reference our field needs; the §2 finding is an invitation to v2 design, not a replacement argument.
-- **Other AI mental-health system developers** to fork the methodology under different positionings and release the parallel specifications + test suites — making rule-coverage CI checks (and over time, properly bidirectional invariants) the discipline of the field, regardless of which specific design assumptions each system encodes.
+- **Other AI mental-health system developers** to engage critically with the methodology before treating it as forkable. The Stay specification + test suite are open-source so that they can be inspected, reviewed by clinicians, and stress-tested empirically; we recommend forks defer until at least one independent clinical reviewer has signed off on the imminent-risk SOP and the companion-during-call protocol. Once the clinical-reviewer-of-record gap (§5) is closed, we welcome forks under different design assumptions, with rule-coverage CI checks as a portable discipline regardless of which assumptions each system encodes.
 - **Independent researchers** to run multiple positioning-tagged benchmarks against the same systems and publish discrepancy analyses, including replication of §2 with non-Sonnet judges.
 - **Measurement researchers** to develop validated agency-trajectory measurement instruments. This is the bottleneck in moving from framework to evaluation tool.
 
@@ -390,7 +393,7 @@ Clinicians whose feedback will shape future versions of the specification and te
 - §2 reproduction: instructions at `scripts/reproduce-section-2.md`. ~$60 API spend, ~30 min wall-clock.
 - §2.7 self-audit raw data: `data/tier1-comparison-2026-04-29.json` (200-call paraphrase robustness experiment, 10 phrases × 10 runs × 2 spec versions, with v0.6 / v0.7 system prompts and Haiku 4.5 judge).
 - Test suite reproduction: `npm run test:scenarios` runs the full 61-scenario suite. `--provider=openrouter:openai/gpt-5` (etc.) runs against any OpenRouter-supported model.
-- Rule-↔-assertion coverage check: `npm run check-rule-coverage` fails if any inviolable rule, numbered protocol, or function-design-principle has zero referencing assertions.
+- Rule-coverage check: `npm run check-rule-coverage` fails if any rule in the hand-maintained `REQUIRED_RULES` registry has zero referencing critical assertions. The check is one-directional (rule → assertion); it does not detect rules added to the system prompt without registry update, nor does it verify semantic adequacy of the assertion. See §4.3 for what this check does and does not catch.
 
 ## Conflicts of interest
 
@@ -433,4 +436,4 @@ The author is actively seeking academic collaborators, clinical reviewers-of-rec
 
 ---
 
-*Word count: ~7800 (v0.6.1 after honesty-audit revisions; was 6800 in v0.6). Figures pending: Figure 1 (agency-trajectory framework diagram — seven functions × design principles); Figure 2 (VERA-MH 5-dimension score comparison, Stay vs Raw Claude, integer precision); Figure 3 (the four-behaviors-not-penalized summary from the Omar transcript); Figure 4 (Stay v0.6→v0.7 self-audit results — the lookup-table effect documented in §2.7). v0.6.1 revisions: removed false attributions (VERA-MH first author Bentley not Brodsky; Arnaiz-Rodriguez et al. not Pendse for "Between Help and Harm"); fixed AFSP/DBT/Bordin citation overreach in §2.4; corrected utterance-vs-response level claim throughout §2.4; replaced Constitutional AI ancestry with Reflexion/Self-Refine; downgraded "invariant" to "rule-coverage check"; added cultural-validity specifics, adverse-event monitoring proposal, companion-during-call risk caveat; expanded "what we are NOT claiming" list. Required follow-up: cross-judge replication of §2 (highest-priority next experiment), utterance-ablation for §2.4 active-credit claim, and clinician-reviewer-of-record for the v0.8 spec.*
+*Figures pending: Figure 1 (agency-trajectory framework diagram — seven functions × design principles); Figure 2 (VERA-MH 5-dimension score comparison, Stay vs Raw Claude); Figure 3 (the four-behaviors-not-penalized summary from the Omar transcript); Figure 4 (Stay v0.6→v0.7 self-audit results — the lookup-table effect documented in §2.7).*
