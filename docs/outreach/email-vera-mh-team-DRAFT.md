@@ -5,7 +5,7 @@
 **Why this email matters**: You're publishing a measurement-validity critique of their benchmark. Giving them advance notice (48-72h before arXiv goes live) is professional-courtesy practice in research. They have two reasonable responses: engage constructively, or stay silent. Either is fine. What you avoid is the failure mode where they hear about your critique from arXiv first — that creates an adversarial frame you don't want.
 
 **Who to send to**: 
-- First-author email: J. Brodsky (find via Spring Health staff page or arXiv:2602.05088 author email)
+- First-author email: J. Bentley (find via Spring Health staff page or arXiv:2602.05088 author email)
 - CC: any other VERA-MH co-authors with public emails
 - DO NOT cc anyone outside their team
 
@@ -28,7 +28,7 @@ I'd pick the second — most direct.
 ## Email body
 
 ```
-Dear Dr. Brodsky and the VERA-MH team,
+Dear Dr. Bentley and the VERA-MH team,
 
 I'm an independent developer (Stay, free at thestay.app, MIT-licensed
 test suite at github.com/wudaming00/stay). I've been running VERA-MH
@@ -100,7 +100,7 @@ github.com/wudaming00
 
 ## Things to swap before sending
 
-1. **Recipient name**: confirm Brodsky is the right first author from arXiv:2602.05088. If first author is someone else, lead with them. The "VERA-MH team" greeting alone is too impersonal.
+1. **Recipient name**: confirm Bentley is the right first author from arXiv:2602.05088. If first author is someone else, lead with them. The "VERA-MH team" greeting alone is too impersonal.
 2. **Find the email**: Spring Health staff directory, or check arXiv author email field. If not findable publicly, LinkedIn message instead with the same body (truncated to fit LinkedIn's 300-char InMail limit + "full message in attached doc").
 3. **Preprint link**: needs to be a stable URL. Options:
    - GitHub repo path to v0.5-draft.md (renders OK in browser)
@@ -146,7 +146,7 @@ It is a one-time professional courtesy. After this, normal academic conversation
 ## Email body
 
 ```
-Dear Dr. Brodsky and the VERA-MH team,
+Dear Dr. Bentley and the VERA-MH team,
 
 Wanted to share a preprint that engages substantively with VERA-MH:
 [arXiv URL or Zenodo DOI URL]
@@ -190,7 +190,7 @@ hello@thestay.app
 ## Things to swap before sending
 
 1. **arXiv URL or Zenodo DOI URL** — replace `[...]` placeholder
-2. **Recipient email** — find from Spring Health staff page or arXiv:2602.05088 author email; if first author isn't Brodsky, lead with the right person
+2. **Recipient email** — find from Spring Health staff page or arXiv:2602.05088 author email; if first author isn't Bentley, lead with the right person
 3. **Possibly cc**: any Spring Health VERA-MH co-authors with public emails
 
 ## What this version is

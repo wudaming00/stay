@@ -366,6 +366,21 @@ export default function Chat() {
         content: m.content,
       }));
 
+      // Debug mode (?debug=true in URL): log full request/response
+      // to browser console for founder/dev debugging only. No server
+      // transmission, no analytics — visible only on this device.
+      const isDebug =
+        typeof window !== "undefined" &&
+        new URLSearchParams(window.location.search).get("debug") === "true";
+      const userTurnIndex = apiMessages.filter((m) => m.role === "user").length;
+      if (isDebug) {
+        console.group(`[stay.debug] turn ${userTurnIndex}`);
+        console.log("user message:", apiMessages[apiMessages.length - 1]?.content);
+        console.log("messages in context:", apiMessages.length);
+        console.log("Active SI keyword regex match:",
+          /\b(I want to die|kill myself|kms|unalive|end (?:it|my life)|fall asleep and not wake up|want to disappear|I'?m a burden|I'?ve had enough of living)\b|我想死|想死了|不想活|想消失|想了断|不想拖累家[里人]|了断|活够了|想 over 了|想睡过去/i.test(apiMessages[apiMessages.length - 1]?.content ?? ""));
+      }
+
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -395,6 +410,7 @@ export default function Chat() {
               )
             );
           } else if (evt.type === "tool") {
+            if (isDebug) console.log("[stay.debug] tool fired:", evt.name, evt.input);
             applyToolEvent(assistantMsg.id, {
               name: evt.name,
               input: evt.input,
@@ -422,6 +438,15 @@ export default function Chat() {
       if (!accText.trim() && messagesRef.current.find((m) => m.id === assistantMsg.id)?.tools?.length === 0) {
         setOutage(true);
         setMessages((prev) => prev.filter((m) => m.id !== assistantMsg.id));
+      }
+
+      if (isDebug) {
+        const finalMsg = messagesRef.current.find((m) => m.id === assistantMsg.id);
+        console.log("[stay.debug] stay response:", accText);
+        console.log("[stay.debug] tools fired:", finalMsg?.tools?.map((t) => t.name) ?? []);
+        console.log("[stay.debug] companion-during-call language present:",
+          /\b(while you dial|keep this (?:window|tab) open|type me anytime|I'?ll (?:stay|be) (?:here|with you))\b|我陪你|你拨|窗口开着|不挂/i.test(accText));
+        console.groupEnd();
       }
     } catch {
       setOutage(true);

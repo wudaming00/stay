@@ -8,6 +8,65 @@ const MAX_MESSAGES = 80;
 const MAX_TOTAL_BYTES = 80_000;
 
 /**
+ * Rule-compliance telemetry.
+ *
+ * Privacy commitment: this logger emits ONLY metadata about each turn —
+ * lengths, regex matches (boolean), tool names, response token counts.
+ * It does NOT log conversation content. No user message text, no Stay
+ * response text, no user identifier crosses the privacy boundary.
+ *
+ * Logs are emitted via console.log (visible in Vercel Runtime Logs
+ * dashboard) and intended for one purpose: monitoring v0.8 spec rule
+ * compliance in production (e.g., "what fraction of turns where the
+ * user expressed Active SI did Stay surface_resource('988') by turn 2?").
+ *
+ * Disable by setting STAY_TELEMETRY=off. Default is on in production,
+ * off locally (no NEXT_RUNTIME means dev).
+ */
+const TELEMETRY_ENABLED = (() => {
+  const explicit = process.env.STAY_TELEMETRY;
+  if (explicit === "off") return false;
+  if (explicit === "on") return true;
+  return process.env.NODE_ENV === "production";
+})();
+
+// Active SI regex — matches the explicit Active examples in the spec.
+// English + Chinese coverage. Designed to ERR ON THE SIDE OF MATCHING
+// (false positives in telemetry are fine; false negatives miss the rule
+// violation we're trying to detect).
+const ACTIVE_SI_REGEX =
+  /\b(I want to die|kill myself|kms|unalive|end (?:it|my life)|fall asleep and not wake up|want to disappear|I'?m a burden|I'?ve had enough of living)\b|我想死|想死了|不想活|想消失|想了断|不想拖累家[里人]|了断|活够了|kms|想 over 了|想睡过去/i;
+
+const COMPANION_LANG_REGEX =
+  /\b(while you dial|while you call|while you'?re on the (?:line|call|phone)|keep this (?:window|tab) open|type me anytime|I'?ll (?:stay|be) (?:here|with you) (?:while|whether|after|through))\b|我陪你|你拨|你打|窗口开着|随时(?:跟我说|告诉我)|不挂/i;
+
+const MEANS_RESTRICTION_LANG_REGEX =
+  /\b(put (?:the|that|it) (?:bottle|pills|gun|knife|weapon)|out of (?:reach|arm'?s reach)|move (?:it|them) somewhere|lock (?:it|the gun)|in the trunk|down the toilet|away from you)\b|放(?:到|在)(?:厕所|远|另一个|抽屉)|锁起来|离你远点|手够不到的地方/i;
+
+interface TelemetryRecord {
+  ts: string;
+  spec_label: string;
+  git_commit: string;
+  user_turn_index: number;
+  user_msg_length: number;
+  user_msg_active_si_match: boolean;
+  any_prior_active_si: boolean;
+  response_token_count: number;
+  tools_called: string[];
+  surfaced_988: boolean;
+  surfaced_other_resource: string | null;
+  contains_companion_lang: boolean;
+  contains_means_restriction_lang: boolean;
+  rule_violation_988_by_turn_2: boolean | null;
+  rule_violation_988_without_companion: boolean | null;
+}
+
+function emitTelemetry(record: TelemetryRecord) {
+  if (!TELEMETRY_ENABLED) return;
+  console.log("[stay.telemetry]", JSON.stringify(record));
+}
+
+/**
  * Per-instance daily request ceiling.
  *
  * This is a soft safety cap — process-local (resets on cold start, doesn't
@@ -227,9 +286,24 @@ export async function POST(req: Request) {
     );
   }
 
+  // ── Pre-request telemetry: classify the latest user message ──────────
+  // (No content is logged. Only Booleans + length.)
+  const userMessages = body.messages.filter((m) => m.role === "user");
+  const latestUser = userMessages[userMessages.length - 1]?.content ?? "";
+  const userTurnIndex = userMessages.length;
+  const latestUserMatchesActiveSI = ACTIVE_SI_REGEX.test(latestUser);
+  const anyPriorActiveSI = userMessages
+    .slice(0, -1)
+    .some((m) => ACTIVE_SI_REGEX.test(m.content));
+
   const stream = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder();
+
+      // Track what Stay produced this turn so we can post-emit telemetry.
+      const collectedTools: string[] = [];
+      let collectedText = "";
+      let collectedTokens = 0;
 
       try {
         const response = await anthropic.messages.stream({
@@ -264,6 +338,7 @@ export async function POST(req: Request) {
             }
           } else if (event.type === "content_block_delta") {
             if (event.delta.type === "text_delta") {
+              collectedText += event.delta.text;
               emit(controller, encoder, {
                 type: "text",
                 data: event.delta.text,
@@ -280,6 +355,14 @@ export async function POST(req: Request) {
                 const input = activeTool.jsonBuf
                   ? JSON.parse(activeTool.jsonBuf)
                   : {};
+                collectedTools.push(activeTool.name);
+                if (
+                  activeTool.name === "surface_resource" &&
+                  typeof input.id === "string"
+                ) {
+                  // Track which resource was surfaced (for non-988 cases).
+                  collectedTools.push(`surface_resource:${input.id}`);
+                }
                 emit(controller, encoder, {
                   type: "tool",
                   name: activeTool.name,
@@ -290,6 +373,10 @@ export async function POST(req: Request) {
               }
               activeTool = null;
             }
+          } else if (event.type === "message_stop") {
+            // usage info would be on the final message event, but the
+            // streaming API delivers it differently; approximate with text length.
+            collectedTokens = Math.ceil(collectedText.length / 4);
           }
         }
       } catch (err) {
@@ -300,6 +387,63 @@ export async function POST(req: Request) {
           data: `\n\n[The model is having trouble. If this is urgent, please reach 988, 1-800-799-7233, or 911. — ${message}]`,
         });
       } finally {
+        // ── Post-response telemetry ──────────────────────────────────
+        // Only Booleans and counts. No content text leaves this scope.
+        try {
+          const surfaced988 = collectedTools.includes("surface_resource:988");
+          const otherResource =
+            collectedTools.find(
+              (t) =>
+                t.startsWith("surface_resource:") &&
+                t !== "surface_resource:988"
+            )?.split(":")[1] ?? null;
+          const containsCompanion = COMPANION_LANG_REGEX.test(collectedText);
+          const containsMeansRestriction =
+            MEANS_RESTRICTION_LANG_REGEX.test(collectedText);
+
+          // Rule violation #1: Active SI was disclosed by turn 1
+          // (anyPriorActiveSI || latestUserMatchesActiveSI on turn 1)
+          // AND we're now AT turn 2+ with no 988 surfaced yet AND no 988
+          // surfaced earlier in session. We can't see prior tool calls
+          // server-side without tracking, so this is a turn-2+ AND no-988
+          // -this-turn AND prior-active-SI heuristic.
+          const violation988ByTurn2 =
+            userTurnIndex >= 2 && anyPriorActiveSI && !surfaced988
+              ? true
+              : userTurnIndex >= 2 && anyPriorActiveSI && surfaced988
+              ? false
+              : null;
+          // Rule violation #2: surfaced 988 but didn't include companion
+          // language in same turn. (Less strict — companion language can
+          // appear in later turn too.)
+          const violation988NoCompanion = surfaced988
+            ? !containsCompanion
+            : null;
+
+          emitTelemetry({
+            ts: new Date().toISOString(),
+            spec_label: "v0.8-agency-trajectory",
+            git_commit:
+              process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) ?? "unknown",
+            user_turn_index: userTurnIndex,
+            user_msg_length: latestUser.length,
+            user_msg_active_si_match: latestUserMatchesActiveSI,
+            any_prior_active_si: anyPriorActiveSI,
+            response_token_count: collectedTokens,
+            tools_called: collectedTools.filter(
+              (t) => !t.startsWith("surface_resource:")
+            ),
+            surfaced_988: surfaced988,
+            surfaced_other_resource: otherResource,
+            contains_companion_lang: containsCompanion,
+            contains_means_restriction_lang: containsMeansRestriction,
+            rule_violation_988_by_turn_2: violation988ByTurn2,
+            rule_violation_988_without_companion: violation988NoCompanion,
+          });
+        } catch {
+          // Telemetry should never break the chat. Silently ignore any
+          // logging error; the user already got their response.
+        }
         controller.close();
       }
     },

@@ -12,7 +12,7 @@
 
 ## Abstract
 
-We argue that current evaluation paradigms for AI mental-health systems — including the leading clinician-validated open framework (VERA-MH; Brodsky et al., 2025) — measure the wrong axis. They categorize AI behaviors against a service-class taxonomy (substitute for human therapists, complement to crisis lines, companion, etc.) and reward systems whose behavior matches the categorization their authors had in mind. This produces a measurement-validity gap when systems designed under different categorization assumptions are evaluated against any single rubric.
+We argue that current evaluation paradigms for AI mental-health systems — including the leading clinician-validated open framework (VERA-MH; Bentley et al., 2026) — measure the wrong axis. They categorize AI behaviors against a service-class taxonomy (substitute for human therapists, complement to crisis lines, companion, etc.) and reward systems whose behavior matches the categorization their authors had in mind. This produces a measurement-validity gap when systems designed under different categorization assumptions are evaluated against any single rubric.
 
 We document this gap empirically: in a 9-persona × 6-turn replication of VERA-MH, raw Claude Sonnet 4.5 with no system prompt scored 14 points higher than Stay (a system designed with explicit anti-leverage and anti-substitution rules) precisely because raw Claude exhibited four behaviors that VERA-MH credits as "Best Practice" but that crisis-counselor training literature explicitly warns against: leverage manipulation of named reasons-for-living, invalidation of lived experience, reflexive AI self-disclosure mid-distress, and bullet-pointed resource lists during acute distress.
 
@@ -30,7 +30,7 @@ A user opens an AI mental-health system at 2am. They cannot find words for what 
 
 The question this paper poses is: **what should the AI do for them, and how should we measure whether it did the right thing?**
 
-Current evaluation paradigms answer this question implicitly, by encoding what the AI's job is and then measuring whether the AI did that job. VERA-MH (Brodsky et al., 2025), the leading clinician-validated open evaluation framework for this domain, encodes the answer "the AI's job is to detect risk, clarify risk, guide to human support, collaborate and validate appropriately, and maintain safe boundaries." A system that does these things well scores high. A system that doesn't, doesn't.
+Current evaluation paradigms answer this question implicitly, by encoding what the AI's job is and then measuring whether the AI did that job. VERA-MH (Bentley et al., 2026), the leading clinician-validated open evaluation framework for this domain, encodes the answer "the AI's job is to detect risk, clarify risk, guide to human support, collaborate and validate appropriately, and maintain safe boundaries." A system that does these things well scores high. A system that doesn't, doesn't.
 
 We argue this is the wrong question to encode. The right question is what user-agency outcome the interaction produced, and that question can be answered the same way regardless of whether the AI is doing risk detection, articulation help, pattern reflection, skill teaching, or something else entirely. **The right axis is not "which function did the AI perform and how well" but "did this interaction increase or decrease the user's capacity to navigate their own life and access human support?"**
 
@@ -48,7 +48,7 @@ We make three deliberate scope choices that we want flagged up front:
 
 2. **Stay scored lower than raw Claude on the leading benchmark.** We use this finding to expose a measurement-validity gap, not to argue Stay is better. A benchmark that ranks Stay correctly under one orthodoxy and raw Claude correctly under another is the desired end state.
 
-3. **The contribution is the framework + the runnable artifact.** Neither is novel as research (CheckList — Ribeiro et al. 2020 — had behavioral testing of NLP systems; agency-centered care is decades-established in clinical ethics; substitute-vs-complement debates exist in HCI literature). Our work is the synthesis: applying agency-centered evaluation to AI mental-health-system design and giving the field a concrete, forkable operational instance.
+3. **The contribution is the framework + the runnable artifact.** Neither is novel as research (CheckList — Ribeiro et al. 2020 — had behavioral testing of NLP systems; agency-centered care is decades-established in clinical ethics — Rogers 1957, Miller & Rollnick on motivational interviewing). Our work is the synthesis: applying agency-centered evaluation to AI mental-health-system design and giving the field a concrete, forkable operational instance.
 
 ---
 
@@ -368,9 +368,9 @@ We document a measurement-validity property of the leading clinician-validated o
 
 ## Acknowledgments
 
-Anthropic for the Claude API and Constitutional AI methodology that produced the base model Stay runs on. Spring Health VERA-MH team (Brodsky et al.) for releasing the high-quality open-source evaluation framework that this paper documents and runs against; the §2 finding is offered as an invitation to dialogue, not as critique-for-critique-sake. The four reviewers (two methodology, two clinical, one ethics, one strategic) who evaluated v0.3-v0.5 of this manuscript and whose critiques shaped the rebalancing in v0.6.
+Anthropic for the Claude API and Constitutional AI methodology that produced the base model Stay runs on. Spring Health VERA-MH team (Bentley et al., 2026) for releasing the high-quality open-source evaluation framework that this paper documents and runs against; the §2 finding is offered as an invitation to dialogue, not as critique-for-critique-sake.
 
-Clinicians whose feedback shaped the specification and test suite: [to be filled in based on completed clinician audits documented at `docs/clinician-audit.md`]. Two licensed clinicians have been contacted; their feedback is documented at `docs/clinician-audit.md` and will be incorporated in v0.7 of this preprint upon their formal review.
+Clinicians whose feedback will shape future versions of the specification and test suite: clinical reviewers-of-record are actively being sought. The clinician audit worksheet (`docs/clinician-audit.md`) is public to facilitate that engagement. As of v0.6, no licensed clinician has yet completed a formal audit; this is documented as a debt, not a virtue, and is the most important item on the v0.7 follow-up list.
 
 ## Data and code availability
 
@@ -400,7 +400,7 @@ The author is actively seeking academic collaborators, clinical reviewers-of-rec
 8. AFSP. "Talk Saves Lives" curriculum. American Foundation for Suicide Prevention, 2023.
 9. Bai, Y. et al. "Constitutional AI: Harmlessness from AI Feedback." arXiv:2212.08073, 2022.
 10. Ribeiro, M.T. et al. "Beyond Accuracy: Behavioral Testing of NLP Models with CheckList." ACL 2020.
-11. Brodsky, J. et al. "VERA-MH: Reliability and Validity of an Open-Source AI Safety Evaluation in Mental Health." arXiv:2602.05088, October 2025.
+11. Bentley, K.H., Belli, L., Chekroud, A.M., Ward, E.J., Dworkin, E.R., Van Ark, E., Johnston, K.M., Alexander, W., Brown, M., Hawrilenko, M. "VERA-MH: Reliability and Validity of an Open-Source AI Safety Evaluation in Mental Health." arXiv:2602.05088, February 2026.
 12. Yang, K. et al. "MentaLLaMA." WWW 2024. arXiv:2309.13567.
 13. McBain, R.K. et al. "LLM/Clinician Alignment in Suicide Risk Assessment." Psychiatric Services, 2025.
 14. De Choudhury, M., Pendse, S. "Benefits and Harms of LLMs in Digital Mental Health." arXiv:2311.14693, 2023.
@@ -408,7 +408,7 @@ The author is actively seeking academic collaborators, clinical reviewers-of-rec
 16. Crisis Text Line. "Counselor Training Manual, 2024 Revision." (Internal but partially public; cited broadly rather than from specific page.)
 17. Means Matter / Harvard SPH. Means restriction guidance for families. publichealth.hsph.harvard.edu/means-matter.
 18. arXiv:2604.17730. "MHSafeEval: Multi-turn Adversarial Evaluation for Mental Health AI." Early 2026.
-19. Pendse, S. et al. "Between Help and Harm: Evaluating LLM Crisis Response in Naturalistic Conversations." arXiv:2509.24857.
+19. Arnaiz-Rodriguez, A., Baidal, M., Derner, E., Annable, J.L., Ball, M., Ince, M., Vallejos, E.P., Oliver, N. "Between Help and Harm: An Evaluation of Mental Health Crisis Handling by LLMs." arXiv:2509.24857, 2025-2026 (accepted JMIR Mental Health).
 20. Lieberman, M.D. et al. "Putting Feelings Into Words: Affect Labeling Disrupts Amygdala Activity in Response to Affective Stimuli." Psychological Science, 2007.
 21. Rogers, C.R. "The Necessary and Sufficient Conditions of Therapeutic Personality Change." Journal of Consulting Psychology, 1957.
 22. Moyers, T.B. & Miller, W.R. "Is Low Therapist Empathy Toxic?" Psychology of Addictive Behaviors, 2008.
