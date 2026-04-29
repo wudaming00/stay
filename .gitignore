@@ -39,3 +39,20 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+# Personal application drafts — never commit to public repo
+docs/anthropic-era-application-draft.md
+docs/anthropic-fellows-application-draft.md
+docs/anthropic-social-good-application-draft.md
+docs/grant-applications-log.md
+docs/manifund-project-page.md
+docs/resume-anthropic-fellows.md
+docs/endorser-outreach.md
+docs/clinician-meeting-memo-template.md
+
+# Older test artifacts not part of the published v0.6 paper
+data/zh-trigger-test-2026-04-29.json
+data/zh-trigger-test-v091-2026-04-29.json
+scripts/test-zh-trigger.ts
+scripts/test-zh-trigger-v091.ts
