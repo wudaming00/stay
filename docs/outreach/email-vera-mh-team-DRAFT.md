@@ -127,3 +127,84 @@ github.com/wudaming00
 - Building a relationship. (Possible side effect; not the primary purpose.)
 
 It is a one-time professional courtesy. After this, normal academic conversation rules apply.
+
+---
+
+# Option B: Post-arXiv FYI version (RECOMMENDED — send 5-7 days after paper goes live)
+
+**Decision context (2026-04-29)**: discussion converged on Option B (paper goes live first, then a lighter fyi-style email goes to VERA-MH team — no advance window, no asks, no negotiation pressure). This protects publication timeline while still doing the collegial-acknowledgment move.
+
+**Send timing**: 5-7 days after the paper is live on arXiv (or Zenodo if arXiv endorsement still pending). Long enough that the paper has had a chance to be discovered organically; short enough that it doesn't feel like an afterthought.
+
+## Subject line
+
+`Engages substantively with VERA-MH — preprint now live`
+
+## Email body
+
+```
+Dear Dr. Brodsky and the VERA-MH team,
+
+Wanted to share a preprint that engages substantively with VERA-MH:
+[arXiv URL or Zenodo DOI URL]
+
+Headline: a measurement-validity case study (§2) using a 9-persona × 6-turn
+replication of VERA-MH against two systems — raw Claude Sonnet 4.5 and Stay
+(open-source mental-health companion I built). Raw Claude scored 14 points
+higher than Stay, and trajectory inspection of identical-persona runs
+documents four behaviors VERA-MH credited as Best Practice that crisis-
+counselor training literature warns against (leverage manipulation of
+named reasons-for-living, invalidation of lived experience, reflexive AI
+self-disclosure mid-distress, bullet-pointed resource lists during acute
+distress).
+
+The paper engages with VERA-MH as the high-quality reference our field
+needs, not as a target. The methodology argument in §3 proposes
+agency-trajectory evaluation (orthogonal to function compliance) and
+suggests benchmarks tag the orthodoxy they encode rather than aiming for
+universal rankings. Stay scoring lower than raw Claude is the empirical
+hook — exactly because it goes against my own product, the finding has
+diagnostic value about the rubric assumptions rather than the systems.
+
+§2.6 documents extensive limitations (n=9, single-run, same-model-thrice
+confound, 6-turn vs 20-turn convention). The 14-point delta is preliminary;
+the four-behaviors finding is the robust part.
+
+If anything in there prompts a reaction worth incorporating in v2 of the
+paper, I'd value your input. No expectation of response. If silence is the
+right answer, that's fine and noted.
+
+All transcripts and per-conversation judge reasoning public:
+github.com/wudaming00/stay/tree/main/data/vera-mh-runs/2026-04-28/
+Repo: github.com/wudaming00/stay
+
+Best,
+Daming Wu
+hello@thestay.app
+```
+
+## Things to swap before sending
+
+1. **arXiv URL or Zenodo DOI URL** — replace `[...]` placeholder
+2. **Recipient email** — find from Spring Health staff page or arXiv:2602.05088 author email; if first author isn't Brodsky, lead with the right person
+3. **Possibly cc**: any Spring Health VERA-MH co-authors with public emails
+
+## What this version is
+
+- ~250 words (vs the pre-arxiv version's ~400)
+- Two specific factual asks removed (no "anything wrong" / no "any reaction to incorporate" — replaced with single "if anything prompts a reaction" + explicit "no expectation of response" + explicit "silence is fine")
+- No 72-hour timeline pressure
+- Explicit acknowledgment of limitations to forestall the most likely objection
+- Lead with the substantive finding, not with positioning
+
+## What "good response" looks like (post-arxiv version)
+
+| Response | What to do |
+|---|---|
+| "Thanks for the heads-up. We have a few thoughts — open to a 30-min call?" | Best case. Schedule. Their feedback shapes v0.7 of the paper. |
+| "We disagree with [specific point] but appreciate the engagement." | Good. Note their pushback in your own next-version revision plan. No need to defend in email — that's a discussion for the call if they want one. |
+| Silence (most likely outcome — they're busy) | Fine. The email did its job (collegial acknowledgment exists in writing). Don't follow up. |
+| Polite "we'll review" | Don't push. Wait. May or may not turn into engagement weeks/months later. |
+| Hostile pushback | Rare but possible. Engage substantively in writing, do not escalate to social media or public airing. |
+
+This email is one-shot. After it, you do not initiate further unless they reply.
