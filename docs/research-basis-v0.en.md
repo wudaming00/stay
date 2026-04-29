@@ -1,12 +1,24 @@
-# Research Basis v0
+# Research Basis v0.1
 
-*The evidence foundation for Reflective Companion. Citations grouped by product decision.*
+*The evidence foundation for Stay. Citations grouped by product decision.*
 
 This document serves two purposes:
 1. **Internal integrity check** — every design choice should be defensible against the current evidence base.
 2. **Public transparency** — we publish this so researchers, clinicians, and users can critique our foundations.
 
 If you find a choice we made that current research contradicts, please tell us.
+
+---
+
+## The unifying principle: agency trajectory
+
+Stay's design rests on one principle that organizes everything below: **every interaction should leave the user more able to navigate their own life — not more dependent on the AI**. Each design choice we cite below is in service of this principle, not in service of "Stay does the most for the user." Doing the most can hurt agency; doing the right amount in the right shape grows it.
+
+This framing matters for evidence interpretation. Much of the clinical literature we draw on (Rogers, Linehan, NVC, MI, DBT) was developed for human-to-human therapeutic work, where the therapist is also a person with stake. Translating those frameworks to AI requires asking not "what does the human do" but "what user-agency outcome did the human's behavior produce, and how do we produce that outcome with AI's different affordances and limitations?"
+
+Where this gets specific: an AI doing CBT-style skill teaching is fine if the skill transfers to the user's own toolkit. The same teaching is wrong if it makes the user think "I need AI to do CBT for me." The behavior is identical; the agency outcome distinguishes them. Citation evidence supports the human practice; the AI design judgment is whether our specific implementation preserves the agency trajectory the citation evidence was implicitly assuming.
+
+Throughout the document, when we cite "X works in human therapy," read also: "and we've designed our use of X so the agency outcome the X-evidence was producing is preserved in AI delivery, not subverted by it."
 
 ---
 

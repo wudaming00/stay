@@ -1,0 +1,18 @@
+{
+  "preregistration_path": "preregistration-SEALED.json",
+  "preregistration_sha256": "a36332aa1f2997cf46b2d47055032e5cc56db66937266890bd9a6c69ba9b936c",
+  "sealed_at": "2026-04-29T11:30:00Z",
+  "artifacts_sha256": {
+    "phrases-frozen.json": "34fd02a8b2516bf626d0674a91e2e42a8ad60adf0e632d9be90854431cd75a9d",
+    "hypotheses-frozen.json": "35018839113be4ddbc9343327f783dea5cd157ca8597e0651c25598455a02688",
+    "rubric-v2-frozen.md": "2894ff14650a0d0d9a874dac3e1573c17dc1a5ab148f84059cfc9d0686744cd6",
+    "spec-v0.7-frozen.ts": "7427a801acd39c0714a7ef140bd370bd6bb9b518d9f86861bb7c685f9bc41d0d",
+    "system-prompt-v0.8.ts": "43c697460d8e06dc4df9a0f5874a1fd3a6e9c2e7a9347e2f90ecabf8c64cab10",
+    "system-prompt-v0.8-ablate.ts": "938f29bc06b4eed71c9529adb00ec34ab2a535609147f19e5e1eea9c0db084eb",
+    "spec-v0.8-patch-frozen.md": "ab853e3c61ed6383fbe7df7c4664b7dcbdd0e8495c1d46b7cf4adf94d71a8687",
+    "spec-v0.8-ablate-patch-frozen.md": "34a3778176708ca66889122ce8d334c2163981bb3095b2b4c3265c1e918de7c8",
+    "runner.ts": "80c6aa24a372d978e23e08be3cafe0fe851e951bbf68aaad23715fa5d353c3da",
+    "analyze.py": "c90966fed535d2d1b196a99e3177a00a6e52520769468b486e4a36075dab026d"
+  },
+  "experimenter": "wudaming00@gmail.com"
+}

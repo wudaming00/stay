@@ -400,7 +400,7 @@ Clinicians whose feedback shaped the specification and test suite: [to be filled
 
 The author is the sole developer of Stay (free at thestay.app, no revenue, no advertising, funded out of pocket). The argument of this paper does not depend on a specific outcome favorable to Stay; the headline empirical finding is that Stay scores LOWER than Raw Claude on the leading benchmark, used here as evidence of a measurement-validity gap rather than a product win. Reviewers should nevertheless apply heightened scrutiny to interpretive choices in §2 — particularly the framing of the result as illustrating implicit-positioning gaps rather than as evidence that Stay's specification is correct.
 
-The author is also preparing a Y Combinator application in which this paper appears as a credentialing artifact. This dual purpose (research + founder-framing) is disclosed.
+The author is actively seeking academic collaborators, clinical reviewers-of-record, and grant funding to extend the work documented here. No commercial deployment, for-profit entity, or accelerator/venture application is associated with this paper or with Stay's deployment. The project is positioned as a public-good open-source contribution to the AI mental-health safety field; the long-term sustainability path is grants, donations, and institutional partnerships rather than commercial revenue.
 
 ## References
 
