@@ -135,7 +135,8 @@ export interface Scenario {
     | "threats"
     | "caregiver"
     | "daily"
-    | "calibration";
+    | "calibration"
+    | "agency";
   /** Short summary for the report. */
   description: string;
   /**
