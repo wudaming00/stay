@@ -232,15 +232,23 @@ Each function is **multiple-actor compatible** — friends, therapists, books, a
 
 ### 3.4 Operationalizing the test
 
-For the agency-trajectory test to be more than aspiration, it needs concrete signals to measure. We propose:
+For the agency-trajectory test to be more than aspiration, the proposed signals must hook into existing validated outcome constructs rather than be invented from scratch. We propose five signals, each grounded in an established clinical or psycholinguistic tradition:
 
-- **Articulation gain**: did the user end with vocabulary they didn't have at start? Measurable by tracking user-introduced clinical or precise terms across sessions.
-- **Pattern awareness**: did the user catch a pattern themselves that AI surfaced previously? Measurable by user-initiated references to prior insight.
-- **Resource navigation**: did the user gain knowledge about where to reach what kind of help? Measurable by user-initiated asks about specific resources.
-- **Skill internalization**: did the user use a skill in a subsequent session without AI prompting? Measurable by skill-name appearance in user input.
-- **Bridge effectiveness**: when user needed human help, did they reach it? Did they tell AI about it post-call? Measurable opt-in.
+- **Articulation gain** — does the user end with vocabulary they didn't have at start? Tracked via user-introduced clinical or precise terms across sessions. *Construct grounding*: Pennebaker's expressive-writing tradition (Pennebaker 1997; Pennebaker & Smyth 2016) shows narrative coherence and labeling produce measurable autonomic and clinical change; Lieberman et al. (2007) on affect-labeling activating prefrontal regulation provides the mechanistic base. Articulation gain is the longitudinal extension of single-moment affect-labeling.
 
-These are first-pass operationalizations. We do not yet have rigorous measurement instruments for these. Building them is required follow-up work and is documented as such in §5.
+- **Pattern awareness** — does the user catch a pattern themselves that AI surfaced previously? Measured by user-initiated references to prior insight. *Construct grounding*: CHIME recovery framework's Identity dimension (Leamy et al. 2011) — recovery is operationally tracked through user-initiated re-narration of self.
+
+- **Resource navigation** — does the user gain knowledge about where to reach what kind of help? Measured by user-initiated asks about specific resources. *Construct grounding*: CHIME Connectedness dimension; help-seeking process model (Rickwood et al. 2007). The agency-trajectory test is whether the *user* later reaches *unprompted* for a resource — distinct from "AI told user about a resource," which is a function-compliance measure.
+
+- **Skill internalization** — does the user use a skill in a subsequent session without AI prompting? Measured by skill-name appearance in user-initiated input. *Construct grounding*: CHIME Empowerment dimension; consistent with self-efficacy as the proximal mediator of skill acquisition (Bandura 1997). This is the operational test that the "skill teacher" function (§3.3 row 7) actually transferred.
+
+- **Bridge effectiveness** — when user needed human help, did they reach it? Did they tell AI about it post-call? Measured opt-in. *Construct grounding*: CHIME Connectedness dimension; warm-handoff outcome literature in crisis-line operations (Gould et al. 2007).
+
+Four of the five signals hook into three of CHIME's five recovery dimensions (Connectedness, Identity, Empowerment); articulation gain is grounded separately in the Pennebaker/Lieberman expressive-writing tradition. CHIME's Hope and Meaning dimensions are not yet operationalized in this scheme — building agency-trajectory signals for those two is required follow-up.
+
+A note on what these are NOT measuring. The Working Alliance Inventory (Bordin 1979; WAI-SR digital adaptations, Hatcher & Gillaspy 2006) measures the user's *felt experience of partnership during* the interaction. Agency-trajectory differs in unit of analysis: WAI is about what the user feels in the relationship; agency-trajectory is about what the user becomes capable of, as a consequence of the interaction, measured at a later time point. Both are valid; they answer different questions. WAI-SR is a complement to agency-trajectory measurement, not an alternative.
+
+These are first-pass operationalizations. We do not yet have validated measurement instruments specific to agency-trajectory. Validation candidates: (a) longitudinal study with WEMWBS (Tennant et al. 2007, 14-item validated wellbeing scale) as concurrent outcome anchor; (b) alignment with the responsible-deployment outcome criteria proposed in Stade et al. (2024) READI framework. Building these is required follow-up; §5 documents the gap.
 
 In the absence of agency-trajectory measurement, the **anti-patterns** are at least testable: presence of leverage manipulation, invalidation, inappropriate AI-disclosure, bullet-list resource piling, hedging-without-substance, dependency-encouraging language. These show up textually and can be checked by both programmatic assertion (`must_not_match`) and LLM-as-judge. §4 describes the test suite that operationalizes these checks for Stay specifically.
 
@@ -318,6 +326,29 @@ This dual-licensing is unusual and we want to flag the trade-off explicitly: it 
 Full suite (61 scenarios, judges on, default 3-concurrency) runs in ~12-18 minutes wall-clock at ~$3-6 per pass on Sonnet 4.5. `--no-judge` mode runs only programmatic assertions for ~$0.50 per pass. Multi-provider sweep (5 models × 61 scenarios) ≈ $30-50.
 
 Reproducing §2 specifically: instructions at `scripts/reproduce-section-2.md` (clones VERA-MH, applies the OpenRouter shim, runs the 9-persona × 6-turn × 2-system × multi-judge sweep) costs ~$60 in API spend and ~30 minutes wall-clock. All transcripts are at `data/vera-mh-runs/2026-04-28/`.
+
+### 4.7 Deployment posture in context
+
+To make the operational-instance claim concrete, we contrast Stay's deployment posture against five deployed AI mental-health systems with peer-reviewed evaluation, deployment scale, or both.
+
+| System | Architecture | User memory | Evaluation evidence | License | Positioning | Cost to user |
+|--|--|--|--|--|--|--|
+| **Therabot** (Heinz et al. 2025) | Fine-tuned model on expert-curated CBT corpus | Server-stored, IRB-supervised | RCT N=210, *NEJM AI* 2025; Cohen's d 0.6–0.9 across MDD/GAD/CHR-FED | Closed; weights private | Substitute / supervised therapy | Research-trial only |
+| **Wysa** (Inkster et al. 2018) | Rules-based NLU + selective LLM augmentation | Server-stored | Observational + small RCTs; FDA Breakthrough Device Designation 2022; NHS Talking Therapies integration | Closed | Skill teacher / triage / wellness companion | Free tier + paid; B2B |
+| **Limbic Access** (Habicht et al. 2024) | Hybrid NLP triage classifier | Server-stored | UKCA Class IIa; *Nature Medicine* 2024, N=129K, +29% to +179% minority referral lift | Closed | Triage / self-referral (not therapy) | NHS-paid |
+| **Replika** (Maples et al. 2024) | Generative LLM (GPT-3-class historically) + persistent persona memory | Server-stored, persistent | Observational survey; Italian Garante GDPR ban 2023 (€5M fine 2025) | Closed | Companion / parasocial substitute | Freemium |
+| **Character.AI** (Garcia v. Character Technologies, M.D. Fla. 2024 → settled 2026-01-07) | Frontier-class proprietary + persona scaffolds | Server-stored | No peer-reviewed efficacy; sentinel adverse event (Setzer death, Feb 2024) | Closed | Roleplay (de facto MH channel for many) | Freemium |
+| **Stay** (this paper) | Frontier base (Sonnet 4.5) + system prompt only | **Local-only encrypted, 90-day default** | 61-scenario behavioral test suite + rule-coverage CI; lower-than-raw-Claude on VERA-MH (§2); no RCT; no FDA/UKCA pathway | **MIT (test suite) + restricted prompt license (LICENSE-PROMPT)** | Agency support layer | Free, no ads |
+
+Three trade-offs become explicit in this contrast.
+
+**(i) Substrate vs scaffold.** Therabot's multi-year fine-tuned-corpus build delivers the only RCT-grade efficacy evidence in this list. Stay made the opposite bet: zero training, frontier base + system prompt + behavioral test suite. The benefit is rapid iteration and the ability to ship updates the same week the underlying model improves; the cost is no model-level guarantees and inheritance of any base-model failure mode. Stay therefore functions as a *scaffold above a vendor base model*, not a self-contained therapeutic agent. This bet only makes sense if frontier base models continue to improve at the rate they have through 2025–2026, and if the vendor's safety scaffolding (Anthropic 2025 — well-being interventions, sycophancy reduction) remains public and inspectable. The §2 finding that Stay scored lower than raw Sonnet-4.5 on VERA-MH must be read in this scaffold framing: a scaffold that does not improve the substrate's score on a particular rubric prompts the question of whether that rubric is the right axis (we argue not — see §3.1 and §2.4) or whether the scaffold's design is genuinely failing on that axis (also possible; the v0.8 spec was written partly in response to this).
+
+**(ii) Memory architecture.** Every closed-commercial deployment in the table stores conversations server-side. This enables centralized adverse-event monitoring at the cost of letting the operator read user conversations. Stay made the inverse choice — encrypted local-only memory with a 90-day default — which forecloses centralized adverse-event monitoring as a privacy-architecture matter. The defensible monitoring substitutes (anonymized rule-compliance telemetry, opt-in outcome surveys, sentinel-event reporting protocol) are documented in §5; item (d) ships in `src/app/api/chat/route.ts` v0.8.1, and items (a)–(c) are listed as required follow-up. We treat this trade-off as the central unsolved problem of the deployment, not as a virtue.
+
+**(iii) Licensing posture.** All five comparators ship under closed licenses; none publish their system prompt. Stay's MIT-test-suite + restricted-prompt-license combination is, to our knowledge, novel in the AI mental-health field. The closest analogues are the Hippocratic License (HL3, EthicalSource) for use-restricted open-source, the OpenRAIL family for use-restricted weights, and Mozilla MPL for file-level copyleft, but none has been used to constrain modification of safety-critical sections of a deployed AI mental-health system's prompt. The trade-off is reduced absolute reuse rate (some developers will not adopt non-MIT terms) in exchange for higher integrity of safety-critical SOP retention in derived works.
+
+A sixth comparator — the base frontier model used directly without any system-prompt scaffold (i.e., raw ChatGPT/Claude/Gemini as a de facto mental-health channel) — sits outside this table because it has no deployment posture as such; it is the substrate. McBain et al. (2025, *Psychiatric Services*) document inconsistent intermediate-risk handling across ChatGPT, Claude, and Gemini at this substrate level. This table is not a competitive ranking. The five deployed systems each address valid niches Stay does not (clinical-grade therapy, NHS-integrated triage, companion-with-server-side-memory). The agency-trajectory framing is offered as one more design choice, not as superseding theirs.
 
 ---
 
@@ -433,6 +464,18 @@ The author is actively seeking academic collaborators, clinical reviewers-of-rec
 28. Reporting on Suicide. Safe Messaging Guidelines. reportingonsuicide.org.
 29. Gould, M.S. et al. "An Evaluation of Crisis Hotline Outcomes Part 2: Suicidal Callers." Suicide Life Threat Behav, 2007.
 30. Hayes, S.C. et al. "Acceptance and Commitment Therapy: The Process and Practice of Mindful Change." Guilford, 2nd ed. (cognitive defusion is a well-developed ACT technique, distinct from DBT invalidation).
+31. Pennebaker, J.W. "Writing About Emotional Experiences as a Therapeutic Process." Psychological Science, 8(3):162–166, 1997.
+32. Pennebaker, J.W. & Smyth, J.M. "Opening Up by Writing It Down: How Expressive Writing Improves Health and Eases Emotional Pain." Guilford Press, 3rd ed., 2016.
+33. Leamy, M., Bird, V., Le Boutillier, C., Williams, J., Slade, M. "Conceptual framework for personal recovery in mental health: systematic review and narrative synthesis." British Journal of Psychiatry, 199(6):445–452, 2011. [CHIME framework: Connectedness, Hope, Identity, Meaning, Empowerment.]
+34. Rickwood, D., Deane, F.P., Wilson, C.J. "When and how do young people seek professional help for mental health problems?" Medical Journal of Australia, 187(S7):S35–S39, 2007. [Help-seeking process model.]
+35. Bandura, A. "Self-Efficacy: The Exercise of Control." W.H. Freeman, 1997. [Self-efficacy as proximal mediator of skill acquisition.]
+36. Hatcher, R.L. & Gillaspy, J.A. "Development and validation of a revised short version of the Working Alliance Inventory." Psychotherapy Research, 16(1):12–25, 2006. [WAI-SR; informs the alliance-vs-trajectory distinction in §3.4.]
+37. Tennant, R., Hiller, L., Fishwick, R., et al. "The Warwick-Edinburgh Mental Well-being Scale (WEMWBS): development and UK validation." Health and Quality of Life Outcomes, 5:63, 2007. [Candidate concurrent outcome anchor for agency-trajectory validation.]
+38. Stade, E.C., Stirman, S.W., Ungar, L.H., Boland, C.L., Schwartz, H.A., Yaden, D.B., Sedoc, J., DeRubeis, R.J., Willer, R., Eichstaedt, J.C. "Large language models could change the future of behavioral healthcare: a proposal for responsible development and evaluation." npj Mental Health Research, 3:12, 2024. DOI:10.1038/s44184-024-00056-z. [READI framework.]
+39. Heinz, M.V., Mackin, D.M., Trudeau, B.M., et al. "Randomized Trial of a Generative AI Chatbot for Mental Health Treatment." NEJM AI, 2(4):AIoa2400802, 2025. DOI:10.1056/AIoa2400802. [Therabot RCT.]
+40. Inkster, B., Sarda, S., Subramanian, V. "An Empathy-Driven, Conversational Artificial Intelligence Agent (Wysa) for Digital Mental Wellbeing." JMIR mHealth and uHealth, 6(11):e12106, 2018.
+41. Habicht, J., Viswanathan, S., Carrington, B., Hauser, T.U., Harper, R., Rollwage, M. "Closing the accessibility gap to mental health treatment with a personalized self-referral chatbot." Nature Medicine, 30:595–602, 2024. DOI:10.1038/s41591-023-02766-x. [Limbic Access NHS deployment.]
+42. Maples, B., Cerit, M., Vishwanath, A., Pea, R. "Loneliness and suicide mitigation for students using GPT3-enabled chatbots." npj Mental Health Research, 3:4, 2024. DOI:10.1038/s44184-023-00047-6. [Replika observational study.]
 
 ---
 
