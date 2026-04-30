@@ -126,7 +126,7 @@ scripts/
 - Not a therapy replacement.
 - Not a finished product. v0. Expect rough edges.
 
-## If you want to run it locally
+## If you want to run it locally (development / inspection)
 
 ```bash
 # Requirements: Node 20+, an Anthropic API key (console.anthropic.com)
@@ -139,6 +139,59 @@ npm run dev
 ```
 
 Open http://localhost:3000.
+
+## ⚠️ If you want to deploy a fork to real users — read this first
+
+This repo is the source of an authored deployment at thestay.app, not a
+turnkey template for shipping a mental-health AI to real users. Running
+this code unmodified or modified to serve real users in distress carries
+specific obligations that go beyond the MIT license:
+
+1. **The system prompt is under [LICENSE-PROMPT.md](./LICENSE-PROMPT.md),
+   not MIT.** Derived deployments may not remove or weaken the
+   imminent-risk SOP, the leverage-prevention rule, the
+   no-third-party-characterization rule, or the companion-during-call
+   requirement without (a) naming a clinical reviewer-of-record for the
+   derived deployment publicly, and (b) documenting which sections were
+   modified and why. This is a copyright-license-level constraint, not a
+   suggestion.
+
+2. **Operator liability is real.** A May 2025 ruling in *Garcia v.
+   Character Technologies* (M.D. Fla.) rejected the argument that
+   chatbot output is protected speech under the First Amendment.
+   Whoever deploys an AI mental-health system to real users carries
+   tort liability for the harm that system causes — open-source status
+   does not transfer that liability, and operators cannot rely on the
+   author of this repo for indemnification.
+
+3. **No clinician-of-record audit has been completed on this deployment.**
+   The author is a single non-clinician developer. Stay's safety SOPs
+   are clinical interpretations grounded in published literature but
+   have not been validated by a licensed mental-health professional in
+   formal audit (this is documented in the preprint as a debt, not a
+   virtue). A fork that ships to real users without commissioning that
+   audit independently is shipping clinical content under non-clinical
+   review.
+
+4. **No FDA / UKCA / CE pathway.** Stay is positioned outside regulated
+   medical-device categories. A fork that markets itself as a treatment
+   tool, makes outcome claims, or serves clinical populations may
+   trigger regulatory obligations the original author has not navigated.
+
+5. **Adverse-event monitoring is structurally limited** by the
+   local-only encrypted storage architecture. A production deployment
+   to a vulnerable population without an opt-in monitoring substitute
+   (sentinel-event protocol, IRB-supervised research partnership,
+   anonymized telemetry) is operating without a feedback loop on harm.
+
+If you intend to deploy a fork to real users, please open an issue or
+email **hello@thestay.app** to coordinate. The license-prompt
+reviewer-of-record process exists specifically to make this safer.
+
+For research or inspection use (running the code locally to study the
+prompt, audit the safety architecture, or reproduce experiments in the
+preprint) none of the above applies; that's exactly what the open repo
+is for.
 
 ## Reporting safety issues
 
