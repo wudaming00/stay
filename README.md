@@ -152,6 +152,14 @@ src/
   app/faq/                              Common questions
   app/settings/                         Data controls, panic phrase, kept insights
   app/about/                            Why Stay exists
+  app/architecture/                     Architecture page (privacy + storage +
+                                        identity model, user-facing version)
+  app/insights/                         User's starred / kept sentences across
+                                        sessions (the "Long memory" function)
+  app/draft-message/                    Standalone "help me draft what to say to
+                                        someone" page (the "Translator" function)
+  app/help-someone/                     Standalone "I'm worried about someone
+                                        else" page (the "Caregiver" mode)
   components/Chat.tsx                   The main conversation UI
   components/SafetyPlanCard.tsx         Stanley-Brown safety plan generator
   components/QuickExit.tsx              DV-shelter emergency exit button
@@ -279,12 +287,48 @@ is anonymous; I never see your identity.
 Please email **hello@thestay.app** rather than opening a public issue for
 anything that could expose users' data. I will respond quickly.
 
-## For therapists and researchers
+## For therapists and researchers — graduated first-contact options
 
 If you are a licensed mental-health professional or a researcher in this
-field and want to review Stay, I'd welcome it. The repo is public
-specifically so you can audit the system prompt, the crisis SOP, the
-safety architecture. Email **hello@thestay.app** if you'd like to talk.
+field, three first-contact paths exist, in increasing order of commitment.
+Pick whichever fits — none assumes you'll do more than the next step.
+
+1. **Informal feedback (15 min, free).** Email
+   **hello@thestay.app** with a paragraph of impressions after browsing
+   the repo or trying [thestay.app](https://thestay.app). I'll read every
+   one personally; I will not pressure you for more.
+
+2. **Paid 90-min consult (one session).** If you'd like to spend a
+   focused hour and a half walking through specific SOPs (recommended:
+   the imminent-risk SOP, the leverage-prevention rule, and one
+   per-population SOP of your choice — DV / NSSI / OCD / ED / mania /
+   psychosis / trauma / substance), against transcripts you bring from
+   your own crisis-intervention work, I'm offering paid consultation
+   bookings at standard licensed-clinical-consultation rates. Email
+   **hello@thestay.app** with "consult" in the subject and your
+   availability. The deliverable is a written memo (your call on whether
+   it's published in `docs/clinician-audits/` or kept private).
+
+3. **Reviewer-of-record on the deployment.** This is a months-of-volunteer
+   commitment (Stay's `LICENSE-PROMPT.md` reviewer-of-record requires
+   active state licensure in a clinical mental-health discipline with
+   crisis-intervention experience, willingness to have your name
+   published as the deployment's clinical reviewer, and standing
+   availability for adverse-event consultation). Stay's
+   [`docs/clinician-audit.md`](./docs/clinician-audit.md) has the full
+   audit worksheet, and [`docs/deployment-conditions.md`](./docs/deployment-conditions.md)
+   §1 describes the role and the 2026-06-30 deadline. Email
+   **hello@thestay.app** with "reviewer-of-record interest" if you'd like
+   to discuss the commitment in detail. **Note: as of 2026-04-30, no
+   reviewer-of-record has been engaged**, so a candidate engaging now is
+   the first; this is a different commitment than joining an existing
+   roster, and a 30-min conversation about scope is the right first step
+   even before a paid consult.
+
+Path (2) is the recommended starting point for senior clinicians who
+want to engage substantively but have not yet decided whether to take on
+(3). It also generates concrete useful output (the consult memo)
+regardless of whether the engagement progresses to (3).
 
 ## License
 

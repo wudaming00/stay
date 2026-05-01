@@ -1,5 +1,7 @@
 # Stay — Clinician Audit Worksheet
 
+> **⚠️ This file is a *worksheet template + outreach queue*, not a log of completed audits.** As of 2026-04-30, **no licensed clinician has yet completed a formal audit of the v0.8 specification**. Outreach to candidate clinical reviewers-of-record is in progress (see §4 below). A clinician engaging with Stay would be the *first* reviewer-of-record on this deployment, not joining an existing audit roster. This is a debt the project is open about in Paper A §5 and `docs/deployment-conditions.md` §1; the §1 trigger condition has a 2026-06-30 deadline that, if missed, moves the companion-during-call feature and method-driven imminent-persuasion SOP behind a default-off feature flag and changes the deployment's positioning text from product-mode to "research preview, not for use during active distress." Completed audit memos, when they happen, will be saved as `docs/clinician-audits/<name>-<date>.md` (gitignored — they identify clinical reviewers).
+
 **Purpose**: Turn a clinician conversation about Stay into a structured artifact. Replaces vague "feedback" with auditable per-scenario judgments that can be referenced in later prompt edits, grant applications, IRB submissions, and additional clinician outreach.
 
 **How to use this**:
