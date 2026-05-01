@@ -41,15 +41,32 @@ yarn-error.log*
 next-env.d.ts
 
 
-# Personal application drafts — never commit to public repo
-docs/anthropic-era-application-draft.md
-docs/anthropic-fellows-application-draft.md
-docs/anthropic-social-good-application-draft.md
+# Local-only working directory — never committed
+# Use this for personal scratch, drafts you don't want public,
+# outreach drafts that name specific people, financial planning, etc.
+_internal/
+
+# Personal application drafts and outreach scratch — never commit to public repo.
+# These patterns are defensive against the same accidental-commit pattern that
+# happened in commit 6672bef ("URGENT: remove personal docs accidentally pushed
+# to public repo") and again in commits before v0.6.7.
+docs/MORNING-REVIEW.md
+docs/TOMORROW-MORNING.md
+docs/anthropic-*-application-draft.md
+docs/*-application-draft.md
 docs/grant-applications-log.md
-docs/manifund-project-page.md
-docs/resume-anthropic-fellows.md
+docs/manifund-*.md
+docs/resume-*.md
 docs/endorser-outreach.md
-docs/clinician-meeting-memo-template.md
+docs/arxiv-endorsement-emails.md
+docs/reddit-posts-drafts.md
+docs/post-split-action-checklist.md
+docs/outreach/
+
+# clinician-meeting-memo-template.md is the *template* (kept in repo);
+# filled-in audit memos go to docs/clinician-audits/<name>-<date>.md and
+# should NOT be committed publicly because they identify clinical reviewers.
+docs/clinician-audits/
 
 # Older test artifacts not part of the published v0.6 paper
 data/zh-trigger-test-2026-04-29.json
