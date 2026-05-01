@@ -6,6 +6,8 @@
 
 ¹ Independent developer, San Jose, CA. Correspondence: hello@thestay.app
 
+**Cite as**: Wu, D. (2026). *Engineering-Ethics Scaffolding for Deployed Public-Good AI Mental-Health Systems: A Combined License, Deployment-Pause Posture, and Rule-Coverage CI Pattern*. Zenodo. https://doi.org/10.5281/zenodo.19941457
+
 ---
 
 ## Abstract

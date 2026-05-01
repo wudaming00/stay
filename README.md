@@ -1,5 +1,7 @@
 # Stay
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19941457.svg)](https://doi.org/10.5281/zenodo.19941457)
+
 **A tool you use to understand yourself more clearly — and reach the rest of your mental health ecosystem more effectively.**
 
 Live at [thestay.app](https://thestay.app).
