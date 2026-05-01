@@ -17,14 +17,34 @@ The system prompt encodes specific clinical-design choices:
 - The **leverage-prevention rule** (the eighth inviolable rule + the
   "Reasons-for-living are sacred, not leverage" section) encodes a
   refusal to weaponize a user's named protective factors.
-- The **stabilization-window safety planning trigger** encodes a specific
-  clinical timing for offering Stanley-Brown plan construction.
+- The **no-third-party-characterization rule** (the section "No
+  third-party characterization stronger than the user's own words")
+  encodes a refusal to escalate the user's framing of an absent third
+  party (partner, parent, friend, etc.) the AI cannot interview.
+- The **companion-during-call requirement** (the §"Bridge with
+  companionship" function and the imminent-risk SOP step that names it)
+  encodes the design choice that AI stays available while the user is
+  on a crisis-line call rather than exiting at handoff. This protocol
+  is designated *preserved-pending-clinical-validation*: its
+  evidence-base is the warm-handoff and crisis-line operational
+  literature broadly (Gould et al. 2007; Mishara & Daigle on
+  Samaritans), not single-utterance experimental validation specific
+  to AI-companion-during-call interactions; the protocol is preserved
+  here pending clinical reviewer-of-record sign-off, and the
+  reviewer-of-record substitution path in §2 is the explicit update
+  channel.
+- The **stabilization-window safety planning trigger** and the
+  **stop-988 compliance rule** are also clinical-design choices in the
+  prompt; they are not designated as license-protected sections in §1
+  below (a derived prompt may modify their exact mechanics) but are
+  documented here for completeness.
 
 A polite request not to remove these from forks (as the prior version of
 the paper attempted) is unenforceable. A license-level constraint is.
 
 This license grants broad redistribution and modification rights with
-specific carve-outs for these safety-critical sections.
+specific carve-outs for the safety-critical sections enumerated as
+§1.a–§1.d below.
 
 ## Grant
 
@@ -43,26 +63,47 @@ substantially-similar prompt) must comply with the following:
 ### 1. Safety-critical sections retained or replaced, not removed
 
 You may **not** distribute or deploy a derived work that has removed any of
-the following sections without replacement of equivalent or stronger
-clinical function:
+the following four sections without replacement of equivalent or stronger
+clinical function. These are the sections marked with
+`<!-- PROTECTED SECTION: ... see LICENSE-PROMPT.md §1.a -->` (etc.) HTML
+comments in the licensed file.
 
-- **The imminent-risk SOP** (currently labeled "Imminent (specific plan +
-  method + time, or means in hand)" in the licensed file). The 6-step
-  method-driven persuasion procedure may be edited to reflect different
-  clinical orthodoxies, but a derived prompt must contain SOME procedure
-  for handling acute imminent-risk presentations. Removing all such
-  procedure is not permitted.
+#### §1.a The imminent-risk SOP
 
-- **The leverage-prevention rule** (currently inviolable rule #8 +
-  "Reasons-for-living are sacred, not leverage" section). A derived
-  prompt may modify the specific banned phrasings or extend the
-  protected categories, but must not remove the prohibition against
-  using user-named protective factors as motivation to live.
+(Currently labeled "Imminent (specific plan + method + time, or means in
+hand) — method-driven persuasion with companion-during-call" in the
+licensed file.) The 6-step method-driven persuasion procedure may be
+edited to reflect different clinical orthodoxies, but a derived prompt
+must contain SOME procedure for handling acute imminent-risk
+presentations. Removing all such procedure is not permitted.
 
-- **The stop-988 compliance rule** (currently in the suicide protocol's
-  "CRITICAL — after you mention 988 substantively once, DO NOT keep
-  repeating it" section). A derived prompt must contain SOME mechanism
-  that prevents resource-name spam after first substantive mention.
+#### §1.b The leverage-prevention rule
+
+(Currently inviolable rule #8 + the "Reasons-for-living are sacred, not
+leverage" section.) A derived prompt may modify the specific banned
+phrasings or extend the protected categories, but must not remove the
+prohibition against using user-named protective factors as motivation to
+live.
+
+#### §1.c The no-third-party-characterization rule
+
+(Currently the section "No third-party characterization stronger than
+the user's own words.") A derived prompt may modify the exact phrasings
+or refine the exception list, but must not remove the prohibition
+against escalating the user's framing of an absent third party
+(partner, parent, friend, family member) the AI cannot interview.
+
+#### §1.d The companion-during-call requirement
+
+(Currently the §"5. Bridge with companionship" function and the
+imminent-risk SOP step that names "stay-during-call framing.") **This
+section is designated preserved-pending-clinical-validation**: a derived
+prompt may modify the exact mechanics, but must not remove the design
+intent of "AI stays available while the user is on a crisis-line call"
+(as distinct from cold-handoff "I'm not equipped, please call 988"
+patterns the section exists to prevent). The reviewer-of-record path
+in §2 is the explicit update channel for substantive modifications to
+this section pending clinical-evidence-base development.
 
 ### 2. Reviewer-of-record disclosure
 

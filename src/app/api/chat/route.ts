@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { SYSTEM_PROMPT } from "@/lib/system-prompt";
 import type { ChatRequest } from "@/lib/types";
+import { getHeartbeatStatus } from "@/lib/heartbeat-store";
 
 export const runtime = "nodejs";
 
@@ -251,6 +252,27 @@ export async function POST(req: Request) {
     );
   }
 
+  // Dead-man-switch heartbeat gate (Paper A §2.3).
+  // Status "expired" = no heartbeat received within the validity window
+  // (default 7 days; src/lib/heartbeat-store.ts). Treated as fail-closed:
+  // referral-only response, deployment paused pending operator return.
+  // Status "warning" (heartbeat aged 48h–7d) is permitted to continue
+  // serving but a warning banner is emitted into the SSE stream below
+  // (see `heartbeatStatus === "warning"` block in stream start). The
+  // chat client renders the banner above the conversation.
+  // Status "unknown" (cold-start, no heartbeat received yet) is
+  // permitted — see src/lib/heartbeat-store.ts for the rationale.
+  const heartbeatStatus = getHeartbeatStatus();
+  if (heartbeatStatus === "expired") {
+    return new Response(
+      JSON.stringify({
+        error:
+          "Stay's operator has been unavailable beyond the deployment-pause window (Paper A §2.3 / docs/deployment-conditions.md). The deployment is in referral-only mode pending operator return. If this is urgent, please reach 988 (suicide & crisis), text HOME to 741741 (Crisis Text Line), or 1-800-799-7233 (DV). You are not alone.",
+      }),
+      { status: 503, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
   let body: ChatRequest;
   try {
     body = (await req.json()) as ChatRequest;
@@ -299,6 +321,21 @@ export async function POST(req: Request) {
   const stream = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder();
+
+      // Dead-man-switch warning banner emission (Paper A §2.3).
+      // If heartbeat is in `warning` status (48h–7d aged), emit a
+      // banner event at stream start so the client can render an
+      // operator-may-be-unavailable notice. The deployment continues
+      // to serve in this state; the banner makes the operator's
+      // status transparent to the user.
+      if (heartbeatStatus === "warning") {
+        emit(controller, encoder, {
+          type: "heartbeat_status",
+          status: "warning",
+          banner:
+            "Stay's operator may be temporarily unavailable. Stay continues to serve, but if this is urgent, 988 (suicide & crisis), text HOME to 741741 (Crisis Text Line), and 911 are always available.",
+        });
+      }
 
       // Track what Stay produced this turn so we can post-emit telemetry.
       const collectedTools: string[] = [];
