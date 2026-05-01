@@ -7,6 +7,8 @@ export default function Footer() {
         <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 sm:justify-start">
           <FooterLink href="/about">about</FooterLink>
           <Sep />
+          <FooterLink href="/log">log</FooterLink>
+          <Sep />
           <FooterLink href="/promises">promises</FooterLink>
           <Sep />
           <FooterLink href="/privacy">privacy</FooterLink>

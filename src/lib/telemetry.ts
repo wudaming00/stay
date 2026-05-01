@@ -24,7 +24,8 @@ export type TelemetryEvent =
   | "safety_plan_generated"
   | "reflection_card_shown"
   | "translation_started"
-  | "panic_phrase_triggered";
+  | "panic_phrase_triggered"
+  | "diary_entry_logged";
 
 export function isTelemetryOptedIn(): boolean {
   if (typeof window === "undefined") return false;

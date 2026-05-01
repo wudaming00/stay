@@ -17,6 +17,7 @@ import {
   deleteEverything,
 } from "@/lib/storage";
 import { isInsightSaved, saveInsight } from "@/lib/insights";
+import { addEntry as addDiaryEntry } from "@/lib/diary";
 import { matchesPanicPhrase } from "@/lib/panic";
 import { deleteDeviceKey } from "@/lib/crypto";
 import { track } from "@/lib/telemetry";
@@ -305,6 +306,15 @@ export default function Chat() {
       if (id) track("crisis_resource_surfaced", { resourceId: id });
     } else if (evt.name === "generate_safety_plan") {
       track("safety_plan_generated");
+    } else if (evt.name === "log_entry") {
+      const entry = evt.input.entry;
+      if (entry && (entry.emotion || entry.urge || entry.event_summary || entry.skill_used)) {
+        const sid = getCurrentSessionId();
+        addDiaryEntry(entry, sid).catch(() => {
+          // Silent failure — diary is best-effort.
+        });
+        track("diary_entry_logged");
+      }
     }
     setMessages((prev) =>
       prev.map((m) =>
@@ -835,6 +845,7 @@ function MessageBubble({
     const safetyPlanTools = tools.filter(
       (t) => t.name === "generate_safety_plan"
     );
+    const logEntryTools = tools.filter((t) => t.name === "log_entry");
     return (
       <div className="space-y-3">
         <div className="animate-fadein font-serif text-base leading-relaxed text-foreground sm:text-lg">
@@ -859,6 +870,35 @@ function MessageBubble({
           const plan = t.input.plan as SafetyPlan | undefined;
           if (!plan) return null;
           return <SafetyPlanCard key={i} plan={plan} />;
+        })}
+        {logEntryTools.map((t, i) => {
+          const entry = t.input.entry;
+          if (!entry) return null;
+          const summary = [
+            entry.emotion &&
+              (entry.emotion_intensity != null
+                ? `${entry.emotion} ${entry.emotion_intensity}/10`
+                : entry.emotion),
+            entry.urge &&
+              (entry.urge_intensity != null
+                ? `urge: ${entry.urge} ${entry.urge_intensity}/10`
+                : `urge: ${entry.urge}`),
+            entry.event_summary,
+            entry.skill_used && `skill: ${entry.skill_used}`,
+          ]
+            .filter(Boolean)
+            .join(" · ");
+          if (!summary) return null;
+          return (
+            <a
+              key={i}
+              href="/log"
+              className="ml-5 inline-flex items-center gap-1.5 text-xs text-foreground/50 hover:text-foreground/80 sm:ml-6"
+            >
+              <span aria-hidden>·</span>
+              <span>logged · {summary}</span>
+            </a>
+          );
         })}
       </div>
     );

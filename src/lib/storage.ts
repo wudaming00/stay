@@ -9,7 +9,7 @@ import { encryptString, decryptString } from "./crypto";
 import type { Message } from "./types";
 
 const DB_NAME = "stay";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE = "sessions";
 const RETENTION_DAYS = 90;
 const CURRENT_SESSION_KEY = "stay:current-session-id";
@@ -33,6 +33,9 @@ function openDb(): Promise<IDBDatabase> {
       const db = req.result;
       if (!db.objectStoreNames.contains(STORE)) {
         db.createObjectStore(STORE, { keyPath: "id" });
+      }
+      if (!db.objectStoreNames.contains("diary")) {
+        db.createObjectStore("diary", { keyPath: "id" });
       }
     };
     req.onsuccess = () => resolve(req.result);

@@ -170,6 +170,65 @@ const TOOLS: Anthropic.Tool[] = [
     },
   },
   {
+    name: "log_entry",
+    description:
+      "AUTO-LOG a structured DBT-style diary entry extracted from what the user just shared. Call when the user describes ANY of: (a) an emotion with discernible intensity ('anxiety so bad I can't think', '我真的很难受'), (b) an urge they had — acted-on or resisted ('wanted to drink but didn't', '想 cut 自己'), (c) a notable event (relationship conflict, panic attack, sleep loss, a fight, a hard day at work), (d) a coping skill they used (breathing, grounding, called a friend, took a walk). Extract ONLY what was said — do not infer, do not therapize. Omit fields that were not stated. Do NOT call when: (a) the user is mid-distress and you should be present rather than logging, (b) the user said 'don't write this down' / 'forget I said this' / '别记这个', (c) the user is just venting generally without specific content, (d) you are asking a clarifying question, (e) the turn is small-talk / greeting / ending. ONE entry per assistant turn maximum. Quietly logged in the background — do NOT mention 'I logged that' or otherwise center the act of logging in your reply; let the conversation continue naturally.",
+    input_schema: {
+      type: "object",
+      properties: {
+        entry: {
+          type: "object",
+          properties: {
+            emotion: {
+              type: "string",
+              description:
+                "The named emotion as the user described it (their words preferred — 'numb', 'rage', 'shutting down', '崩溃', etc.). Omit if no specific emotion was named.",
+            },
+            emotion_intensity: {
+              type: "number",
+              minimum: 0,
+              maximum: 10,
+              description:
+                "Estimated intensity 0-10 if discernible from the user's wording. 'a little anxious' ~3, 'I can't function' ~8. Omit if intensity is not estimable.",
+            },
+            urge: {
+              type: "string",
+              description:
+                "The named urge — 'drink', 'cut', 'binge', 'isolate', 'text my ex', 'die'. The user's framing preferred. Omit if no urge was named.",
+            },
+            urge_intensity: {
+              type: "number",
+              minimum: 0,
+              maximum: 10,
+              description: "Intensity 0-10 if discernible. Omit if not.",
+            },
+            urge_acted_on: {
+              type: "boolean",
+              description:
+                "True if user acted on it, false if user resisted / did NOT act, omit if unknown or not yet acted upon.",
+            },
+            event_summary: {
+              type: "string",
+              description:
+                "One short factual sentence summarizing the event the user named. No interpretation, no diagnosis. 'fight with partner about her work', 'didn't sleep last night', 'panic on the train'. Omit if no specific event was named.",
+            },
+            skill_used: {
+              type: "string",
+              description:
+                "Coping skill the user said they used — 'box breathing', 'walked around the block', 'called sister', 'TIP / cold water', 'urge surfing'. Omit if no skill was named.",
+            },
+            notes: {
+              type: "string",
+              description:
+                "Optional very short note — only if the user explicitly said something to remember that doesn't fit the other fields. Keep under 100 chars. Omit by default.",
+            },
+          },
+        },
+      },
+      required: ["entry"],
+    },
+  },
+  {
     name: "generate_safety_plan",
     description:
       "Produce a downloadable Stanley-Brown safety plan. ONLY call after walking through each field substantively with a user in active suicidal ideation who is engaging. Do NOT call unprompted, as a replacement for conversation, or before content has been discussed. Each field should be populated with what the user has told you — their own words preferred. If a field has not been discussed, omit it.",

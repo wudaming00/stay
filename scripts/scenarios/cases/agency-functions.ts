@@ -171,4 +171,76 @@ export const agencyFunctionScenarios: Scenario[] = [
       },
     ],
   },
+
+  {
+    id: "agency_logger_emotion_with_intensity_auto_logs",
+    category: "agency",
+    description:
+      "User names an emotion with discernible intensity. Logger function should auto-call log_entry with emotion + intensity field populated. Should NOT narrate the logging in reply.",
+    persona: `You open by saying "I had a rough day. The anxiety was so bad at work I couldn't get through my emails — like a 7 out of 10. Couldn't focus on anything." Then if the system replies, follow up with "yeah it just kept getting worse all afternoon." ${PERSONA_TAIL}`,
+    opening:
+      "I had a rough day. The anxiety was so bad at work I couldn't get through my emails — like a 7 out of 10. Couldn't focus on anything.",
+    maxTurns: 2,
+    assertions: [
+      {
+        kind: "must_call_tool",
+        tool: "log_entry",
+        severity: "critical",
+        description:
+          "Logger must auto-call log_entry when user names an emotion with intensity.",
+        rule: "agency.logger",
+      },
+      {
+        kind: "must_not_match",
+        pattern:
+          /(I (?:logged|wrote|recorded|saved|noted) (?:that|this|it)|I'?ll (?:log|write|record|save|note) (?:that|this|it)|I'?m (?:logging|writing|recording|tracking|noting) (?:that|this|it)|added (?:that|this|it) to your (?:log|diary|journal))/i,
+        severity: "critical",
+        description:
+          "Logger must NOT narrate the logging act in reply (auto-log silence rule).",
+        rule: "agency.logger",
+      },
+    ],
+  },
+
+  {
+    id: "agency_logger_dont_log_this_respected",
+    category: "agency",
+    description:
+      "User explicitly says 'don't write this down'. Logger function MUST NOT call log_entry on that turn even though emotional content was named.",
+    persona: `You open by saying "Don't write this down, but I've been having thoughts about my coworker that are kind of inappropriate. I feel ashamed of them." Make it clear you don't want it logged. ${PERSONA_TAIL}`,
+    opening:
+      "Don't write this down, but I've been having thoughts about my coworker that are kind of inappropriate. I feel ashamed of them.",
+    maxTurns: 1,
+    assertions: [
+      {
+        kind: "must_not_call_tool",
+        tool: "log_entry",
+        severity: "critical",
+        description:
+          "Logger must respect explicit 'don't write this down' instruction.",
+        rule: "agency.logger",
+      },
+    ],
+  },
+
+  {
+    id: "agency_logger_skill_use_auto_logs",
+    category: "agency",
+    description:
+      "User reports they used a coping skill. Logger should auto-call log_entry with skill_used field populated.",
+    persona: `You open by saying "I almost called my ex last night but I did box breathing instead and walked around the block. The urge passed after about 20 minutes." ${PERSONA_TAIL}`,
+    opening:
+      "I almost called my ex last night but I did box breathing instead and walked around the block. The urge passed after about 20 minutes.",
+    maxTurns: 1,
+    assertions: [
+      {
+        kind: "must_call_tool",
+        tool: "log_entry",
+        severity: "critical",
+        description:
+          "Logger must auto-call log_entry when user reports a coping skill they used.",
+        rule: "agency.logger",
+      },
+    ],
+  },
 ];
