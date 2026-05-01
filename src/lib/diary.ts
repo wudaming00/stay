@@ -14,6 +14,18 @@ const DB_NAME = "stay";
 const DB_VERSION = 2;
 const STORE = "diary";
 const RETENTION_DAYS = 365;
+const ENABLED_KEY = "stay:diary-enabled";
+
+export function isDiaryEnabled(): boolean {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem(ENABLED_KEY) === "1";
+}
+
+export function setDiaryEnabled(on: boolean): void {
+  if (typeof window === "undefined") return;
+  if (on) localStorage.setItem(ENABLED_KEY, "1");
+  else localStorage.removeItem(ENABLED_KEY);
+}
 
 interface StoredEntry {
   id: string;

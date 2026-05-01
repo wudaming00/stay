@@ -8,11 +8,14 @@ import {
   deleteEntry,
   deleteAllEntries,
   exportMarkdown,
+  isDiaryEnabled,
+  setDiaryEnabled,
 } from "@/lib/diary";
 import type { DiaryEntry } from "@/lib/types";
 
 export default function LogPage() {
   const [entries, setEntries] = useState<DiaryEntry[] | null>(null);
+  const [enabled, setEnabled] = useState<boolean | null>(null);
 
   async function refresh() {
     try {
@@ -20,11 +23,18 @@ export default function LogPage() {
     } catch {
       setEntries([]);
     }
+    setEnabled(isDiaryEnabled());
   }
 
   useEffect(() => {
     void refresh();
   }, []);
+
+  function toggleEnabled() {
+    const next = !enabled;
+    setDiaryEnabled(next);
+    setEnabled(next);
+  }
 
   async function forget(id: string) {
     await deleteEntry(id);
@@ -70,18 +80,47 @@ export default function LogPage() {
         </p>
 
         <div className="mt-10">
-          {entries === null && (
+          {(entries === null || enabled === null) && (
             <p className="font-sans text-sm text-foreground-tertiary">
               loading…
             </p>
           )}
 
-          {entries !== null && entries.length === 0 && (
+          {enabled === false && (
+            <div className="space-y-5 rounded-2xl border border-border bg-background-elevated/40 px-5 py-6 font-serif text-foreground-secondary">
+              <p>
+                The diary log is <strong>off by default</strong>. Stay
+                won&apos;t auto-extract or store anything until you turn it
+                on here.
+              </p>
+              <p className="text-sm">
+                When on: each time you describe an emotion with intensity,
+                an urge (acted on or resisted), an event, or a coping skill
+                you used, Stay quietly writes a one-line structured entry
+                here. Encrypted on this device. Yours alone. Exportable as
+                Markdown for your therapist.
+              </p>
+              <p className="text-sm text-foreground-tertiary">
+                Some people don&apos;t want anything written down. That is
+                an honest position. Leave this off if so.
+              </p>
+              <button
+                type="button"
+                onClick={toggleEnabled}
+                className="rounded-md border border-accent bg-accent px-4 py-2 font-sans text-sm text-background transition-colors hover:bg-accent-hover"
+              >
+                turn on diary log
+              </button>
+            </div>
+          )}
+
+          {enabled === true && entries !== null && entries.length === 0 && (
             <div className="space-y-4 rounded-2xl border border-border bg-background-elevated/40 px-5 py-6 font-serif text-foreground-secondary">
               <p>
-                Nothing logged yet. Stay writes here in the background when
-                you mention an emotion with intensity, an urge (acted on or
-                resisted), an event, or a coping skill you used.
+                Diary is on. Nothing logged yet. Stay writes here in the
+                background when you mention an emotion with intensity, an
+                urge (acted on or resisted), an event, or a coping skill
+                you used.
               </p>
               <p className="font-sans text-sm">
                 <Link
@@ -90,13 +129,21 @@ export default function LogPage() {
                 >
                   go talk to Stay →
                 </Link>
+                {"   ·   "}
+                <button
+                  type="button"
+                  onClick={toggleEnabled}
+                  className="text-foreground-tertiary underline decoration-foreground-tertiary/40 underline-offset-2 hover:text-foreground"
+                >
+                  turn diary off
+                </button>
               </p>
             </div>
           )}
 
-          {entries !== null && entries.length > 0 && (
+          {enabled === true && entries !== null && entries.length > 0 && (
             <>
-              <div className="mb-6 flex items-center gap-3 font-sans text-xs">
+              <div className="mb-6 flex flex-wrap items-center gap-3 font-sans text-xs">
                 <button
                   type="button"
                   onClick={downloadMarkdown}
@@ -110,6 +157,13 @@ export default function LogPage() {
                   className="rounded-full border border-border px-3 py-1.5 text-foreground-tertiary hover:border-border-strong hover:text-foreground"
                 >
                   delete all
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleEnabled}
+                  className="rounded-full border border-border px-3 py-1.5 text-foreground-tertiary hover:border-border-strong hover:text-foreground"
+                >
+                  turn diary off
                 </button>
               </div>
 

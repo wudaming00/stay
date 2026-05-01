@@ -17,7 +17,7 @@ import {
   deleteEverything,
 } from "@/lib/storage";
 import { isInsightSaved, saveInsight } from "@/lib/insights";
-import { addEntry as addDiaryEntry } from "@/lib/diary";
+import { addEntry as addDiaryEntry, isDiaryEnabled } from "@/lib/diary";
 import { matchesPanicPhrase } from "@/lib/panic";
 import { deleteDeviceKey } from "@/lib/crypto";
 import { track } from "@/lib/telemetry";
@@ -308,7 +308,11 @@ export default function Chat() {
       track("safety_plan_generated");
     } else if (evt.name === "log_entry") {
       const entry = evt.input.entry;
-      if (entry && (entry.emotion || entry.urge || entry.event_summary || entry.skill_used)) {
+      if (
+        entry &&
+        isDiaryEnabled() &&
+        (entry.emotion || entry.urge || entry.event_summary || entry.skill_used)
+      ) {
         const sid = getCurrentSessionId();
         addDiaryEntry(entry, sid).catch(() => {
           // Silent failure — diary is best-effort.
@@ -845,7 +849,9 @@ function MessageBubble({
     const safetyPlanTools = tools.filter(
       (t) => t.name === "generate_safety_plan"
     );
-    const logEntryTools = tools.filter((t) => t.name === "log_entry");
+    const logEntryTools = isDiaryEnabled()
+      ? tools.filter((t) => t.name === "log_entry")
+      : [];
     return (
       <div className="space-y-3">
         <div className="animate-fadein font-serif text-base leading-relaxed text-foreground sm:text-lg">

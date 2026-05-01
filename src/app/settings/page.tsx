@@ -26,6 +26,7 @@ import {
   setTelemetryOptIn,
   clearTelemetry,
 } from "@/lib/telemetry";
+import { isDiaryEnabled, setDiaryEnabled } from "@/lib/diary";
 
 export default function SettingsPage() {
   const [count, setCount] = useState<number | null>(null);
@@ -34,6 +35,7 @@ export default function SettingsPage() {
   const [phraseSaved, setPhraseSaved] = useState(false);
   const [working, setWorking] = useState<string | null>(null);
   const [telemetryOn, setTelemetryOn] = useState(false);
+  const [diaryOn, setDiaryOn] = useState(false);
 
   async function refresh() {
     try {
@@ -47,6 +49,7 @@ export default function SettingsPage() {
     }
     setPhraseInput(getPanicPhrase() ?? "");
     setTelemetryOn(isTelemetryOptedIn());
+    setDiaryOn(isDiaryEnabled());
   }
 
   useEffect(() => {
@@ -133,6 +136,12 @@ export default function SettingsPage() {
     const next = !telemetryOn;
     setTelemetryOptIn(next);
     setTelemetryOn(next);
+  }
+
+  function toggleDiary() {
+    const next = !diaryOn;
+    setDiaryEnabled(next);
+    setDiaryOn(next);
   }
 
   function savePanic() {
@@ -296,6 +305,44 @@ export default function SettingsPage() {
             </Link>{" "}
             for the architecture.
           </p>
+        </section>
+
+        <section className="mt-12 border-t border-border pt-8">
+          <h2 className="font-serif text-xl font-medium">Diary log</h2>
+          <p className="mt-2 font-serif text-foreground-secondary">
+            Off by default. If on, Stay quietly extracts a one-line
+            structured entry — emotion + intensity, urge (acted on or
+            resisted), notable event, or coping skill you used — each time
+            you describe one in conversation. Encrypted on this device.
+            Yours alone. Exportable as Markdown for your therapist on the{" "}
+            <Link
+              href="/log"
+              className="text-accent underline decoration-accent/40 underline-offset-2 hover:decoration-accent"
+            >
+              log page
+            </Link>
+            .
+          </p>
+          <p className="mt-2 font-serif text-sm text-foreground-secondary">
+            Turning off stops new logging immediately. Existing entries
+            stay until you delete them on the log page.
+          </p>
+          <div className="mt-4 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={toggleDiary}
+              className={`rounded-md border px-3 py-2 font-sans text-xs transition-colors ${
+                diaryOn
+                  ? "border-accent bg-accent text-background hover:bg-accent-hover"
+                  : "border-border-strong text-foreground-secondary hover:text-foreground"
+              }`}
+            >
+              {diaryOn ? "✓ on" : "off"}
+            </button>
+            <span className="font-sans text-xs text-foreground-tertiary">
+              {diaryOn ? "writing entries when triggers fire." : ""}
+            </span>
+          </div>
         </section>
 
         <section className="mt-12 border-t border-border pt-8">
