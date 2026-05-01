@@ -298,16 +298,26 @@ Pick whichever fits — none assumes you'll do more than the next step.
    the repo or trying [thestay.app](https://thestay.app). I'll read every
    one personally; I will not pressure you for more.
 
-2. **Paid 90-min consult (one session).** If you'd like to spend a
-   focused hour and a half walking through specific SOPs (recommended:
-   the imminent-risk SOP, the leverage-prevention rule, and one
-   per-population SOP of your choice — DV / NSSI / OCD / ED / mania /
+2. **Paid 90-min consult (one session) — currently in development.** If you'd
+   like to spend a focused hour and a half walking through specific SOPs
+   (recommended: the imminent-risk SOP, the leverage-prevention rule, and
+   one per-population SOP of your choice — DV / NSSI / OCD / ED / mania /
    psychosis / trauma / substance), against transcripts you bring from
-   your own crisis-intervention work, I'm offering paid consultation
-   bookings at standard licensed-clinical-consultation rates. Email
-   **hello@thestay.app** with "consult" in the subject and your
-   availability. The deliverable is a written memo (your call on whether
-   it's published in `docs/clinician-audits/` or kept private).
+   your own crisis-intervention work, the *intent* is to offer paid
+   consultation bookings; this path is **not yet operational** because
+   the supporting infrastructure (LLC formation per
+   [`docs/deployment-conditions.md`](./docs/deployment-conditions.md);
+   published rate sheet; intake template with confidentiality terms
+   appropriate to clinician-brought transcripts; `docs/clinician-audits/`
+   directory for the deliverable memo) has not yet been built. We name
+   the path in this README because a senior-clinician reviewer
+   specifically suggested it as the right first-contact format and we
+   want it on the roadmap publicly. Until it is operational, please use
+   path (1) above — informal feedback by email — and we will reply with
+   rate, intake, and scheduling details if you indicate interest in
+   converting that into a paid consult. Honest expectation: this path
+   becomes operational in the v0.9 milestone parallel to LLC formation
+   and the dead-man-switch external-scheduler wiring.
 
 3. **Reviewer-of-record on the deployment.** This is a months-of-volunteer
    commitment (Stay's `LICENSE-PROMPT.md` reviewer-of-record requires
