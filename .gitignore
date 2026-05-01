@@ -68,8 +68,9 @@ docs/outreach/
 # should NOT be committed publicly because they identify clinical reviewers.
 docs/clinician-audits/
 
-# Older test artifacts not part of the published v0.6 paper
-data/zh-trigger-test-2026-04-29.json
-data/zh-trigger-test-v091-2026-04-29.json
-scripts/test-zh-trigger.ts
-scripts/test-zh-trigger-v091.ts
+# NOTE: zh-trigger test artifacts (the v0.6→v0.7 paraphrase-robustness work
+# that fed into Paper B §4.6's tier1-comparison) have been moved to _internal/
+# so the public scripts/ and data/ directories contain only what Papers A/B
+# directly reference. The data points to keep in repo are the tier1-comparison
+# JSON (data/tier1-comparison-2026-04-29.json) and the scripts/test-tier1-
+# comparison.ts runner, both still tracked.

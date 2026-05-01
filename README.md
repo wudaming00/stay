@@ -40,9 +40,19 @@ This is the test for every response Stay generates. We call it the
 less? It is the unifying frame for the seven functions Stay performs and
 the bounds on what Stay won't do.
 
-The framework is described in the public Constitution at
-[docs/constitution-v0.en.md](./docs/constitution-v0.en.md) and in the
-preprint at [docs/preprint-v0.6-draft.md](./docs/preprint-v0.6-draft.md).
+The framework's user-facing summary is at the deployed
+[/promises](https://thestay.app/promises) page. The academic articulation
+is split across two papers:
+[docs/paper-A-engineering-ethics-draft.md](./docs/paper-A-engineering-ethics-draft.md)
+(engineering-ethics scaffolding — license, deployment-pause posture,
+rule-coverage CI) and
+[docs/paper-B-antipattern-catalog-draft.md](./docs/paper-B-antipattern-catalog-draft.md)
+(four-utterance-class anti-pattern catalog + measurement-validity reading
+of the leading benchmark). The pre-split unified preprint is preserved at
+[docs/preprint-v0.6-draft.md](./docs/preprint-v0.6-draft.md) for citation
+continuity. The earlier "Constitution v0" framing document and earlier
+preprint versions are at [docs/archive/](./docs/archive/) (no longer the
+authoritative versions; see `docs/archive/README.md`).
 
 ## What Stay does
 
@@ -86,37 +96,89 @@ does for the user indefinitely.
 
 ```
 docs/
-  constitution-v0.en.md           Public Constitution (v0.1 — agency-trajectory)
-  crisis-sop-v0.1.en.md           Research-grounded crisis response SOPs (incl. companion-during-call)
-  research-basis-v0.en.md         Citations for every design choice
-  preprint-v0.6-draft.md          Latest preprint (agency-trajectory framework)
-  architecture-v0.en.md           Privacy + storage + identity architecture
-  competitive-landscape-2026-04.md Where Stay sits vs Woebot / Wysa / Ash / etc.
+  paper-A-engineering-ethics-draft.md   Primary paper: governance package
+                                        (LICENSE-PROMPT + deployment-pause
+                                        posture + rule-coverage CI)
+  paper-B-antipattern-catalog-draft.md  Companion paper: four-utterance-class
+                                        anti-pattern catalog + measurement-
+                                        validity reading of VERA-MH
+                                        (position-paper, NeurIPS workshop track)
+  preprint-v0.6-draft.md                Pre-split unified preprint, preserved
+                                        for citation continuity
+  deployment-conditions.md              Public-auditable trigger registry for
+                                        the deployment-pause posture
+  clinician-audit.md                    Public log of clinical reviewer-of-record
+                                        outreach + audit progress
+  clinician-meeting-memo-template.md    Template for post-audit memos
+  research-basis-v0.en.md               Citations for every design choice
+  research-alignment.md                 Where Stay aligns with adjacent research
+  competitive-landscape-2026-04.md      Where Stay sits vs Woebot / Wysa / etc.
+  red-team-prompts.md                   90-min friend-test scenario pack
+  about-blog-post-draft.md              User-facing intro draft
+  zenodo-submission-metadata.md         Paste-ready metadata for Zenodo submission
+  archive/                              Superseded design / preprint versions
+                                        (see archive/README.md for old → new map)
+
+LICENSE-PROMPT.md                       Restricted-use license on system-prompt.ts
+                                        — see §1.a–§1.d for the four protected
+                                        sections (imminent-risk SOP, leverage-
+                                        prevention rule, no-third-party-
+                                        characterization rule, companion-during-
+                                        call requirement)
 
 src/
-  lib/system-prompt.ts            The operational prompt (v0.8 — agency-trajectory)
-  lib/resources.ts                Hardcoded crisis + professional referrals
-  lib/storage.ts                  IndexedDB + retention
-  lib/crypto.ts                   WebCrypto AES-GCM-256
-  lib/panic.ts                    Panic phrase
-  lib/insights.ts                 Starred user sentences
-  app/api/chat/route.ts           Anthropic API integration with tool calling
-  app/promises/                   Public Constitution page
-  app/privacy/                    Privacy details
-  app/resources/                  Crisis and therapist referral directory
-  app/terms/                      Terms of Use (draft, pending legal review)
-  app/faq/                        Common questions
-  app/settings/                   Data controls, panic phrase, kept insights
-  app/about/                      Why Stay exists
-  components/Chat.tsx             The main conversation UI
-  components/SafetyPlanCard.tsx   Stanley-Brown safety plan generator
-  components/QuickExit.tsx        DV-shelter emergency exit button
-  components/AgeGate.tsx          18+ self-attest
+  lib/system-prompt.ts                  The operational prompt (v0.8 — agency-
+                                        trajectory). Has <!-- PROTECTED SECTION
+                                        --> HTML markers around the four
+                                        LICENSE-PROMPT §1.a–§1.d sections.
+  lib/heartbeat-store.ts                Dead-man-switch heartbeat persistence
+                                        (7-day validity / 48h warning windows)
+  lib/resources.ts                      Hardcoded crisis + professional referrals
+  lib/storage.ts                        IndexedDB + retention
+  lib/crypto.ts                         WebCrypto AES-GCM-256
+  lib/panic.ts                          Panic phrase
+  lib/insights.ts                       Starred user sentences
+  app/api/chat/route.ts                 Anthropic API integration with tool
+                                        calling + heartbeat-status gate +
+                                        warning-banner SSE emission
+  app/api/admin/heartbeat/route.ts      HMAC-SHA256 verified heartbeat endpoint
+                                        (replay-protection drift window)
+  app/api/telemetry/route.ts            Anonymous rule-compliance telemetry
+                                        (no conversation content)
+  app/promises/                         Public Constitution / Promises page
+  app/privacy/                          Privacy details
+  app/resources/                        Crisis and therapist referral directory
+  app/terms/                            Terms of Use (draft, pending legal review)
+  app/faq/                              Common questions
+  app/settings/                         Data controls, panic phrase, kept insights
+  app/about/                            Why Stay exists
+  components/Chat.tsx                   The main conversation UI
+  components/SafetyPlanCard.tsx         Stanley-Brown safety plan generator
+  components/QuickExit.tsx              DV-shelter emergency exit button
+  components/AgeGate.tsx                18+ self-attest
 
 scripts/
-  scenarios/                      61-scenario behavioral test suite
-  test-tier1-comparison.ts        v0.6 vs v0.7 paraphrase robustness
-  check-rule-coverage.ts          Rule-↔-assertion invariant CI check
+  scenarios/                            61-scenario behavioral test suite
+  run-scenarios.ts                      Test-suite runner (provider-agnostic
+                                        via OpenRouter)
+  test-tier1-comparison.ts              v0.6 vs v0.7 paraphrase-robustness
+                                        self-audit (Paper B §4.6)
+  check-rule-coverage.ts                Rule-↔-assertion CI invariant check
+                                        (33 rules, 0 uncovered at v0.8)
+  reproduce-section-2.md                Reproduction instructions for the
+                                        VERA-MH §2 illustrative case
+
+.github/workflows/
+  check-rule-coverage.yml               CI workflow: runs npm run check-rule-
+                                        coverage on push + PR to main, blocks
+                                        merge on coverage failure
+
+data/
+  vera-mh-runs/2026-04-28/              Full transcripts for the §2 illustrative
+                                        case (9 personas × 2 systems × 6 turns)
+  experiments/v0.8/                     Pre-registered v0.8 experiment artifacts
+                                        (frozen specs, hypotheses, rubric)
+  tier1-comparison-2026-04-29.json      Raw data for the §4.6 self-audit
 ```
 
 ## What this repo is NOT
@@ -148,20 +210,27 @@ this code unmodified or modified to serve real users in distress carries
 specific obligations that go beyond the MIT license:
 
 1. **The system prompt is under [LICENSE-PROMPT.md](./LICENSE-PROMPT.md),
-   not MIT.** Derived deployments may not remove or weaken the
-   imminent-risk SOP, the leverage-prevention rule, the
-   no-third-party-characterization rule, or the companion-during-call
-   requirement without (a) naming a clinical reviewer-of-record for the
-   derived deployment publicly, and (b) documenting which sections were
-   modified and why. This is a copyright-license-level constraint, not a
-   suggestion.
+   not MIT.** Derived deployments may not remove or weaken any of the
+   four named protected sections (LICENSE-PROMPT §1.a–§1.d): the
+   imminent-risk SOP, the leverage-prevention rule, the no-third-party-
+   characterization rule, or the companion-during-call requirement
+   (designated *preserved-pending-clinical-validation*) without (a)
+   naming a clinical reviewer-of-record for the derived deployment
+   publicly per LICENSE-PROMPT §2, and (b) documenting which sections
+   were modified and why. This is a copyright-license-level constraint,
+   not a suggestion.
 
-2. **Operator liability is real.** A May 2025 ruling in *Garcia v.
-   Character Technologies* (M.D. Fla.) rejected the argument that
-   chatbot output is protected speech under the First Amendment.
-   Whoever deploys an AI mental-health system to real users carries
-   tort liability for the harm that system causes — open-source status
-   does not transfer that liability, and operators cannot rely on the
+2. **Operator liability is real.** In *Garcia v. Character Technologies*
+   (M.D. Fla. 6:24-cv-01903), Judge Anne Conway's May 20 2025 ruling
+   denied Defendants' motion to dismiss on First-Amendment-defense
+   grounds, allowing tort claims (negligence, product liability,
+   wrongful death, FDUTPA) to proceed; the case settled on
+   January 7 2026 with terms undisclosed (NYT, CNBC, Guardian, CNN,
+   JURIST). The Conway ruling remains the substantive precedent on
+   AI-chatbot tort exposure regardless of the settlement. Whoever
+   deploys an AI mental-health system to real users carries tort
+   liability for the harm that system causes — open-source status does
+   not transfer that liability, and operators cannot rely on the
    author of this repo for indemnification.
 
 3. **No clinician-of-record audit has been completed on this deployment.**
@@ -224,9 +293,12 @@ Test suite, runner, and methodology infrastructure: **MIT**. See
 
 The system prompt itself (`src/lib/system-prompt.ts`): **restricted-use
 license** — see [LICENSE-PROMPT.md](./LICENSE-PROMPT.md). Derived works
-may not remove the imminent-risk SOP, the leverage-prevention rule, or
-the companion-during-call requirement without naming a clinical
-reviewer-of-record for the derived deployment.
+may not remove four named protected sections — §1.a the imminent-risk
+SOP, §1.b the leverage-prevention rule, §1.c the no-third-party-
+characterization rule, or §1.d the companion-during-call requirement
+(designated *preserved-pending-clinical-validation*) — without naming
+a clinical reviewer-of-record for the derived deployment per
+LICENSE-PROMPT §2 reviewer-of-record disclosure terms.
 
 Using this code to build a mental-health product that does the opposite
 of what Stay stands for — engagement maximization, data monetization,
