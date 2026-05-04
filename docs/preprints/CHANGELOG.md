@@ -2,7 +2,7 @@
 
 This file records material changes to preprints in this directory across versions.
 
-## Paper C — *Articulation Skill: A Patient-Side Literacy Regime for Public-Good Mental-Health AI*
+## Paper C — *Articulation Skill: A Patient-Navigator Regime for Public-Good Mental-Health AI*
 
 ### Between commit 17b6113 (v1 frozen) and the current working draft
 

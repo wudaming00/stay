@@ -1,6 +1,6 @@
 # Appendix B: Lineage disambiguation (supplementary)
 
-**Companion supplementary to** *Articulation Skill: A Patient-Side Literacy Regime for Public-Good Mental-Health AI* (Wu 2026, Zenodo DOI assigned on upload). The main paper's §1.4 names the five literatures in summary; this file does the full disambiguation.
+**Companion supplementary to** *Articulation Skill: A Patient-Navigator Regime for Public-Good Mental-Health AI* (Wu 2026, Zenodo DOI assigned on upload). The main paper's §1.4 names the five literatures in summary; this file does the full disambiguation.
 
 ---
 

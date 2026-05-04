@@ -1,6 +1,6 @@
 # Articulation Skill: A Patient-Navigator Regime for Public-Good Mental-Health AI
 
-**Daming Wu** — Independent developer, San Jose, CA. Correspondence: hello@thestay.app. Preprint v1, 2026-05-02. License: CC BY 4.0. Companion paper: *Engineering-Ethics Scaffolding for Deployed Public-Good AI Mental-Health Systems* (Paper A), Zenodo DOI [10.5281/zenodo.19941457](https://doi.org/10.5281/zenodo.19941457). Code and reference implementation: https://github.com/wudaming00/stay.
+**Daming Wu** — Independent developer, San Jose, CA. Correspondence: hello@thestay.app. Preprint v1.1, 2026-05-04. License: CC BY 4.0. Companion paper: *Engineering-Ethics Scaffolding for Deployed Public-Good AI Mental-Health Systems* (Paper A), Zenodo DOI [10.5281/zenodo.19941457](https://doi.org/10.5281/zenodo.19941457). Code and reference implementation: https://github.com/wudaming00/stay.
 
 **Conflict of interest** (front-loaded per AIES 2026 position-track norms): the author developed and operates the reference implementation discussed in §5 and has no commercial revenue from it (the code is MIT-licensed, the safety-critical prompt sections are restricted-use-licensed per Paper A, and the deployment is operated free of charge to users). No employment relationship with any named comparator system or model provider. The author intends to seek non-commercial donor and grant funding for continued operation. Full disclosure in §8.1.
 
