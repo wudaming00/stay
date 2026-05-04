@@ -74,3 +74,17 @@ docs/clinician-audits/
 # directly reference. The data points to keep in repo are the tier1-comparison
 # JSON (data/tier1-comparison-2026-04-29.json) and the scripts/test-tier1-
 # comparison.ts runner, both still tracked.
+
+# AAAI AuthorKit (template — not project source)
+/aaai26-kit/
+
+# LaTeX build artifacts (track sources only)
+submission/*.aux
+submission/*.bbl
+submission/*.blg
+submission/*.log
+submission/*.out
+submission/*.toc
+submission/*.fdb_latexmk
+submission/*.fls
+submission/*.synctex.gz
