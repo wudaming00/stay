@@ -88,3 +88,12 @@ submission/*.toc
 submission/*.fdb_latexmk
 submission/*.fls
 submission/*.synctex.gz
+submission-paper-c/*.aux
+submission-paper-c/*.bbl
+submission-paper-c/*.blg
+submission-paper-c/*.log
+submission-paper-c/*.out
+submission-paper-c/*.toc
+submission-paper-c/*.fdb_latexmk
+submission-paper-c/*.fls
+submission-paper-c/*.synctex.gz
