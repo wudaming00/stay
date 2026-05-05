@@ -1,6 +1,6 @@
 # Stay
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.19941457.svg)](https://doi.org/10.5281/zenodo.19941457)
+[![DOI Paper A](https://zenodo.org/badge/DOI/10.5281/zenodo.19941457.svg)](https://doi.org/10.5281/zenodo.19941457) [![DOI Paper C](https://zenodo.org/badge/DOI/10.5281/zenodo.20028720.svg)](https://doi.org/10.5281/zenodo.20028720)
 
 **A tool you use to understand yourself more clearly — and reach the rest of your mental health ecosystem more effectively.**
 

@@ -4,7 +4,7 @@
 
 **Conflict of interest** (front-loaded per AIES 2026 position-track norms): the author developed and operates the reference implementation discussed in §5 and has no commercial revenue from it (the code is MIT-licensed, the safety-critical prompt sections are restricted-use-licensed per Paper A, and the deployment is operated free of charge to users). No employment relationship with any named comparator system or model provider. The author intends to seek non-commercial donor and grant funding for continued operation. Full disclosure in §8.1.
 
-**Cite as**: Wu, D. (2026). *Articulation Skill: A Patient-Navigator Regime for Public-Good Mental-Health AI*. Zenodo. (DOI assigned on upload.)
+**Cite as**: Wu, D. (2026). *Articulation Skill: A Patient-Navigator Regime for Public-Good Mental-Health AI*. Zenodo. DOI [10.5281/zenodo.20028720](https://doi.org/10.5281/zenodo.20028720).
 
 ---
 
