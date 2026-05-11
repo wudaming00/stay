@@ -38,3 +38,6 @@ jobs:
 
       - name: Run rule-coverage check
         run: npm run check-rule-coverage
+
+      - name: Run skill structural-integrity check
+        run: npm run check-skill-integrity

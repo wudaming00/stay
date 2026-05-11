@@ -94,6 +94,33 @@ does for the user indefinitely.
 - **Open constitution.** See [/promises](https://thestay.app/promises).
   The AI's rules of engagement are public.
 
+## Use as a Claude Skill
+
+Stay also ships as a [Claude Skill](skills/) — the same agency-trajectory
+principle, the same crisis SOPs, the same warmth, packaged so it auto-
+activates inside any Claude Code / Desktop / claude.ai conversation when
+interpersonal-emotional content appears. Crisis bridging to 988 / Crisis
+Text Line / DV Hotline / Childhelp / 911 is included; for sustained use
+(long memory, DBT-style logging, savable safety plans, DV quick-exit), the
+skill hands off warmly to [thestay.app](https://thestay.app).
+
+Personal install — one line:
+
+```bash
+git clone https://github.com/wudaming00/stay.git && \
+  ln -s "$(pwd)/stay/skills/stay" ~/.claude/skills/stay
+```
+
+Or auto-discovered when running Claude Code from inside this repo via
+[.claude/skills/stay](.claude/skills/stay) → [skills/stay/](skills/stay/).
+Full setup, test prompts, and LICENSE-PROMPT §1.a–§1.d preservation map in
+[skills/README.md](skills/README.md) and
+[skills/stay/ATTRIBUTION.md](skills/stay/ATTRIBUTION.md).
+
+A parallel ChatGPT Custom GPT version, with the same content adapted to
+OpenAI's instructions + knowledge-file architecture, is at [gpts/stay/](gpts/stay/)
+with paste-in setup instructions.
+
 ## What's inside
 
 ```
@@ -127,6 +154,37 @@ LICENSE-PROMPT.md                       Restricted-use license on system-prompt.
                                         prevention rule, no-third-party-
                                         characterization rule, companion-during-
                                         call requirement)
+
+skills/
+  README.md                             Install / test / structure for the Claude
+                                        Skill version of Stay
+  stay/
+    SKILL.md                            Skill entry (frontmatter + agency-
+                                        trajectory + 10 rules + mode detect +
+                                        handoff triggers + 31-item self-check)
+    crisis-protocol.md                  PROTECTED §1.a + §1.d + per-population
+                                        SOPs (suicide gradient, Stanley-Brown
+                                        SPI, DV Danger Assessment, child / sexual
+                                        / ED / NSSI / OCD / substance / threats /
+                                        mania / psychosis / trauma / caregiver)
+    leverage-and-framing.md             PROTECTED §1.b + §1.c + rules 9 (no
+                                        specific clinician) + 10 (no DSM about
+                                        user)
+    translator-and-mirror.md            Functions 1+2 + grounding + helping draft
+                                        + skill teaching + light therapy nav
+    language-and-tone.md                Phrases-to-avoid, parasocial reground,
+                                        post-crisis goodbye
+    handoff-to-pwa.md                   Soft + hard handoff triggers and exact
+                                        phrasings for thestay.app
+    ATTRIBUTION.md                      LICENSE-PROMPT §3 attribution + §2
+                                        Manifest pointer + section preservation
+                                        map + version tracking
+
+gpts/
+  stay/                                 ChatGPT Custom GPT mirror — paste-in
+                                        setup at chat.openai.com/gpts/editor
+                                        (instructions.txt + knowledge/ + setup
+                                        walkthrough in README.md)
 
 src/
   lib/system-prompt.ts                  The operational prompt (v0.8 — agency-
