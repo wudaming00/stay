@@ -37,7 +37,7 @@
 \begin{abstract}
 Between an undifferentiated, distressed user and the professional help they may eventually receive lies a gap of two kinds: \emph{time} (often weeks of waiting, or earlier, the user not yet knowing they need help at all) and \emph{information} (the user not yet knowing what kind of help to ask for). The five existing AI mental-health regimes (closed-clinical, open-companion, crisis line, symptom checker, directory) do not occupy this between-position: each presupposes the user already knows what kind of system they have walked into. This paper proposes a sixth regime sited explicitly in the gap, \emph{articulation skill}: an AI that helps the user translate undifferentiated distress into the vocabulary referral systems index on, without recommending a provider and without rendering a clinical diagnosis. The regime is operationalized by three required properties (patient-owned system-agnostic output; refusal of provider recommendation; bounded non-DSM vocabulary spanning modality, credential, level-of-care, specialty, and phenomenological labels), a scope-recognition constraint for out-of-scope populations, and a deployment-side defense-of-record requirement against base-model-layer failure modes. A 2024--2026 prior-art search across academic literature and \textasciitilde25 patient-facing AI products finds zero deployments shipping the conjunction.
 
-The paper proposes an \emph{anti-engagement criterion} category as success measure, defined by anti-engagement-under-adversary and welfare-monotone properties; the category is portable to any public-good consumer AI, and the regime is its canonical operationalization within the mental-health AI vertical. \emph{Handoff rate} paired with a phased clinician appropriateness audit is one operationalization, awaiting Phase-1 validation. The primary contribution is the joint construction of the regime and the metric category. \textbf{System X} is one open-source partial reference implementation, described here at the architectural level only; behavioral evidence is deferred to IRB-reviewed future work, with an external clinician-of-record audit committed for completion before camera-ready.
+The paper proposes an \emph{anti-engagement criterion} category as success measure, defined by anti-engagement-under-adversary and welfare-monotone properties; the category is portable to any public-good consumer AI, and the regime is its canonical operationalization within the mental-health AI vertical. \emph{Handoff rate} paired with a phased clinician appropriateness audit is one operationalization, awaiting Phase-1 validation. The primary contribution is the joint construction of the regime and the metric category. \textbf{System X} is one open-source partial reference implementation, described here at the architectural level only; behavioral evidence is deferred to IRB-reviewed future work, with an external clinician-of-record audit committed (audit pathway and standing conditions specified in \S5 and \S8).
 
 The paper does not claim that the regime obviates clinical evaluation, that handoff rate has been validated against clinical outcomes, that any external operator has yet adopted the regime, or that the prior-art finding rules out close-related work the authors missed.
 \end{abstract}
@@ -216,7 +216,7 @@ Two of three relaxed simultaneously typically collapses to a single existing reg
 
 \textbf{System X} is one open-source partial reference implementation, cited as architectural existence proof for the \S3 three-property conjunction; behavioral evidence is deferred to a planned articulation-quality study under prospective IRB review. System X implements \S3.1--\S3.3 and partially implements the \S3.4 scope-recognition constraint (acute-crisis case covered via an imminent-risk SOP; SMI, low-literacy, and cross-cultural cases remain documented gaps per \S7.4). Six system-prompt agency functions perform the articulation work: \emph{translator} (paraphrasing user experience into modality / credential / level-of-care vocabulary); \emph{mirror} (reflecting back what the user said with phenomenological precision); \emph{navigator} (situation-dependent direction toward appropriate human resources, including the explicit judgment that no professional help is needed when that is the right answer); \emph{bridge-with-companion-during-call} (supporting the user before, during, and after a crisis-line call); \emph{skill teacher} (teaching psychology vocabulary and self-understanding the user can re-deploy); \emph{logger} (DBT-diary-card-style structured recording, opt-in; single-line entries for skills tried, mood / urge ratings, what the user noticed afterward).
 
-System X runs under the engineering-ethics governance pattern documented in {[}anonymous companion{]}: a restricted-use system-prompt license requiring named-section retention, a self-imposed deployment-pause posture with auditable trigger conditions, and a rule-coverage CI mapping safety rules to behavioral test assertions. Property 2 (provider-recommendation refusal) and Property 3 (DSM-categories refusal) are enforced as inviolable rules in the system prompt with rule-coverage CI assertions; the \S3.4 scope-recognition stratum-to-action mapping and the \S6.2 base-model defense-of-record selection are published in the anonymous code mirror. Session storage is local-only, end-to-end encrypted with a browser-held key, 90-day default retention; telemetry is metadata-only. An external clinician-of-record audit is committed for completion before camera-ready.
+System X runs under the engineering-ethics governance pattern documented in {[}anonymous companion{]}: a restricted-use system-prompt license requiring named-section retention, a self-imposed deployment-pause posture with auditable trigger conditions, and a rule-coverage CI mapping safety rules to behavioral test assertions. Property 2 (provider-recommendation refusal) and Property 3 (DSM-categories refusal) are enforced as inviolable rules in the system prompt with rule-coverage CI assertions; the \S3.4 scope-recognition stratum-to-action mapping and the \S6.2 base-model defense-of-record selection are published in the anonymous code mirror. Session storage is local-only, end-to-end encrypted with a browser-held key, 90-day default retention; telemetry is metadata-only. An external clinician-of-record audit is committed; until it completes, the deployment runs under the standing conditions in \S8.4 (Data Ethics and Deployment Posture), including risk-band restriction at the IPV / active-SI tiers and incident-log review against the \S4.4(iv) failure-mode shape.
 
 \section{An Anti-Engagement Criterion as Success Metric}
 
@@ -246,7 +246,7 @@ The second is \textbf{intention-elicitation}. A system prompt could be tuned to 
 
 The defense across these is a handoff-appropriateness sub-metric, computed as a clinician-rated audit on a sample of handoff sessions, scoring whether the resource was correctly fitted and whether the elicitation was unprompted. Raw handoff rate without an appropriateness audit cannot serve as a primary outcome. The pair must be reported together or neither should be reported.
 
-The \S6.2 gaming-mode analysis is \emph{adversarial reward-shaping} rather than \emph{reward-gaming on observed deployed metrics} (Krakovna et al.~2020 \citep{krakovna2020specification}). Goodhart \citep{goodhart1975} applies, and the gaming modes are \emph{adversarial Goodhart} variants (Manheim and Garrabrant 2018 \citep{manheim2018goodhart}). The audit creates a recursive Goodhart risk (once the rubric is published, it becomes the new optimization target); periodic rubric revision, blind raters across deployments, and stratified red-teaming (Perez et al.~2022 \citep{perez2022evaluations}) are research programs the regime needs to specify, not treat as solved. Shah et al.~2022 \citep{shah2022goal} predicts that systems optimized against handoff rate develop the misgeneralized goal of ``elicit handoff intentions'' rather than ``produce articulation that helps users''; the gaming defenses address symptoms rather than cause. The only durable address is direct articulation-quality measurement (\S10.3). The metric is proposed as an outer-alignment \emph{evaluation target} for system-prompt-level optimization against a frozen base model; using handoff rate as an RLHF reward signal would face inner-alignment risks (Hubinger et al.~2019 \citep{hubinger2019mesa}: mesa-objective divergence in deployment).
+The \S6.2 gaming-mode analysis is \emph{adversarial reward-shaping} rather than \emph{reward-gaming on observed deployed metrics} (Krakovna et al.~2020 \citep{krakovna2020specification}). Goodhart \citep{goodhart1975} applies, and the gaming modes are \emph{adversarial Goodhart} variants (Manheim and Garrabrant 2018 \citep{manheim2018goodhart}). The audit creates a recursive Goodhart risk (once the rubric is published, it becomes the new optimization target); periodic rubric revision, blind raters across deployments, and stratified red-teaming (Perez et al.~2022 \citep{perez2022evaluations}) are research programs the regime needs to specify, not treat as solved. Shah et al.~2022 \citep{shah2022goal} predicts that systems optimized against handoff rate develop the misgeneralized goal of ``elicit handoff intentions'' rather than ``produce articulation that helps users''; the gaming defenses address symptoms rather than cause. The only durable address is direct articulation-quality measurement (\S10, item 3). The metric is proposed as an outer-alignment \emph{evaluation target} for system-prompt-level optimization against a frozen base model; using handoff rate as an RLHF reward signal would face inner-alignment risks (Hubinger et al.~2019 \citep{hubinger2019mesa}: mesa-objective divergence in deployment).
 
 \textbf{Defense-of-record requirement}. The deployment inherits its base model's RLHF-induced behaviors (Casper et al.~2023 \citep{casper2023rlhf}). The base-model-layer gap (\S4.4(iv)) is the regime's open requirement: a regime-conformant deployment must specify at least one deployment-side mitigation as a defense-of-record (turn-budget cap on long sessions in IPV/SI/SMI tiers; runtime accommodation-pattern monitoring; anti-sycophancy fine-tuning; or base-model substitution). The reference implementation's specific defense-of-record selection and adequacy are reviewed at the \S5 clinician audit.
 
@@ -266,7 +266,7 @@ The paper does not claim that the regime obviates clinical evaluation; that arti
 
 \subsection{Single-Deployment and Single-Author Limitations}
 
-The reference implementation is the authors', and the analysis of the implementation is by the authors. A second-source clinician audit is committed for completion before camera-ready. Trajectory-level evidence is deferred to future work conducted under prospective IRB review.
+The reference implementation is the authors', and the analysis of the implementation is by the authors. A second-source clinician audit is committed as specified in \S5 and \S8.4. Trajectory-level evidence is deferred to future work conducted under prospective IRB review.
 
 \subsection{Geographic, Linguistic, and Care-System Scope}
 
@@ -336,95 +336,9 @@ The regime \emph{definition} stands independent of the \S5 clinician audit and t
 
 Three directions are deferred. (1) \textbf{Clinical adoption study}: the handoff-rate / handoff-appropriateness pair, audited per \S5, would give a per-session clinical validity check that articulation outputs are in fact actionable by the user's downstream clinician. (2) \textbf{Cross-cultural and cross-system grounding}: re-implementing the regime against NHS, Canadian provincial systems, EU national systems, and other Asian mental-health resources would test whether it generalizes. (3) \textbf{Articulation-quality measurement}: a small-N clinician-rated quality study against deidentified transcripts (with consent and prospective IRB review) would be a feasible first step toward direct measurement of articulation quality beyond the handoff-rate proxy. Minimum design parameters: n $\approx$ 30 deidentified transcripts; two licensed-clinician raters per transcript with crisis-intervention experience; rubric dimensions covering modality-fit, credential-fit, level-of-care-fit, vocabulary appropriateness, and downstream-actionability for a hypothetical receiving clinician; success criterion at the rubric level (Cohen's $\kappa$ $\geq$ 0.6 on each dimension as a feasibility floor). Triangulation against the Cochrane CD001431 instrument family (Decisional Conflict Scale, SURE, Preparation for Decision Making) and PAM longitudinal design are research-positioning items for revision.
 
-\subsection{References}\label{references}
+\section*{Acknowledgments}
 
-\citep{torous2018digital} Torous, J. et al.~(2018) \emph{Digital phenotyping in psychiatry}. JMIR Mental Health.
-
-\citep{olawade2024review} Olawade, D.B. et al.~(2024) \emph{AI in mental health: a 2024 review}. (full citation in supp.)
-
-\citep{nice2024htg756} National Institute for Health and Care Excellence (2024) Early Value Assessment HTG756: Digital front door technologies for NHS Talking Therapies.
-
-\citep{openai2025strengthening} OpenAI (2025) \emph{Strengthening ChatGPT's Responses in Sensitive Conversations}. 2025-10-27.
-
-\citep{samhsa2024nsduh} U.S. Substance Abuse and Mental Health Services Administration (2024) \emph{2023 National Survey on Drug Use and Health}.
-
-\citep{star1991power} Star, S.L. (1991) ``Power, technology and the phenomenology of conventions: On being allergic to onions.'' In J. Law (ed.), \emph{A Sociology of Monsters}, Routledge. Also Star, S.L. (1991) ``The sociology of the invisible: The primacy of work in the writings of Anselm Strauss.'' In D. Maines (ed.), \emph{Social Organization and Social Process}, Aldine de Gruyter.
-
-\citep{strauss1993permutations} Strauss, A. (1985, 1988, 1993) Articulation work papers; collected in \emph{Continual Permutations of Action} (1993).
-
-\citep{schmidt1992cscw} Schmidt, K., Bannon, L. (1992) ``Taking CSCW seriously: supporting articulation work.'' \emph{CSCW: An International Journal} 1.
-
-\citep{mishler1984discourse} Mishler, E.G. (1984) \emph{The Discourse of Medicine: Dialectics of Medical Interviews}.
-
-\citep{kleinman1988narratives} Kleinman, A. (1978, 1980, 1988 \emph{The Illness Narratives}, 1995 \emph{Writing at the Margin}).
-
-\citep{nutbeam2000literacy} Nutbeam, D. (2000) ``Health literacy as a public health goal.'' \emph{Health Promotion International} 15(3).
-
-\citep{hibbard2004pam} Hibbard, J.H. et al.~(2004) ``Development of the Patient Activation Measure (PAM).'' \emph{Health Services Research} 39.
-
-\citep{elwyn2012sdm} Elwyn, G. et al.~(2012) ``Shared decision making: a model for clinical practice.'' \emph{J Gen Intern Med} 27(10).
-
-\citep{stacey2024cochrane} Stacey, D. et al.~(2024) ``Decision aids for people facing health treatment or screening decisions.'' Cochrane Database Syst Rev CD001431, sixth update.
-
-\citep{krakovna2020specification} Krakovna, V. et al.~(2020) ``Specification gaming: the flip side of AI ingenuity.'' DeepMind blog and curated examples list.
-
-\citep{goodhart1975} Goodhart, C.A.E. (1975) ``Problems of monetary management: the U.K. experience.''
-
-\citep{manheim2018goodhart} Manheim, D., Garrabrant, S. (2018) ``Categorizing variants of Goodhart's Law.'' arXiv:1803.04585.
-
-\citep{hubinger2019mesa} Hubinger, E. et al.~(2019) ``Risks from learned optimization in advanced machine learning systems.'' arXiv:1906.01820.
-
-\citep{sharma2023sycophancy} Sharma, M. et al.~(2023) ``Towards understanding sycophancy in language models.'' arXiv:2310.13548.
-
-\citep{casper2023rlhf} Casper, S. et al.~(2023) ``Open problems and fundamental limitations of reinforcement learning from human feedback.'' arXiv:2307.15217.
-
-\citep{shah2022goal} Shah, R. et al.~(2022) ``Goal misgeneralization: why correct specifications aren't enough for correct goals.'' arXiv:2210.01790.
-
-\citep{perez2022evaluations} Perez, E. et al.~(2022) ``Discovering language model behaviors with model-written evaluations.'' arXiv:2212.09251.
-
-\citep{heinz2025therabot} Heinz, M. et al.~(2025) Therabot RCT, \emph{NEJM AI}.
-
-\citep{habicht2024limbic} Habicht, J. et al.~(2024) ``Closing the accessibility gap to mental health treatment with a personalized self-referral chatbot.'' \emph{Nature Medicine}.
-
-\citep{ieso2024} IESO Digital Health (2024) Non-inferiority study, NHS partnership.
-
-\citep{aiid2023neda} AI Incident Database (2023) Incident on NEDA Tessa chatbot.
-
-\citep{garcia2025character} \emph{Garcia v. Character Technologies, Inc.}, M.D.~Fla. 6:24-cv-01903; tort cluster settled 2026-01-07.
-
-\citep{wisniewski2022navigator} Wisniewski, H. et al.~(2022) ``The role of digital navigators in promoting clinical care and technology integration.'' \emph{Lancet Digital Health}.
-
-\citep{yanos2010identity} Yanos, P.T., Roe, D., Lysaker, P.H. (2010) ``The impact of illness identity on recovery from severe mental illness.'' \emph{American Journal of Psychiatric Rehabilitation} 13(2).
-
-\citep{lally1989} Lally, S.J. (1989) ``\,`Does being in here mean there is something wrong with me?'\,'' \emph{Schizophrenia Bulletin} 15(2).
-
-\citep{posner2011cssrs} Posner, K. et al.~(2011) ``The Columbia--Suicide Severity Rating Scale: initial validity and internal consistency findings from three multisite studies.'' \emph{American Journal of Psychiatry} 168(12):1266--1277. Scale \textcopyright{} 2008 Research Foundation for Mental Hygiene.
-
-\citep{glass2008strangulation} Glass, N. et al.~(2008) ``Non-fatal strangulation is an important risk factor for homicide of women.'' \emph{Journal of Emergency Medicine} 35:329--335.
-
-\citep{rollwage2023limbic} Rollwage, M. et al.~(2023) Limbic Access user-experience study, \emph{JMIR AI}.
-
-\citep{raine2025openai} \emph{Raine v. OpenAI}, San Francisco Superior Court, filed 2025-08-26; coalition filings 2025-11-06.
-
-\citep{sakata2025psychosis} Sakata, et al.~(2025) AI-induced delusional state case series, \emph{Psychiatric News}; \emph{JMIR Mental Health} AI-delusional-state case reports 2025.
-
-\citep{stanley2018spi} Stanley, B., Brown, G.K. (2012; 2018 JAMA Psychiatry) Safety Planning Intervention.
-
-\citep{drew2001} Drew, B.L. (2001) ``Self-harm behavior and no-suicide contracting in psychiatric inpatient settings.'' \emph{Archives of Psychiatric Nursing} 15(3).
-
-\citep{jobes2016cams} Jobes, D.A. (2016) \emph{Managing Suicidal Risk: A Collaborative Approach} (CAMS).
-
-\citep{henderson2013stigma} Henderson, C., Evans-Lacko, S., Thornicroft, G. (2013) ``Mental illness stigma, help seeking, and public health programs.'' \emph{American Journal of Public Health} 103(5).
-
-\citep{schomerus2012stigma} Schomerus, G. et al.~(2012) ``Evolution of public attitudes about mental illness.'' \emph{Acta Psychiatrica Scandinavica} 125.
-
-\citep{clement2015stigma} Clement, S. et al.~(2015) ``What is the impact of mental health-related stigma on help-seeking?'' \emph{Psychological Medicine} 45.
-
-\citep{belli2025veramh} Belli, L., Bentley, K. et al.~(2025) VERA-MH benchmark, arXiv 2510.15297.
-
-\citep{politico2022crisistext} Politico (2022); JMIR (2025) reporting on Crisis Text Line / Loris.ai.
-
-{[}Additional refs continued in supplementary materials.{]}
+The authors thank one psychiatrist and one clinical psychologist who independently reviewed the framing developed in this paper and endorsed the deployment-illustration positioning of \S5. The reviewers' names are withheld for double-blind review and will be acknowledged by name in the camera-ready version with their permission. Their review does not constitute the \S5 clinician-of-record audit, which remains an outstanding commitment under the standing conditions in \S8.4.
 
 \bibliography{paper}
 

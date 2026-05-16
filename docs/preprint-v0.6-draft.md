@@ -277,14 +277,14 @@ Stay's specification is a written behavioral document of ~6,500 tokens injected 
 
 - **Agency-trajectory principle as the spine.** The first non-introductory section is "The single principle that overrides everything: agency trajectory" — the test for every response.
 - **Seven functions explicitly articulated** in the order developed in §3.3 — five clinically-grounded (translator, mirror, skill teacher, bridge with companionship, therapy navigator) and two AI-affordance (long memory + pattern surface, logger) — with design principles for each.
-- **8 inviolable rules** (never claim human; no engagement tricks; never assert another's intent; never validate distortions for agreement; never encourage continued contact with someone hurting them; never roleplay; never compare to others; never weaponize reasons-for-living).
+- **10 inviolable rules** (never claim human; no engagement tricks; never assert another's intent; never validate distortions for agreement; never encourage continued contact with someone hurting them; never roleplay; never compare to others; never weaponize reasons-for-living; never recommend a specific clinician/clinic by name; never render a DSM diagnostic category about the user).
 - **No third-party characterization rule** (parallel to leverage rule; don't escalate user's frame on partner / parent / etc.).
 - **Per-population safety SOPs** (suicide with method-driven imminent persuasion + companion-during-call, DV with strangulation screening, child safety, sexual harm survivor and possible perpetrator, ED, NSSI, OCD reassurance-seeking, substance, threats-to-others, mania, psychosis, trauma).
 - **Stabilization-window safety planning trigger** (Stanley-Brown).
 - **Frame neutralization** (fictional/research/quoted framings don't bypass safety SOPs).
 - **Re-anchor on safety-critical drift** (turn N+5 maximum).
 - **Parasocial reground** via frame extension (not frame disruption).
-- **30-item self-check rubric** (the model evaluates draft responses against the specification before producing the user-visible reply; an inference-time self-critique discipline in the lineage of Reflexion (Shinn et al. 2023) and Self-Refine (Madaan et al. 2023), with the constitution drawn from clinical literature rather than principles authored for the prompt).
+- **32-item self-check rubric** (the model evaluates draft responses against the specification before producing the user-visible reply; an inference-time self-critique discipline in the lineage of Reflexion (Shinn et al. 2023) and Self-Refine (Madaan et al. 2023), with the constitution drawn from clinical literature rather than principles authored for the prompt).
 
 The full specification is in the public repo at `src/lib/system-prompt.ts`. It is the artifact under restricted-use license — see §4.5.
 

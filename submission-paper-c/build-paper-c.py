@@ -214,8 +214,22 @@ def post_process(latex):
     # After my strip above, there's a stray } left. Find \end{table*}\n} and replace.
     latex = re.sub(r'\\end\{table\*\}\n\}', r'\\end{table*}', latex)
 
-    # Remove the "## References" section — we use bibliography
-    latex = re.sub(r'\\section\{References\}.*$', '', latex, flags=re.DOTALL)
+    # Promote "## Acknowledgments" (an unnumbered H2) to AAAI-style \section*{Acknowledgments}.
+    # pandoc renders it as \subsection{Acknowledgments}\label{acknowledgments}; promote and unnumber.
+    latex = re.sub(
+        r'\\subsection\{Acknowledgments\}\\label\{acknowledgments\}',
+        r'\\section*{Acknowledgments}',
+        latex,
+    )
+
+    # Remove the "## References" section — we use BibTeX bibliography (\bibliography{paper}).
+    # pandoc may render the H2 as \section or (under heading-shift) as \subsection.
+    latex = re.sub(
+        r'\\(?:sub)?section\{References\}(?:\\label\{[^}]*\})?.*$',
+        '',
+        latex,
+        flags=re.DOTALL,
+    )
 
     # Strip extra leading whitespace
     latex = latex.strip()
@@ -234,10 +248,13 @@ def build_bib():
 }
 
 @article{olawade2024review,
-  author = {Olawade, David B. and others},
-  title = {Artificial intelligence in mental healthcare: a 2024 review of opportunities and risks},
-  journal = {Computers in Biology and Medicine},
-  year = {2024}
+  author = {Olawade, David B. and Wada, Ojima Z. and Odetayo, Aderonke and David-Olawade, Aanuoluwapo Clement and Asaolu, Fiyinfoluwa and Eberhardt, Judith},
+  title = {Enhancing Mental Health with Artificial Intelligence: Current Trends and Future Prospects},
+  journal = {Journal of Medicine, Surgery, and Public Health},
+  volume = {3},
+  pages = {100099},
+  year = {2024},
+  doi = {10.1016/j.glmedi.2024.100099}
 }
 
 @misc{nice2024htg756,

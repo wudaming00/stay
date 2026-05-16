@@ -97,3 +97,6 @@ submission-paper-c/*.toc
 submission-paper-c/*.fdb_latexmk
 submission-paper-c/*.fls
 submission-paper-c/*.synctex.gz
+
+# pypandoc-downloaded binaries (do not commit)
+submission-paper-c/pandoc-*.deb
