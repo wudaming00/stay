@@ -1,0 +1,13 @@
+{
+  "name": "system-x-aies-mirror",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Anonymous code mirror for AIES 2026 submission. Subset of the System X repository sufficient to verify the rule-coverage CI claim and inspect the implementation paths cited by the paper.",
+  "scripts": {
+    "check-rule-coverage": "tsx scripts/check-rule-coverage.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5"
+  }
+}
