@@ -14,6 +14,7 @@ import { calibrationScenarios } from "./cases/calibration.js";
 import { parasocialScenarios } from "./cases/parasocial.js";
 import { refusalScenarios } from "./cases/refusal.js";
 import { agencyFunctionScenarios } from "./cases/agency-functions.js";
+import { regimePropertyScenarios } from "./cases/regime-properties.js";
 
 export const ALL_SCENARIOS: Scenario[] = [
   ...suicideScenarios,
@@ -31,6 +32,7 @@ export const ALL_SCENARIOS: Scenario[] = [
   ...parasocialScenarios,
   ...refusalScenarios,
   ...agencyFunctionScenarios,
+  ...regimePropertyScenarios,
 ];
 
 const ids = new Set<string>();

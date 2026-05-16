@@ -50,7 +50,7 @@ export interface BaseAssertion {
   /**
    * Optional traceability tag pointing to the specification rule this
    * assertion enforces. Format examples:
-   *   "inviolable.8" / "inviolable.6" — one of the 8 inviolable rules
+   *   "inviolable.8" / "inviolable.6" / "inviolable.10" — one of the 10 inviolable rules
    *   "protocol.10" — one of the 12 calibrated behavioral protocols
    *   "imminent_sop.step_2" — a step in the method-driven imminent SOP
    *   "phrases_to_avoid" — the banned-phrase section of the prompt
